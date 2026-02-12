@@ -4,9 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 import { useState, useEffect } from "react";
+
 import { Play } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+
 import {
   Carousel,
   CarouselContent,
@@ -53,7 +55,6 @@ export default function HeroCarousel({
                   "h-[90vh] min-h-[560px] w-full",
                 )}
               >
-                {/* Background media */}
                 {s.type === "video" ? (
                   <video
                     className="absolute inset-0 h-full w-full object-cover"
@@ -113,7 +114,7 @@ export default function HeroCarousel({
 }
 
 function HeroContent() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     document.addEventListener("keydown", (e) => {
