@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { label: "About", href: "#about" },
-  { label: "Features", href: "#features" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Our Vision", href: "#our-vision" },
+  { label: "Impacts", href: "#pricing" },
 ];
 
 export default function Navbar({ className }: { className?: string }) {
@@ -23,12 +23,10 @@ export default function Navbar({ className }: { className?: string }) {
             "flex items-center justify-between gap-6",
           )}
         >
-          {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
             <img src="/logo.png" alt="Finger Print" className="h-8 w-auto" />
           </Link>
 
-          {/* Links */}
           <div className="hidden md:flex items-center gap-10 flex-1 justify-center">
             {navItems.map((item) => (
               <a
@@ -41,7 +39,6 @@ export default function Navbar({ className }: { className?: string }) {
             ))}
           </div>
 
-          {/* CTA */}
           <div className="shrink-0">
             <Button className="rounded-full px-6" asChild>
               <Link href="/start">Get In Touch</Link>

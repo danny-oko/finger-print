@@ -1,7 +1,14 @@
+// app/components/HeroCarousel.tsx
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
+import * as React from "react";
+import { Play } from "lucide-react";
+
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { DialogTitle } from "@/components/ui/dialog";
+
 import {
   Carousel,
   CarouselContent,
@@ -12,17 +19,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+
 type Slide =
-  | {
-      type: "video";
-      src: string;
-      poster?: string;
-    }
-  | {
-      type: "image";
-      src: string;
-      alt: string;
-    };
+  | { type: "video"; src: string; poster?: string }
+  | { type: "image"; src: string; alt: string };
+
+const YT_EMBED =
+  "https://www.youtube.com/embed/g5Uk9WVFTt0?autoplay=1&rel=0&modestbranding=1";
 
 const heroCopy = {
   badge: "Since 2017 • 5 editions",
@@ -30,16 +34,8 @@ const heroCopy = {
   subtitle: "Teen Seminar for Mongolian Churches",
   description:
     "Supporting and connecting youth ministries across Mongolia’s Evangelical churches—helping every teen discover their unique, God-given identity.",
-  meta: [
-    {
-      label: "Purpose",
-      value: "Support teen ministries & build collaboration",
-    },
-    { label: "Organizer", value: "First Church" },
-    { label: "Scope", value: "Evangelical churches & organizations" },
-  ],
-  ctaPrimary: "Get In Touch",
-  ctaSecondary: "Learn More",
+  ctaPrimary: "Watch Full Video",
+  ctaSecondary: "Get In Touch",
 };
 
 export default function HeroCarousel({
@@ -84,8 +80,8 @@ export default function HeroCarousel({
                   />
                 )}
 
-                {/* Overlay for readability */}
-                <div className="absolute inset-0 bg-black/35" />
+                {/* overlay (tweak transparency here) */}
+                <div className="absolute inset-0 bg-black/25" />
 
                 {/* Content pinned bottom-left */}
                 <div className="relative z-10 h-full">
@@ -121,50 +117,81 @@ export default function HeroCarousel({
 }
 
 function HeroContent() {
+  const [open, setOpen] = React.useState(false);
+
   return (
-    <div className="max-w-[640px]">
-      <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white ring-1 ring-white/15">
-        {heroCopy.badge}
-      </div>
+    <>
+      <div className="max-w-[640px]">
+        <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white ring-1 ring-white/15">
+          {heroCopy.badge}
+        </div>
 
-      <h1 className="mt-5 text-5xl md:text-7xl font-semibold leading-[1.02] tracking-tight text-white">
-        {heroCopy.title}
-      </h1>
+        <h1 className="mt-5 text-5xl md:text-7xl font-semibold leading-[1.02] tracking-tight text-white">
+          {heroCopy.title}
+        </h1>
 
-      <p className="mt-3 text-base md:text-lg text-white/85">
-        {heroCopy.subtitle}
-      </p>
+        <p className="mt-3 text-base md:text-lg text-white/85">
+          {heroCopy.subtitle}
+        </p>
 
-      <p className="mt-4 text-sm md:text-base text-white/75 max-w-[58ch]">
-        {heroCopy.description}
-      </p>
+        <p className="mt-4 text-sm md:text-base text-white/75 max-w-[58ch]">
+          {heroCopy.description}
+        </p>
 
-      {/* <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {heroCopy.meta.map((m) => (
-          <div
-            key={m.label}
-            className="rounded-2xl bg-white/10 px-4 py-3 text-white ring-1 ring-white/15"
+        <div className="mt-8 flex flex-wrap gap-4">
+          <Button
+            className="h-11 rounded-full px-8 gap-3"
+            onClick={() => setOpen(true)}
           >
-            <div className="text-[11px] uppercase tracking-wide text-white/60">
-              {m.label}
-            </div>
-            <div className="mt-1 text-sm font-medium text-white/90">
-              {m.value}
-            </div>
-          </div>
-        ))}
-      </div> */}
+            <Play className="h-4 w-4 text-white fill-transparent stroke-[2.2]" />
+            {heroCopy.ctaPrimary}
+          </Button>
 
-      <div className="mt-8 flex flex-wrap gap-4">
-        <Button className="h-11 rounded-full px-7" asChild>
-          <Link href="#contact">{heroCopy.ctaPrimary}</Link>
-        </Button>
-
-        <Button variant="secondary" className="h-11 rounded-full px-8" asChild>
-          <Link href="#about">{heroCopy.ctaSecondary}</Link>
-        </Button>
+          <Button
+            variant="secondary"
+            className="h-11 rounded-full px-8"
+            asChild
+          >
+            <Link href="#about">{heroCopy.ctaSecondary}</Link>
+          </Button>
+        </div>
       </div>
-    </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          className="
+      fixed inset-0 z-[999]
+      !top-0 !left-0
+      !translate-x-0 !translate-y-0
+      w-screen h-screen
+      max-w-none
+      p-0
+      border-0
+      bg-transparent
+      shadow-none
+      rounded-none
+
+      !grid
+      place-items-center
+    "
+        >
+          <VisuallyHidden>
+            <DialogTitle>Finger Print Full Video</DialogTitle>
+          </VisuallyHidden>
+
+          <div className="w-[min(92vw,1100px)] aspect-video bg-black overflow-hidden">
+            <iframe
+              key={open ? "open" : "closed"}
+              className="h-full w-full"
+              src="https://www.youtube.com/embed/g5Uk9WVFTt0?autoplay=1&rel=0&modestbranding=1"
+              title="YouTube video"
+              allow="autoplay; encrypted-media; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
