@@ -1,14 +1,12 @@
-// app/components/HeroCarousel.tsx
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
+import { useState, useEffect } from "react";
 import { Play } from "lucide-react";
-
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { DialogTitle } from "@/components/ui/dialog";
-
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Carousel,
   CarouselContent,
@@ -18,8 +16,6 @@ import {
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 type Slide =
   | { type: "video"; src: string; poster?: string }
@@ -80,7 +76,7 @@ export default function HeroCarousel({
                   />
                 )}
 
-                {/* overlay (tweak transparency here) */}
+                {/* overlay */}
                 <div className="absolute inset-0 bg-black/25" />
 
                 {/* Content pinned bottom-left */}
@@ -119,25 +115,29 @@ export default function HeroCarousel({
 function HeroContent() {
   const [open, setOpen] = React.useState(false);
 
+  useEffect(() => {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+      }
+    });
+  }, [open]);
+
   return (
     <>
       <div className="max-w-[640px]">
         <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white ring-1 ring-white/15">
           {heroCopy.badge}
         </div>
-
         <h1 className="mt-5 text-5xl md:text-7xl font-semibold leading-[1.02] tracking-tight text-white">
           {heroCopy.title}
         </h1>
-
         <p className="mt-3 text-base md:text-lg text-white/85">
           {heroCopy.subtitle}
         </p>
-
         <p className="mt-4 text-sm md:text-base text-white/75 max-w-[58ch]">
           {heroCopy.description}
         </p>
-
         <div className="mt-8 flex flex-wrap gap-4">
           <Button
             className="h-11 rounded-full px-8 gap-3"
@@ -146,7 +146,6 @@ function HeroContent() {
             <Play className="h-4 w-4 text-white fill-transparent stroke-[2.2]" />
             {heroCopy.ctaPrimary}
           </Button>
-
           <Button
             variant="secondary"
             className="h-11 rounded-full px-8"
@@ -159,33 +158,24 @@ function HeroContent() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
-          className="
-      fixed inset-0 z-[999]
-      !top-0 !left-0
-      !translate-x-0 !translate-y-0
-      w-screen h-screen
-      max-w-none
-      p-0
-      border-0
-      bg-transparent
-      shadow-none
-      rounded-none
-
-      !grid
-      place-items-center
-    "
+          className={cn(
+            "p-0 border-0 shadow-none rounded-xl",
+            "flex items-center justify-center w-[200vw]",
+            "overflow-auto",
+            "bg-none backdrop-blur-sm supports-[backdrop-filter]:bg-black/0",
+          )}
         >
           <VisuallyHidden>
             <DialogTitle>Finger Print Full Video</DialogTitle>
           </VisuallyHidden>
 
-          <div className="w-[min(92vw,1100px)] aspect-video bg-black overflow-hidden">
+          <div className="w-[min(100vw,1800px)] aspect-video">
             <iframe
               key={open ? "open" : "closed"}
               className="h-full w-full"
-              src="https://www.youtube.com/embed/g5Uk9WVFTt0?autoplay=1&rel=0&modestbranding=1"
-              title="YouTube video"
-              allow="autoplay; encrypted-media; picture-in-picture"
+              src={YT_EMBED}
+              title="Finger Print Full Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>
@@ -201,11 +191,9 @@ function ImageSlideCaption({ index }: { index: number }) {
       <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium ring-1 ring-white/15">
         Gallery • Slide {index + 1}
       </div>
-
       <h2 className="mt-4 text-3xl md:text-4xl font-semibold leading-tight">
         A space for worship, growth, and community.
       </h2>
-
       <p className="mt-3 text-sm md:text-base text-white/75 max-w-[58ch]">
         Add your own caption per slide if you want (schedule highlight, theme,
         speakers, testimonies, etc).
