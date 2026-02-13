@@ -1,11 +1,12 @@
 import Navbar from "@/components/Navbar";
-import HeroCarousel from "@/components/HeroCarousel";
+import HeroCarousel from "@/components/hero/HeroCarousel";
+import Identity from "@/app/sections/Identity";
 
 export default function Page() {
   const slides = [
     {
       type: "video" as const,
-      src: "https://res.cloudinary.com/doxmbmqjm/video/upload/v1770894807/Huruunii_Hee_V1_Hooloigui_ar7um2.mp4",
+      // src: "https://res.cloudinary.com/doxmbmqjm/video/upload/v1770894807/Huruunii_Hee_V1_Hooloigui_ar7um2.mp4",
       poster:
         "https://res.cloudinary.com/doxmbmqjm/video/upload/so_0,f_jpg,q_auto,w_1600/Huruunii_Hee_V1_Hooloigui_ar7um2.jpg",
     },
@@ -19,6 +20,7 @@ export default function Page() {
       <Navbar />
       <main className="mx-auto w-full">
         <HeroCarousel slides={slides} />
+        <Identity />
       </main>
     </>
   );

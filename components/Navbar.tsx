@@ -14,7 +14,7 @@ const navItems = [
 export default function Navbar({ className }: { className?: string }) {
   return (
     <div className={cn("fixed inset-x-0 top-0 z-50 ", className)}>
-      <div className="mx-auto w-[min(1200px,92vw)] pt-6">
+      <div className="mx-auto w-[80vw] max-w-[1280px] pt-6">
         <nav
           className={cn(
             "h-20 w-full rounded-full bg-background/90 backdrop-blur",
