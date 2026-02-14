@@ -82,7 +82,7 @@ export default function FoldEffect({ className }: Props) {
 
   return (
     <div ref={rootRef} id="fold-effect" className={className}>
-      <div className="wrapper-3d z-100 border">
+      <div className="wrapper-3d z-100">
         <div className="fold fold-top">
           <div className="fold-align">
             <div className="fold-content">{Rows()}</div>
