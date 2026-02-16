@@ -18,10 +18,8 @@ export default function Page() {
   return (
     <>
       <Navbar />
-      <main className="mx-auto w-full">
-        <HeroCarousel slides={slides} />
-        <Identity />
-      </main>
+      <HeroCarousel slides={slides} />
+      <Identity />
     </>
   );
 }
