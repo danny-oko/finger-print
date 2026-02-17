@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/hero/HeroCarousel";
-import Identity from "@/app/sections/Identity";
+import Identity from "@/app/sections/identity/page";
+import TimlineClient from "@/app/sections/impact/TimelineClient";
 
 export default function Page() {
   const slides = [
@@ -20,6 +21,7 @@ export default function Page() {
       <Navbar />
       <HeroCarousel slides={slides} />
       <Identity />
+      <TimlineClient />
     </>
   );
 }
