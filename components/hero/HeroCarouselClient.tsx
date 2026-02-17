@@ -58,8 +58,8 @@ export default function HeroCarouselClient({ slides }: { slides: Slide[] }) {
         ))}
       </CarouselContent>
 
-      <CarouselPrevious className="left-6 top-1/2 -translate-y-1/2" />
-      <CarouselNext className="right-6 top-1/2 -translate-y-1/2" />
+      <CarouselPrevious className="left-2 sm:left-6 top-1/2 -translate-y-1/2 hidden sm:flex" />
+      <CarouselNext className="right-2 sm:right-6 top-1/2 -translate-y-1/2 hidden sm:flex" />
 
       <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
         <div className="flex items-center gap-2 rounded-full bg-black/25 px-3 py-2 ring-1 ring-white/10 backdrop-blur">

@@ -12,11 +12,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import StaggeredMenu from "@/components/StaggeredMenu";
 
 const navItems = [
   { label: "About", href: "#about" },
   { label: "Our Vision", href: "#our-vision" },
-  { label: "Impacts", href: "#pricing" },
+  { label: "Impacts", href: "#impact" },
+];
+
+const socialItems = [
+  { label: "Instagram", link: "https://www.instagram.com/huruunii_hee/" },
+  { label: "Facebook", link: "https://www.facebook.com/huruuniihee" },
+  { label: "YouTube", link: "https://www.youtube.com" },
+  { label: "Gmail", link: "mailto:hello@fingerprint.mn" },
+  { label: "Tel", link: "tel:+97699112233" },
 ];
 
 type Lang = "en" | "mn" | "ko";
@@ -55,59 +64,108 @@ export default function Navbar({ className }: { className?: string }) {
     router.push(withLang(current, next), { scroll: false });
   };
 
+  const menuItems = [
+    { label: "Home", ariaLabel: "Go to home page", link: withLang("/", lang) },
+    {
+      label: "About",
+      ariaLabel: "Learn about us",
+      link: withLang("#about", lang),
+    },
+    {
+      label: "Our Vision",
+      ariaLabel: "Our vision",
+      link: withLang("#our-vision", lang),
+    },
+    {
+      label: "Impacts",
+      ariaLabel: "View impacts",
+      link: withLang("#impact", lang),
+    },
+    {
+      label: "Contact",
+      ariaLabel: "Get in touch",
+      link: withLang("/start", lang),
+    },
+  ];
+
   return (
-    <div className={cn("fixed inset-x-0 top-0 z-50", className)}>
-      <div className="mx-auto w-[80vw] max-w-[1280px] pt-6">
-        <nav
-          className={cn(
-            "h-20 w-full rounded-full bg-background/90 backdrop-blur",
-            "shadow-[0_18px_40px_rgba(0,0,0,0.08)]",
-            "px-6 md:px-10",
-            "flex items-center justify-between gap-6",
-          )}
-        >
-          <Link
-            href={withLang("/", lang)}
-            className="flex items-center shrink-0"
-          >
-            <img src="/logo.png" alt="Finger Print" className="h-8 w-auto" />
-          </Link>
-
-          <div className="hidden md:flex items-center gap-10 flex-1 justify-center">
-            {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={withLang(item.href, lang)}
-                className="text-sm font-medium text-foreground/80 hover:text-foreground transition"
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-
-          <div className="shrink-0 flex items-center gap-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" className="rounded-full px-4">
-                  {LANG_LABEL[lang]}
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent align="end" className="min-w-[160px]">
-                {(["en", "mn", "ko"] as Lang[]).map((l) => (
-                  <DropdownMenuItem key={l} onClick={() => setLang(l)}>
-                    {LANG_NAME[l]} {lang === l ? "✓" : ""}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button className="rounded-full px-6" asChild>
-              <Link href={withLang("/start", lang)}>Get In Touch</Link>
-            </Button>
-          </div>
-        </nav>
+    <>
+      {/* Mobile: StaggeredMenu */}
+      <div className={cn("fixed inset-0 z-50 md:hidden", className)}>
+        <StaggeredMenu
+          position="right"
+          items={menuItems}
+          socialItems={socialItems}
+          displaySocials
+          displayItemNumbering
+          menuButtonColor="#bbb5b5"
+          openMenuButtonColor="#111111"
+          changeMenuColorOnOpen
+          colors={["#f5f5f5", "#e5e5e5"]}
+          logoUrl="/logo.png"
+          accentColor="#111111"
+          isFixed
+          closeOnClickAway
+          className="z-1"
+        />
       </div>
-    </div>
+
+      {/* Desktop: Default Navbar */}
+      <div
+        className={cn("fixed inset-x-0 top-0 z-50 hidden md:block", className)}
+      >
+        <div className="mx-auto w-[min(calc(100%-2rem),80vw)] max-w-[1280px] pt-4 sm:pt-6">
+          <nav
+            className={cn(
+              "h-20 w-full rounded-full bg-background/90 backdrop-blur",
+              "shadow-[0_18px_40px_rgba(0,0,0,0.08)]",
+              "px-6 md:px-10",
+              "flex items-center justify-between gap-6",
+            )}
+          >
+            <Link
+              href={withLang("/", lang)}
+              className="flex items-center shrink-0"
+            >
+              <img src="/logo.png" alt="Finger Print" className="h-8 w-auto" />
+            </Link>
+
+            <div className="hidden md:flex items-center gap-10 flex-1 justify-center">
+              {navItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={withLang(item.href, lang)}
+                  className="text-sm font-medium text-foreground/80 hover:text-foreground transition"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+
+            <div className="shrink-0 flex items-center gap-2 sm:gap-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" className="rounded-full px-4">
+                    {LANG_LABEL[lang]}
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" className="min-w-[160px]">
+                  {(["en", "mn", "ko"] as Lang[]).map((l) => (
+                    <DropdownMenuItem key={l} onClick={() => setLang(l)}>
+                      {LANG_NAME[l]} {lang === l ? "✓" : ""}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button className="rounded-full px-6" asChild>
+                <Link href={withLang("/start", lang)}>Get In Touch</Link>
+              </Button>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </>
   );
 }

@@ -1,8 +1,8 @@
 // components/Footer.tsx
-import Link from "next/link";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
-const CONTAINER = "mx-auto w-[min(80vw,1200px)]";
+const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
 type Props = {
   className?: string;
@@ -26,7 +26,7 @@ export default function Footer({
     { label: "Get In Touch", href: "/start" },
   ],
   email = "hello@fingerprint.mn",
-  phone = "+976 0000-0000",
+  phone = "+976 8007-0177",
 }: Props) {
   return (
     <footer className={cn("w-full bg-black text-white", className)}>
@@ -60,7 +60,7 @@ export default function Footer({
                     href="mailto:hello@fingerprint.mn"
                     label="Gmail"
                   />
-                  <SocialPill href="tel:+97600000000" label="Tel" />
+                  <SocialPill href="tel:+976 8007-0177" label="Tel" />
                 </div>
               </div>
 
@@ -112,9 +112,9 @@ export default function Footer({
                       {phone}
                     </a>
 
-                    <div className="pt-3 text-xs text-white/50">
+                    {/* <div className="pt-3 text-xs text-white/50">
                       {rightsText}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

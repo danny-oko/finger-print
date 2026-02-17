@@ -28,7 +28,7 @@ export default function HeroContent() {
           {heroCopy.badge}
         </div>
 
-        <h1 className="mt-5 text-5xl font-semibold leading-[1.02] tracking-tight text-white md:text-7xl">
+        <h1 className="mt-5 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl md:text-7xl">
           {heroCopy.title}
         </h1>
 

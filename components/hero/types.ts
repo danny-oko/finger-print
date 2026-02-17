@@ -15,4 +15,4 @@ export const heroCopy = {
   ctaSecondary: "Get In Touch",
 };
 
-export const CONTAINER = "mx-auto w-[80vw] max-w-[1280px]";
+export const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw)] max-w-[1280px] px-4 sm:px-6 md:px-0";

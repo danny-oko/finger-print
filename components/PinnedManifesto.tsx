@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const CONTAINER = "mx-auto w-[min(80vw,1200px)]";
+const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
 type Tone = "mint" | "violet" | "orange";
 

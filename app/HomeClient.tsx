@@ -1,10 +1,10 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import HeroCarousel from "@/components/hero/HeroCarousel";
 import Identity from "@/app/sections/identity/page";
 import TimlineClient from "@/app/sections/impact/TimelineClient";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
+import HeroCarousel from "@/components/hero/HeroCarousel";
 
 export default function HomeClient() {
   const slides = [
@@ -22,19 +22,21 @@ export default function HomeClient() {
   return (
     <>
       <Navbar />
-      <HeroCarousel slides={slides} />
-      <Identity />
-      <TimlineClient />
+      <main>
+        <HeroCarousel slides={slides} />
+        <Identity />
+        <TimlineClient />
+      </main>
       <Footer
         bigWord="FINGER PRINT"
         rightsText="All rights reserved © FirstChurch"
         motto="A shared space of worship, growth, and community—helping teens discover identity and God-given value in Christ."
         socials={{
-          youtube: "https://youtube.com/@yourchannel",
-          facebook: "https://facebook.com/yourpage",
-          instagram: "https://instagram.com/yourpage",
+          youtube: "https://youtube.com/",
+          facebook: "https://www.facebook.com/huruuniihee",
+          instagram: "https://www.instagram.com/huruunii_hee/",
           email: "mailto:firstchurch@gmail.com",
-          phone: "tel:+97699112233",
+          phone: "tel:+8007 0177",
         }}
         nav={[
           { label: "About", href: "#about" },

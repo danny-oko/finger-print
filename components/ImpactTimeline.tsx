@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 import ImageTrail from "./ImageTrail";
 import ShinyText from "./ShinyText";
+import RotatingText from "./RotatingText";
 
 type TimelineItem = {
   year: string;
@@ -15,7 +16,7 @@ type TimelineItem = {
   images?: string[];
 };
 
-const CONTAINER = "mx-auto w-[min(80vw,1200px)]";
+const CONTAINER = "mx-auto w-full max-w-[1200px] px-4 sm:px-6";
 
 export default function ImpactTimeline({
   className,
@@ -85,16 +86,45 @@ export default function ImpactTimeline({
   const lineScaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
-    <section ref={sectionRef} className={cn("w-full bg-white", className)}>
+    <section
+      ref={sectionRef}
+      className={cn(
+        "relative w-full min-w-0 overflow-x-hidden bg-white",
+        className,
+      )}
+    >
       <div className={cn(CONTAINER, "py-20 md:py-28")}>
-        <div className="grid gap-10 md:grid-cols-[320px_1fr] md:gap-14">
+        <div className="grid min-w-0 grid-cols-1 gap-10 md:grid-cols-[320px_1fr] md:gap-14">
           <div className="md:sticky md:top-24 md:self-start">
             <div className="inline-flex items-center gap-2 rounded-full border border-neutral-900/15 bg-neutral-900/5 px-4 py-2 text-xs font-medium text-neutral-900/70">
               {label}
             </div>
 
-            <h2 className="mt-6 text-3xl font-semibold tracking-tight text-neutral-900 md:text-4xl">
-              {heading}
+            <h2 className="mt-6 text-3xl font-semibold tracking-tight text-neutral-900 md:text-4xl flex items-center justify-center gap-2">
+              Impact
+              <RotatingText
+                texts={["Timeline", "Journey"]}
+                mainClassName={[
+                  "relative inline-flex items-center justify-center",
+                  "rounded-2xl px-4 sm:px-5 md:px-6",
+                  "py-1.5 sm:py-2",
+                  "text-black",
+                  "bg-[linear-gradient(180deg,#FFC36A_0%,#FFE2B7_100%)]",
+                  "shadow-[0_18px_36px_rgba(0,0,0,.16)]",
+                  "ring-1 ring-black/5",
+                  "overflow-hidden",
+                ].join(" ")}
+                splitLevelClassName="overflow-hidden"
+                elementLevelClassName="inline-block"
+                staggerFrom="last"
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "-120%" }}
+                staggerDuration={0.025}
+                transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                rotationInterval={3000}
+                animatePresenceMode="wait"
+              />
             </h2>
 
             <p className="mt-4 max-w-[40ch] text-base leading-relaxed text-neutral-900/70">
@@ -122,14 +152,14 @@ export default function ImpactTimeline({
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative min-w-0">
             <div className="pointer-events-none absolute left-[14px] top-0 hidden h-full w-[2px] bg-neutral-900/10 md:block" />
             <motion.div
               className="pointer-events-none absolute left-[14px] top-0 hidden h-full w-[2px] origin-top bg-neutral-900/70 md:block"
               style={{ scaleY: lineScaleY }}
             />
 
-            <div className="space-y-7">
+            <div className="min-w-0 space-y-7">
               {items.map((it, idx) => (
                 <TimelineRow key={`${it.year}-${idx}`} item={it} index={idx} />
               ))}
@@ -157,15 +187,15 @@ function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
         ease: [0.2, 0.8, 0.2, 1],
         delay: Math.min(0.12, index * 0.03),
       }}
-      className="relative pl-0 md:pl-12"
+      className="relative min-w-0 pl-0 md:pl-12"
       onMouseEnter={bumpTrail}
       onFocus={bumpTrail}
       tabIndex={0}
     >
       <div className="absolute left-[7px] top-7 hidden h-4 w-4 rounded-full bg-white ring-2 ring-neutral-900/70 md:block" />
 
-      <div className="relative overflow-hidden rounded-3xl border border-neutral-900/10 bg-white shadow-[0_18px_40px_rgba(0,0,0,.06)]">
-        <div className="relative w-full">
+      <div className="relative max-w-full overflow-hidden rounded-3xl border border-neutral-900/10 bg-white shadow-[0_18px_40px_rgba(0,0,0,.06)]">
+        <div className="relative w-full min-w-0">
           <div className="hidden md:block">
             <div className="relative h-[180px] w-full">
               <div className="absolute inset-0">
@@ -175,14 +205,14 @@ function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
             </div>
           </div>
 
-          <div className="md:hidden">
-            <div className="flex gap-3 overflow-x-auto px-4 pt-4 pb-2">
+          <div className="max-w-full overflow-x-auto overscroll-x-contain md:hidden">
+            <div className="flex touch-pan-x gap-3 px-4 pt-4 pb-3 sm:px-5 sm:pb-4 snap-x snap-mandatory">
               {images.slice(0, 10).map((src) => (
                 <img
                   key={src}
                   src={src}
                   alt=""
-                  className="h-28 w-28 flex-none rounded-2xl object-cover sm:h-32 sm:w-32"
+                  className="h-24 w-24 flex-none shrink-0 snap-center rounded-2xl object-cover sm:h-28 sm:w-28"
                   loading="lazy"
                   draggable={false}
                 />
@@ -191,7 +221,7 @@ function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
           </div>
         </div>
 
-        <div className="relative p-5 sm:p-6">
+        <div className="relative min-w-0 overflow-hidden p-5 sm:p-6">
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
             <div className="text-2xl font-semibold tracking-tight text-neutral-900">
               {item.year}
@@ -201,12 +231,12 @@ function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
             </div>
           </div>
 
-          <p className="mt-3 text-base leading-relaxed text-neutral-900/75">
+          <p className="mt-3 text-base leading-relaxed text-neutral-900/75 break-words">
             {item.summary}
           </p>
 
           {item.pills?.length ? (
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-5 flex flex-wrap gap-2 break-words">
               {item.pills.map((p) => (
                 <span
                   key={p}
