@@ -6,12 +6,12 @@ export const YT_EMBED =
   "https://www.youtube.com/embed/g5Uk9WVFTt0?autoplay=1&rel=0&modestbranding=1";
 
 export const heroCopy = {
-  badge: "Since 2017 • 5 editions",
+  badge: "Since 2017 • 5 Editions",
   title: "Finger Print",
   subtitle: "Teen Seminar for Mongolian Churches",
   description:
     "Supporting and connecting youth ministries across Mongolia’s Evangelical churches—helping every teen discover their unique, God-given identity.",
-  ctaPrimary: "Watch Full Video",
+  ctaPrimary: "	Watch Short Film",
   ctaSecondary: "Get In Touch",
 };
 
