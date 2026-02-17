@@ -4,6 +4,14 @@ import Link from "next/link";
 
 const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
+type Socials = {
+  youtube?: string;
+  facebook?: string;
+  instagram?: string;
+  email?: string;
+  phone?: string;
+};
+
 type Props = {
   className?: string;
   bigWord?: string;
@@ -12,6 +20,7 @@ type Props = {
   nav?: { label: string; href: string }[];
   email?: string;
   phone?: string;
+  socials?: Socials;
 };
 
 export default function Footer({
@@ -27,7 +36,16 @@ export default function Footer({
   ],
   email = "hello@fingerprint.mn",
   phone = "+976 8007-0177",
+  socials,
 }: Props) {
+  const defaultSocials: Socials = {
+    instagram: "https://www.instagram.com/huruunii_hee/",
+    facebook: "https://www.facebook.com/huruuniihee",
+    youtube: "https://www.youtube.com",
+    email: "mailto:hello@fingerprint.mn",
+    phone: "tel:+97680070177",
+  };
+  const s = socials ?? defaultSocials;
   return (
     <footer className={cn("w-full bg-black text-white", className)}>
       <div className={cn(CONTAINER, "py-16 md:py-20")}>
@@ -47,20 +65,21 @@ export default function Footer({
                 </p>
 
                 <div className="mt-8 flex flex-wrap items-center gap-3">
-                  <SocialPill
-                    href="https://www.instagram.com/huruunii_hee/"
-                    label="Instagram"
-                  />
-                  <SocialPill
-                    href="https://www.facebook.com/huruuniihee"
-                    label="Facebook"
-                  />
-                  <SocialPill href="https://www.youtube.com" label="YouTube" />
-                  <SocialPill
-                    href="mailto:hello@fingerprint.mn"
-                    label="Gmail"
-                  />
-                  <SocialPill href="tel:+976 8007-0177" label="Tel" />
+                  {s.instagram && (
+                    <SocialPill href={s.instagram} label="Instagram" />
+                  )}
+                  {s.facebook && (
+                    <SocialPill href={s.facebook} label="Facebook" />
+                  )}
+                  {s.youtube && (
+                    <SocialPill href={s.youtube} label="YouTube" />
+                  )}
+                  {s.email && (
+                    <SocialPill href={s.email} label="Gmail" />
+                  )}
+                  {s.phone && (
+                    <SocialPill href={s.phone} label="Tel" />
+                  )}
                 </div>
               </div>
 
