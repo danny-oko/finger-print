@@ -4,12 +4,15 @@
 import * as React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
+import ImageTrail from "./ImageTrail";
+import ShinyText from "./ShinyText";
 
 type TimelineItem = {
   year: string;
   title: string;
   summary: string;
   pills?: string[];
+  images?: string[];
 };
 
 const CONTAINER = "mx-auto w-[min(80vw,1200px)]";
@@ -19,6 +22,8 @@ export default function ImpactTimeline({
   label = "Impact",
   heading = "Impact Timeline",
   subheading = "Five editions since 2017, building unity and strengthening youth ministry across Evangelical churches.",
+  hoverHint = "Hover over each year to reveal images.",
+  mobileHint = "Swipe images on each year card.",
   items = [
     {
       year: "2017",
@@ -26,6 +31,7 @@ export default function ImpactTimeline({
       summary:
         "The beginning of a shared youth ministry network across Evangelical churches.",
       pills: ["Attendees: TBA", "Churches: TBA", "Location: Ulaanbaatar"],
+      images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
       year: "2018",
@@ -33,6 +39,7 @@ export default function ImpactTimeline({
       summary:
         "A clearer focus on identity in Christ through worship, teaching, and community.",
       pills: ["Attendees: TBA", "Churches: TBA", "Theme: TBA"],
+      images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
       year: "2019",
@@ -40,6 +47,7 @@ export default function ImpactTimeline({
       summary:
         "Stronger collaboration between youth leaders and ministries, with deeper unity.",
       pills: ["Attendees: TBA", "Churches: TBA", "Volunteers: TBA"],
+      images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
       year: "2020–2021",
@@ -47,6 +55,7 @@ export default function ImpactTimeline({
       summary:
         "Sustaining the movement through challenges while keeping teens connected to faith.",
       pills: ["Format: TBA", "Reach: TBA", "Theme: TBA"],
+      images: ["/fp-4.jpg", "/fp-5.jpg", "/fp-6.jpg", "/fp-7.jpg"],
     },
     {
       year: "2023–2024",
@@ -54,6 +63,7 @@ export default function ImpactTimeline({
       summary:
         "Serving the next generation with renewed vision and wider cooperation.",
       pills: ["Attendees: TBA", "Churches: TBA", "Location: TBA"],
+      images: ["/fp-4.jpg", "/fp-5.jpg", "/fp-6.jpg", "/fp-7.jpg"],
     },
   ] as TimelineItem[],
 }: {
@@ -61,6 +71,8 @@ export default function ImpactTimeline({
   label?: string;
   heading?: string;
   subheading?: string;
+  hoverHint?: string;
+  mobileHint?: string;
   items?: TimelineItem[];
 }) {
   const sectionRef = React.useRef<HTMLElement | null>(null);
@@ -88,12 +100,32 @@ export default function ImpactTimeline({
             <p className="mt-4 max-w-[40ch] text-base leading-relaxed text-neutral-900/70">
               {subheading}
             </p>
+
+            <div className="mt-6">
+              <p className="hidden text-sm text-neutral-900/55 md:block">
+                <ShinyText
+                  text={hoverHint}
+                  speed={2}
+                  delay={0}
+                  color="#737373"
+                  shineColor="#111111"
+                  spread={90}
+                  direction="left"
+                  yoyo={false}
+                  pauseOnHover={false}
+                  disabled={false}
+                />
+              </p>
+              <p className="text-sm text-neutral-900/55 md:hidden">
+                {mobileHint}
+              </p>
+            </div>
           </div>
 
           <div className="relative">
-            <div className="pointer-events-none absolute left-[14px] top-0 h-full w-[2px] bg-neutral-900/10" />
+            <div className="pointer-events-none absolute left-[14px] top-0 hidden h-full w-[2px] bg-neutral-900/10 md:block" />
             <motion.div
-              className="pointer-events-none absolute left-[14px] top-0 h-full w-[2px] origin-top bg-neutral-900/70"
+              className="pointer-events-none absolute left-[14px] top-0 hidden h-full w-[2px] origin-top bg-neutral-900/70 md:block"
               style={{ scaleY: lineScaleY }}
             />
 
@@ -110,6 +142,11 @@ export default function ImpactTimeline({
 }
 
 function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
+  const [trailKey, setTrailKey] = React.useState(0);
+  const images = React.useMemo(() => item.images ?? [], [item.images]);
+
+  const bumpTrail = () => setTrailKey((k) => k + 1);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 18 }}
@@ -120,36 +157,67 @@ function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
         ease: [0.2, 0.8, 0.2, 1],
         delay: Math.min(0.12, index * 0.03),
       }}
-      className="relative pl-12"
+      className="relative pl-0 md:pl-12"
+      onMouseEnter={bumpTrail}
+      onFocus={bumpTrail}
+      tabIndex={0}
     >
-      <div className="absolute left-[7px] top-7 h-4 w-4 rounded-full bg-white ring-2 ring-neutral-900/70" />
+      <div className="absolute left-[7px] top-7 hidden h-4 w-4 rounded-full bg-white ring-2 ring-neutral-900/70 md:block" />
 
-      <div className="rounded-3xl border border-neutral-900/10 bg-white p-6 shadow-[0_18px_40px_rgba(0,0,0,.06)]">
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-          <div className="text-2xl font-semibold tracking-tight text-neutral-900">
-            {item.year}
+      <div className="relative overflow-hidden rounded-3xl border border-neutral-900/10 bg-white shadow-[0_18px_40px_rgba(0,0,0,.06)]">
+        <div className="relative w-full">
+          <div className="hidden md:block">
+            <div className="relative h-[180px] w-full">
+              <div className="absolute inset-0">
+                <ImageTrail key={trailKey} items={images} variant={1} />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/10 to-white/90" />
+            </div>
           </div>
-          <div className="text-sm font-medium text-neutral-900/60">
-            {item.title}
+
+          <div className="md:hidden">
+            <div className="flex gap-3 overflow-x-auto px-4 pt-4 pb-2">
+              {images.slice(0, 10).map((src) => (
+                <img
+                  key={src}
+                  src={src}
+                  alt=""
+                  className="h-28 w-28 flex-none rounded-2xl object-cover sm:h-32 sm:w-32"
+                  loading="lazy"
+                  draggable={false}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
-        <p className="mt-3 text-base leading-relaxed text-neutral-900/75">
-          {item.summary}
-        </p>
-
-        {item.pills?.length ? (
-          <div className="mt-5 flex flex-wrap gap-2">
-            {item.pills.map((p) => (
-              <span
-                key={p}
-                className="inline-flex items-center rounded-full border border-neutral-900/10 bg-neutral-900/5 px-3 py-1 text-xs font-medium text-neutral-900/70"
-              >
-                {p}
-              </span>
-            ))}
+        <div className="relative p-5 sm:p-6">
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+            <div className="text-2xl font-semibold tracking-tight text-neutral-900">
+              {item.year}
+            </div>
+            <div className="text-sm font-medium text-neutral-900/60">
+              {item.title}
+            </div>
           </div>
-        ) : null}
+
+          <p className="mt-3 text-base leading-relaxed text-neutral-900/75">
+            {item.summary}
+          </p>
+
+          {item.pills?.length ? (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {item.pills.map((p) => (
+                <span
+                  key={p}
+                  className="inline-flex items-center rounded-full border border-neutral-900/10 bg-neutral-900/5 px-3 py-1 text-xs font-medium text-neutral-900/70"
+                >
+                  {p}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
     </motion.div>
   );

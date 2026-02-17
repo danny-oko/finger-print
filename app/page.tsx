@@ -13,7 +13,7 @@ export default function Page() {
     },
     { type: "image" as const, src: "/fp-1.jpg", alt: "Seminar moment" },
     { type: "image" as const, src: "/fp-2.jpg", alt: "Worship" },
-    { type: "image" as const, src: "/fp-3.jpg", alt: "Community" },
+    { type: "image" as const, src: "/fp-4.jpg", alt: "Community" },
   ];
 
   return (
