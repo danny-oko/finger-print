@@ -91,10 +91,7 @@ export default function PinnedManifesto({
     if (reduceMotion) return;
 
     const ctx = gsap.context(() => {
-      const compute = () => {
-        const distance = Math.max(0, track.scrollWidth - window.innerWidth);
-        return distance;
-      };
+      const compute = () => Math.max(0, track.scrollWidth - window.innerWidth);
 
       const tween = gsap.to(track, {
         x: () => -compute(),
@@ -110,7 +107,10 @@ export default function PinnedManifesto({
         },
       });
 
-      const onRefresh = () => tween.invalidate();
+      const onRefresh: gsap.Callback = () => {
+        tween.invalidate();
+      };
+
       ScrollTrigger.addEventListener("refreshInit", onRefresh);
 
       return () => {
@@ -126,18 +126,14 @@ export default function PinnedManifesto({
       ref={sectionRef}
       className={cn("relative w-full bg-white", className)}
     >
-      <div className={cn(CONTAINER, "pt-16")}>
-        {/* <div className="inline-flex items-center gap-2 rounded-full border border-neutral-900/15 bg-neutral-900/5 px-4 py-2 text-xs font-medium text-neutral-900/70">
-          {label}
-        </div> */}
-      </div>
+      <div className={cn(CONTAINER, "pt-16")} />
 
       <div className="relative mt-10 w-full overflow-hidden" style={{ height }}>
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[10vw] bg-gradient-to-r from-white to-white/0" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-[10vw] bg-gradient-to-l from-white to-white/0" />
 
         <div ref={trackRef} className="flex h-full items-center px-[10vw]">
-          <div className="flex items-center gap-20">
+          <div className="flex items-center">
             <TrackLine chunks={chunks} />
           </div>
         </div>
