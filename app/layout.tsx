@@ -4,9 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Finger Print",
   description: "Mongolian Christian Youth Event",
-  icons: {
-    icon: "/logo.png",
-  },
+ 
 };
 
 export default function RootLayout({
