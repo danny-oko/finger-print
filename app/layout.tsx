@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Suspense } from "react";
+import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "Finger Print",
@@ -30,7 +32,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Suspense fallback={null}>
+          <Navbar />
+        </Suspense>
+        {children}
+      </body>
     </html>
   );
 }

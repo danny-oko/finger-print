@@ -107,14 +107,14 @@ export default function PinnedManifesto({
         },
       });
 
-      const onRefresh: gsap.Callback = () => {
+      const onRefreshInit = () => {
         tween.invalidate();
       };
 
-      ScrollTrigger.addEventListener("refreshInit", onRefresh);
+      ScrollTrigger.addEventListener("refreshInit", onRefreshInit);
 
       return () => {
-        ScrollTrigger.removeEventListener("refreshInit", onRefresh);
+        ScrollTrigger.removeEventListener("refreshInit", onRefreshInit);
       };
     }, section);
 
@@ -126,14 +126,14 @@ export default function PinnedManifesto({
       ref={sectionRef}
       className={cn("relative w-full bg-white", className)}
     >
-      <div className={cn(CONTAINER, "pt-16")} />
+      <div className={cn(CONTAINER, "pt-10")}></div>
 
-      <div className="relative mt-10 w-full overflow-hidden" style={{ height }}>
+      <div className="relative mt-4 w-full overflow-hidden" style={{ height }}>
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[10vw] bg-gradient-to-r from-white to-white/0" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-[10vw] bg-gradient-to-l from-white to-white/0" />
 
         <div ref={trackRef} className="flex h-full items-center px-[10vw]">
-          <div className="flex items-center">
+          <div className="flex items-center gap-20">
             <TrackLine chunks={chunks} />
           </div>
         </div>
