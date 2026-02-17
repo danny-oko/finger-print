@@ -1,4 +1,3 @@
-// app/components/hero/HeroContent.tsx
 "use client";
 
 import Link from "next/link";
@@ -8,6 +7,8 @@ import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HeroVideoDialog from "./HeroVideoDialog";
 import { heroCopy, YT_EMBED } from "./types";
+
+import Counter from "@/components/Counter";
 
 export default function HeroContent() {
   const [open, setOpen] = useState(false);
@@ -23,9 +24,7 @@ export default function HeroContent() {
   return (
     <>
       <div className="w-full pt-6">
-        <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white ring-1 ring-white/15">
-          {heroCopy.badge}
-        </div>
+        <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white ring-1 ring-white/15"></div>
 
         <h1 className="mt-5 text-5xl font-semibold leading-[1.02] tracking-tight text-white md:text-7xl">
           {heroCopy.title}

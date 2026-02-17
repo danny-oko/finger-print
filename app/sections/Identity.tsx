@@ -3,7 +3,7 @@
 import React from "react";
 
 const Identity = () => {
-  return <div>Identity</div>;
+  return <div></div>;
 };
 
 export default Identity;
