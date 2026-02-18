@@ -5,6 +5,7 @@ import TimlineClient from "@/app/sections/impact/TimelineClient";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/hero/HeroCarousel";
+import Gallery from "@/components/Gallery";
 
 export default function HomeClient() {
   const slides = [
@@ -26,6 +27,7 @@ export default function HomeClient() {
         <HeroCarousel slides={slides} />
         <Identity />
         <TimlineClient />
+        <Gallery />
       </main>
       <Footer
         bigWord="FINGER PRINT"
