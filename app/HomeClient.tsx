@@ -1,11 +1,12 @@
 "use client";
 
-import Identity from "@/app/sections/identity/page";
-import TimlineClient from "@/app/sections/impact/TimelineClient";
+import Identity from "@/app/sections/Identity";
+import TimlineClient from "@/app/sections/TimelineClient";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/hero/HeroCarousel";
 import Gallery from "@/components/Gallery";
+import Projects from "@/app/sections/Projects";
 
 export default function HomeClient() {
   const slides = [
@@ -27,6 +28,7 @@ export default function HomeClient() {
         <HeroCarousel slides={slides} />
         <Identity />
         <TimlineClient />
+        <Projects />
         <Gallery />
       </main>
       <Footer
