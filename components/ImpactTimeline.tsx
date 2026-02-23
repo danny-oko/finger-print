@@ -112,6 +112,8 @@ export default function ImpactTimeline({
                     "the Calling",
                     "Faith Began",
                     "By His Grace",
+                    "Faith Began",
+                    "Rooted in Christ",
                   ]}
                   mainClassName={[
                     "relative inline-flex items-center justify-center",
