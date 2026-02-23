@@ -29,9 +29,9 @@ export default function Footer({
   rightsText = "All rights reserved • FirstChurch",
   nav = [
     { label: "About", href: "#about" },
-    { label: "Our Vision", href: "#our-vision" },
-    { label: "Impacts", href: "#pricing" },
-    { label: "Get In Touch", href: "/start" },
+    { label: "Jrouney", href: "#our-vision" },
+    { label: "Storeis", href: "#pricing" },
+    { label: "Gallery", href: "#gallery" },
   ],
   email = "hello@fingerprint.mn",
   phone = "+976 8007-0177",
