@@ -1,5 +1,9 @@
+"use client";
+
+import * as React from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
@@ -16,21 +20,31 @@ type Props = {
   bigWord?: string;
   motto?: string;
   rightsText?: string;
-  nav?: { label: string; href: string }[];
+  navItems?: { label: string; href: string }[];
   email?: string;
   phone?: string;
   socials?: Socials;
 };
+
+function withLang(href: string, lang: string) {
+  const [path, hash = ""] = href.split("#");
+  const u = new URL(
+    path || "/",
+    typeof window !== "undefined" ? window.location.origin : "http://localhost",
+  );
+  u.searchParams.set("lang", lang);
+  return `${u.pathname}${u.search}${hash ? `#${hash}` : ""}`;
+}
 
 export default function Footer({
   className,
   bigWord = "Finger Print",
   motto = "One movement. One generation. One church family.",
   rightsText = "All rights reserved • FirstChurch",
-  nav = [
+  navItems = [
     { label: "About", href: "#about" },
-    { label: "Jrouney", href: "#our-vision" },
-    { label: "Storeis", href: "#pricing" },
+    { label: "Journey", href: "#journey" },
+    { label: "Stories", href: "#stories" },
     { label: "Gallery", href: "#gallery" },
   ],
   email = "hello@fingerprint.mn",
@@ -45,6 +59,30 @@ export default function Footer({
     phone: "tel:+97680070177",
   };
   const s = socials ?? defaultSocials;
+
+  const router = useRouter();
+
+  const handleNavigate = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    if (!href.startsWith("#")) return;
+
+    e.preventDefault();
+
+    const id = href.slice(1);
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    // keep URL hash updated (optional but nice)
+    router.push(href, { scroll: false });
+
+    const NAV_OFFSET = 110; // adjust for your fixed navbar height
+    const y = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+
+    window.scrollTo({ top: y, behavior: "smooth" });
+  };
+
   return (
     <footer className={cn("w-full bg-black text-white", className)}>
       <div className={cn(CONTAINER, "py-16 md:py-20")}>
@@ -83,23 +121,15 @@ export default function Footer({
                   </div>
 
                   <ul className="mt-4 space-y-2.5">
-                    {nav.map((n) => (
-                      <li key={n.href}>
-                        {n.href.startsWith("#") ? (
-                          <a
-                            href={n.href}
-                            className="text-sm text-white/75 transition hover:text-white"
-                          >
-                            {n.label}
-                          </a>
-                        ) : (
-                          <Link
-                            href={n.href}
-                            className="text-sm text-white/75 transition hover:text-white"
-                          >
-                            {n.label}
-                          </Link>
-                        )}
+                    {navItems.map((item) => (
+                      <li key={item.href}>
+                        <a
+                          href={item.href}
+                          onClick={(e) => handleNavigate(e, item.href)}
+                          className="block text-sm font-medium text-white/75 transition hover:text-white"
+                        >
+                          {item.label}
+                        </a>
                       </li>
                     ))}
                   </ul>
@@ -163,11 +193,7 @@ function FancyWord({ text }: { text: string }) {
           "rotate-[-2deg]",
         )}
       >
-        <span
-          className={cn(
-            "bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent",
-          )}
-        >
+        <span className="bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">
           {text}
         </span>
         <span
