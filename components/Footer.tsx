@@ -1,4 +1,3 @@
-// components/Footer.tsx
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -71,15 +70,9 @@ export default function Footer({
                   {s.facebook && (
                     <SocialPill href={s.facebook} label="Facebook" />
                   )}
-                  {s.youtube && (
-                    <SocialPill href={s.youtube} label="YouTube" />
-                  )}
-                  {s.email && (
-                    <SocialPill href={s.email} label="Gmail" />
-                  )}
-                  {s.phone && (
-                    <SocialPill href={s.phone} label="Tel" />
-                  )}
+                  {s.youtube && <SocialPill href={s.youtube} label="YouTube" />}
+                  {s.email && <SocialPill href={s.email} label="Gmail" />}
+                  {s.phone && <SocialPill href={s.phone} label="Tel" />}
                 </div>
               </div>
 
@@ -130,10 +123,6 @@ export default function Footer({
                     >
                       {phone}
                     </a>
-
-                    {/* <div className="pt-3 text-xs text-white/50">
-                      {rightsText}
-                    </div> */}
                   </div>
                 </div>
               </div>

@@ -9,7 +9,7 @@ const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
 export default function WhySection({
   className,
-  label = "Why Finger Print",
+label = "Our Identity",
   main = "Finger Print supports and connects youth ministries across Mongolia’s Evangelical churches — helping teenagers recognize their distinct identity and God-given value within Christ through a shared space of worship, growth, and community.",
   clarify = "This mission begins in adolescence—the season where identity is formed and value is revealed.",
 }: {

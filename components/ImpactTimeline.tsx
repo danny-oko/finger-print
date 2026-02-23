@@ -100,31 +100,43 @@ export default function ImpactTimeline({
               {label}
             </div>
 
-            <h2 className="mt-6 text-3xl font-semibold tracking-tight text-neutral-900 md:text-4xl flex items-center justify-center gap-2">
-              Impact
-              <RotatingText
-                texts={["Timeline", "Journey"]}
-                mainClassName={[
-                  "relative inline-flex items-center justify-center",
-                  "rounded-2xl px-4 sm:px-5 md:px-6",
-                  "py-1.5 sm:py-2",
-                  "text-black",
-                  "bg-[linear-gradient(180deg,#FFC36A_0%,#FFE2B7_100%)]",
-                  "shadow-[0_18px_36px_rgba(0,0,0,.16)]",
-                  "ring-1 ring-black/5",
-                  "overflow-hidden",
-                ].join(" ")}
-                splitLevelClassName="overflow-hidden"
-                elementLevelClassName="inline-block"
-                staggerFrom="last"
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                exit={{ y: "-120%" }}
-                staggerDuration={0.025}
-                transition={{ type: "spring", damping: 30, stiffness: 400 }}
-                rotationInterval={3000}
-                animatePresenceMode="wait"
-              />
+            <h2 className="mt-6 text-3xl font-semibold tracking-tight text-neutral-900 md:text-4xl">
+              <span className="block">The Journey</span>
+
+              <span className="mt-2 flex items-center gap-2">
+                <span>Since</span>
+
+                <RotatingText
+                  texts={[
+                    "First Prayer",
+                    "the Calling",
+                    "Faith Began",
+                    "By His Grace",
+                  ]}
+                  mainClassName={[
+                    "relative inline-flex items-center justify-center",
+                    "whitespace-nowrap",
+                    "min-w-max",
+                    "rounded-2xl px-4 sm:px-5 md:px-6",
+                    "py-1.5 sm:py-2",
+                    "text-black",
+                    "bg-[linear-gradient(180deg,#FFC36A_0%,#FFE2B7_100%)]",
+                    "shadow-[0_18px_36px_rgba(0,0,0,.16)]",
+                    "ring-1 ring-black/5",
+                    "overflow-hidden",
+                  ].join(" ")}
+                  splitLevelClassName="overflow-hidden"
+                  elementLevelClassName="inline-block whitespace-nowrap"
+                  staggerFrom="last"
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  exit={{ y: "-120%" }}
+                  staggerDuration={0.025}
+                  transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                  rotationInterval={2800}
+                  animatePresenceMode="wait"
+                />
+              </span>
             </h2>
 
             <p className="mt-4 max-w-[40ch] text-base leading-relaxed text-neutral-900/70">
@@ -171,6 +183,7 @@ export default function ImpactTimeline({
   );
 }
 
+/* ❌ Timeline cards untouched */
 function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
   const [trailKey, setTrailKey] = React.useState(0);
   const images = React.useMemo(() => item.images ?? [], [item.images]);

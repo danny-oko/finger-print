@@ -16,8 +16,9 @@ import StaggeredMenu from "@/components/StaggeredMenu";
 
 const navItems = [
   { label: "About", href: "#about" },
-  { label: "Our Vision", href: "#our-vision" },
-  { label: "Impacts", href: "#impact" },
+  { label: "Journey", href: "#journey" },
+  { label: "Stories", href: "#stories" },
+  { label: "Gallery", href: "#gallery" },
 ];
 
 const socialItems = [

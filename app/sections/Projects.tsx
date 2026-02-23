@@ -23,9 +23,7 @@ const Projects = () => {
           {/* <p className="text-sm tracking-wide text-muted-foreground">
             Stuffs we have done
           </p> */}
-          <h2 className="text-3xl font-bold sm:text-4xl">
-            Stuffs We Have Done
-          </h2>
+          <h2 className="text-3xl font-bold sm:text-4xl">Stories in Motion</h2>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
