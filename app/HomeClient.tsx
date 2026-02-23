@@ -42,11 +42,11 @@ export default function HomeClient() {
           email: "mailto:firstchurch@gmail.com",
           phone: "tel:+8007 0177",
         }}
-        nav={[
+        navItems={[
           { label: "About", href: "#about" },
-          { label: "Our Vision", href: "#our-vision" },
-          { label: "Impacts", href: "#impact" },
-          { label: "Contact", href: "/start" },
+          { label: "Journey", href: "#journey" },
+          { label: "Stories", href: "#stories" },
+          { label: "Gallery", href: "#gallery" },
         ]}
       />
     </>
