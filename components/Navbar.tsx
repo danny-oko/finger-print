@@ -89,10 +89,36 @@ export default function Navbar({ className }: { className?: string }) {
     },
   ];
 
+  const handleClickToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleNavigate = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    // only handle hash links
+    if (!href.includes("#")) return;
+
+    e.preventDefault();
+
+    const [, hash] = href.split("#");
+    const id = hash || "";
+
+    router.push(withLang(`#${id}`, lang), { scroll: false });
+
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const NAV_OFFSET = 110;
+    const y = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+
+    window.scrollTo({ top: y, behavior: "smooth" });
+  };
+
   return (
     <>
-      {/* Mobile: StaggeredMenu */}
-      <div className={cn("fixed inset-0 z-50 md:hidden", className)}>
+      {/* <div className={cn("fixed inset-0 z-50 md:hidden", className)}>
         <StaggeredMenu
           position="right"
           items={menuItems}
@@ -109,9 +135,8 @@ export default function Navbar({ className }: { className?: string }) {
           closeOnClickAway
           className="z-1"
         />
-      </div>
+      </div> */}
 
-      {/* Desktop: Default Navbar */}
       <div
         className={cn("fixed inset-x-0 top-0 z-50 hidden md:block", className)}
       >
@@ -125,6 +150,7 @@ export default function Navbar({ className }: { className?: string }) {
             )}
           >
             <Link
+              onClick={handleClickToTop}
               href={withLang("/", lang)}
               className="flex items-center shrink-0"
             >
@@ -132,15 +158,19 @@ export default function Navbar({ className }: { className?: string }) {
             </Link>
 
             <div className="hidden md:flex items-center gap-10 flex-1 justify-center">
-              {navItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={withLang(item.href, lang)}
-                  className="text-sm font-medium text-foreground/80 hover:text-foreground transition"
-                >
-                  {item.label}
-                </a>
-              ))}
+              {navItems.map((item) => {
+                const link = withLang(item.href, lang);
+                return (
+                  <a
+                    key={item.href}
+                    href={link}
+                    onClick={(e) => handleNavigate(e, item.href)}
+                    className="text-sm font-medium text-foreground/80 hover:text-foreground transition"
+                  >
+                    {item.label}
+                  </a>
+                );
+              })}
             </div>
 
             <div className="shrink-0 flex items-center gap-2 sm:gap-3">

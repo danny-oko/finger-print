@@ -17,7 +17,7 @@ const videos = [
 
 const Projects = () => {
   return (
-    <section className="w-full">
+    <section className="w-full" id="stories">
       <div className="mx-auto w-[min(1200px,92vw)] py-16">
         <div className="mb-10 flex flex-col gap-3">
           {/* <p className="text-sm tracking-wide text-muted-foreground">

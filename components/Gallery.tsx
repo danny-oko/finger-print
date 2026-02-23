@@ -5,7 +5,7 @@ const CONTAINER = "mx-auto w-[min(1200px,92vw)]";
 
 const Gallery = () => {
   return (
-    <section className="w-full pt-20 pb-10">
+    <section className="w-full pt-20 pb-10" id="gallery">
       <div className={CONTAINER}>
         <div className="text-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
