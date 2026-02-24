@@ -8,10 +8,8 @@ const COUNTRY_TO_LANG: Record<string, string> = {
 const DEFAULT_LANG = "en";
 
 export async function GET(request: NextRequest) {
-  const country =
-    request.headers.get("x-vercel-ip-country") ?? "Unknown";
-  const city =
-    request.headers.get("x-vercel-ip-city") ?? "Unknown";
+  const country = request.headers.get("x-vercel-ip-country") ?? "Unknown";
+  const city = request.headers.get("x-vercel-ip-city") ?? "Unknown";
   const lang = COUNTRY_TO_LANG[country.toUpperCase()] ?? DEFAULT_LANG;
 
   return NextResponse.json({

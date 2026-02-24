@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import { Slide } from "./types";
 import HeroCarouselClient from "./HeroCarouselClient";
+import { Slide } from "./types";
 
 export default function HeroCarousel({
   slides,

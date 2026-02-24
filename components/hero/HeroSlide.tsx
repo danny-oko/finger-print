@@ -2,9 +2,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import HeroContent from "./HeroContent";
 import HeroMedia from "./HeroMedia";
 import HeroOverlay from "./HeroOverlay";
-import HeroContent from "./HeroContent";
 import ImageSlideCaption from "./ImageSlideCaption";
 import { CONTAINER, Slide } from "./types";
 
@@ -18,7 +18,7 @@ export default function HeroSlide({
   return (
     <div
       className={cn(
-        "relative isolate overflow-hidden rounded-3xl",
+        "relative isolate overflow-hidden rounded-sm",
         "h-[90vh] min-h-[400px] sm:min-h-[500px] md:min-h-[560px] w-full",
       )}
     >

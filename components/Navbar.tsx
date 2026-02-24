@@ -61,12 +61,36 @@ export default function Navbar({ className }: { className?: string }) {
   };
 
   const menuItems = [
-    { label: t("nav.home"), ariaLabel: "Go to home page", link: withLang("/", lang) },
-    { label: t("nav.about"), ariaLabel: "Learn about us", link: withLang("#about", lang) },
-    { label: t("nav.journey"), ariaLabel: "Our journey", link: withLang("#journey", lang) },
-    { label: t("nav.stories"), ariaLabel: "Stories", link: withLang("#stories", lang) },
-    { label: t("nav.gallery"), ariaLabel: "Gallery", link: withLang("#gallery", lang) },
-    { label: t("nav.getInTouch"), ariaLabel: "Get in touch", link: withLang("/start", lang) },
+    {
+      label: t("nav.home"),
+      ariaLabel: "Go to home page",
+      link: withLang("/", lang),
+    },
+    {
+      label: t("nav.about"),
+      ariaLabel: "Learn about us",
+      link: withLang("#about", lang),
+    },
+    {
+      label: t("nav.journey"),
+      ariaLabel: "Our journey",
+      link: withLang("#journey", lang),
+    },
+    {
+      label: t("nav.stories"),
+      ariaLabel: "Stories",
+      link: withLang("#stories", lang),
+    },
+    {
+      label: t("nav.gallery"),
+      ariaLabel: "Gallery",
+      link: withLang("#gallery", lang),
+    },
+    {
+      label: t("nav.getInTouch"),
+      ariaLabel: "Get in touch",
+      link: withLang("/start", lang),
+    },
   ];
 
   const handleClickToTop = () => {
@@ -171,7 +195,9 @@ export default function Navbar({ className }: { className?: string }) {
               </DropdownMenu>
 
               <Button className="rounded-full px-6" asChild>
-                <Link href={withLang("/start", lang)}>{t("nav.getInTouch")}</Link>
+                <Link href={withLang("/start", lang)}>
+                  {t("nav.getInTouch")}
+                </Link>
               </Button>
             </div>
           </nav>

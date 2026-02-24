@@ -6,16 +6,21 @@ type Lang = (typeof SUPPORTED_LANGS)[number];
 
 function getLangFromCountry(country: string | undefined): Lang {
   if (!country) return "en";
+
   const code = country.toUpperCase();
+  console.log(code);
   if (code === "MN") return "mn";
   if (code === "KR") return "ko";
+
   return "en";
 }
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
 
-  // If user already chose a language, don't override
+  console.log("middleware");
+  console.log(url);
+
   const existingLang = url.searchParams.get("lang");
   if (existingLang && SUPPORTED_LANGS.includes(existingLang as Lang)) {
     const res = NextResponse.next();
@@ -23,7 +28,6 @@ export function middleware(request: NextRequest) {
     return res;
   }
 
-  // Get country: Vercel sets x-vercel-ip-country header at the edge
   const country = request.headers.get("x-vercel-ip-country") ?? undefined;
 
   const defaultLang = getLangFromCountry(country);

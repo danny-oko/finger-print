@@ -1,8 +1,6 @@
 // app/components/hero/HeroCarouselClient.tsx
 "use client";
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
 import {
   Carousel,
   CarouselApi,
@@ -11,6 +9,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { cn } from "@/lib/utils";
+import * as React from "react";
 
 import HeroSlide from "./HeroSlide";
 import { Slide } from "./types";
@@ -39,7 +39,7 @@ export default function HeroCarouselClient({ slides }: { slides: Slide[] }) {
 
     const id = window.setInterval(() => {
       api.scrollNext();
-    }, 8000);
+    }, 15000);
 
     return () => window.clearInterval(id);
   }, [api, slides.length]);
@@ -61,8 +61,8 @@ export default function HeroCarouselClient({ slides }: { slides: Slide[] }) {
       <CarouselPrevious className="left-2 sm:left-6 top-1/2 -translate-y-1/2 hidden sm:flex" />
       <CarouselNext className="right-2 sm:right-6 top-1/2 -translate-y-1/2 hidden sm:flex" />
 
-      <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
-        <div className="flex items-center gap-2 rounded-full bg-black/25 px-3 py-2 ring-1 ring-white/10 backdrop-blur">
+      <div className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2">
+        <div className="flex items-center gap-1.5 rounded-full bg-black/10 px-2.5 py-1.5">
           {slides.map((_, i) => (
             <button
               key={i}
@@ -70,8 +70,10 @@ export default function HeroCarouselClient({ slides }: { slides: Slide[] }) {
               aria-label={`Go to slide ${i + 1}`}
               onClick={() => api?.scrollTo(i)}
               className={cn(
-                "h-2 w-2 rounded-full transition",
-                i === active ? "bg-white" : "bg-white/35 hover:bg-white/60",
+                "h-1.5 w-1.5 rounded-full transition",
+                i === active
+                  ? "bg-white/90"
+                  : "bg-white/35 hover:bg-white/55",
               )}
             />
           ))}

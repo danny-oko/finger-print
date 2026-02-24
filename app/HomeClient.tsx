@@ -1,4 +1,5 @@
 "use client";
+
 import Identity from "@/app/sections/Identity";
 import Projects from "@/app/sections/Projects";
 import TimlineClient from "@/app/sections/TimelineClient";
@@ -7,20 +8,8 @@ import Gallery from "@/components/Gallery";
 import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/hero/HeroCarousel";
 import { useTranslation } from "@/lib/useTranslation";
-import axios from "axios";
-import { useEffect, useState } from "react";
 
 export default function HomeClient() {
-  const [location, setLocation] = useState<string | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const res = await axios.get(`/api/location`);
-      setLocation(res.data.location);
-    })();
-  }, []);
-  console.log(location);
-
   const { t } = useTranslation();
 
   const slides = [
