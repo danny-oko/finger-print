@@ -1,20 +1,23 @@
 "use client";
 
+import { useTranslation } from "@/lib/useTranslation";
+
 export default function ImageSlideCaption({ index }: { index: number }) {
+  const { t } = useTranslation();
+
   if (index === 1) {
     return (
       <div className="max-w-[520px] text-white">
         <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium ring-1 ring-white/15">
-          Discovering God-Given Identity
+          {t("slides.slide1Badge")}
         </div>
 
         <h2 className="mt-4 text-3xl font-semibold leading-tight md:text-4xl">
-          Where every life carries a distinct imprint.
+          {t("slides.slide1Title")}
         </h2>
 
         <p className="mt-3 max-w-[58ch] text-sm text-white/75 md:text-base">
-          A gathering that helps teens recognize their unique value in Christ
-          and grow together in faith.
+          {t("slides.slide1Desc")}
         </p>
       </div>
     );
@@ -23,16 +26,15 @@ export default function ImageSlideCaption({ index }: { index: number }) {
     return (
       <div className="max-w-[520px] text-white">
         <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium ring-1 ring-white/15">
-          Evangelical Youth Collaboration
+          {t("slides.slide2Badge")}
         </div>
 
         <h2 className="mt-4 text-3xl font-semibold leading-tight md:text-4xl">
-          Serving the next generation together.
+          {t("slides.slide2Title")}
         </h2>
 
         <p className="mt-3 max-w-[58ch] text-sm text-white/75 md:text-base">
-          An annual gathering connecting Evangelical churches to strengthen
-          youth ministry across Mongolia.
+          {t("slides.slide2Desc")}
         </p>
       </div>
     );
@@ -42,18 +44,19 @@ export default function ImageSlideCaption({ index }: { index: number }) {
     return (
       <div className="max-w-[520px] text-white">
         <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium ring-1 ring-white/15">
-          National Youth Seminar
+          {t("slides.slide3Badge")}
         </div>
 
         <h2 className="mt-4 text-3xl font-semibold leading-tight md:text-4xl">
-          A collaborative youth ministry initiative
+          {t("slides.slide3Title")}
         </h2>
 
         <p className="mt-3 max-w-[58ch] text-sm text-white/75 md:text-base">
-          “Finger Print” brings churches together to nurture, guide, and support
-          Mongolia’s teenagers in Christ.
+          {t("slides.slide3Desc")}
         </p>
       </div>
     );
   }
+
+  return null;
 }

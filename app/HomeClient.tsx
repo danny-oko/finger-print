@@ -7,8 +7,11 @@ import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/hero/HeroCarousel";
 import Gallery from "@/components/Gallery";
 import Projects from "@/app/sections/Projects";
+import { useTranslation } from "@/lib/useTranslation";
 
 export default function HomeClient() {
+  const { t } = useTranslation();
+
   const slides = [
     {
       type: "video" as const,
@@ -33,8 +36,8 @@ export default function HomeClient() {
       </main>
       <Footer
         bigWord="FINGER PRINT"
-        rightsText="All rights reserved © FirstChurch"
-        motto="A shared space of worship, growth, and community—helping teens discover identity and God-given value in Christ."
+        rightsText={t("footer.rightsText")}
+        motto={t("footer.motto")}
         socials={{
           youtube: "https://youtube.com/",
           facebook: "https://www.facebook.com/huruuniihee",
@@ -43,10 +46,10 @@ export default function HomeClient() {
           phone: "tel:+8007 0177",
         }}
         navItems={[
-          { label: "About", href: "#about" },
-          { label: "Journey", href: "#journey" },
-          { label: "Stories", href: "#stories" },
-          { label: "Gallery", href: "#gallery" },
+          { label: t("nav.about"), href: "#about" },
+          { label: t("nav.journey"), href: "#journey" },
+          { label: t("nav.stories"), href: "#stories" },
+          { label: t("nav.gallery"), href: "#gallery" },
         ]}
       />
     </>

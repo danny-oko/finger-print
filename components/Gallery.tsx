@@ -1,15 +1,20 @@
+"use client";
+
 import React from "react";
 import DomeGallery from "./DomeGallery";
+import { useTranslation } from "@/lib/useTranslation";
 
 const CONTAINER = "mx-auto w-[min(1200px,92vw)]";
 
 const Gallery = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="w-full pt-20 pb-10" id="gallery">
       <div className={CONTAINER}>
         <div className="text-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            The Community
+            {t("gallery.title")}
           </h1>
         </div>
       </div>

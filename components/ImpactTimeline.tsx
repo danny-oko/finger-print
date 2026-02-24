@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import ImageTrail from "./ImageTrail";
 import ShinyText from "./ShinyText";
 import RotatingText from "./RotatingText";
+import { useTranslation } from "@/lib/useTranslation";
+import { getTranslations } from "@/lib/translations";
 
 type TimelineItem = {
   year: string;
@@ -77,6 +79,48 @@ export default function ImpactTimeline({
   items?: TimelineItem[];
 }) {
   const sectionRef = React.useRef<HTMLElement | null>(null);
+  const { lang, t } = useTranslation();
+  const tr = getTranslations(lang);
+
+  const defaultItems: TimelineItem[] = [
+    {
+      year: "2017",
+      title: tr.journey.title1,
+      summary: tr.journey.summary1,
+      pills: [tr.journey.pillsAttendees, tr.journey.pillsChurches, tr.journey.pillsLocation],
+      images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
+    },
+    {
+      year: "2018",
+      title: tr.journey.title2,
+      summary: tr.journey.summary2,
+      pills: [tr.journey.pillsAttendees, tr.journey.pillsChurches, tr.journey.pillsTheme],
+      images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
+    },
+    {
+      year: "2019",
+      title: tr.journey.title3,
+      summary: tr.journey.summary3,
+      pills: [tr.journey.pillsAttendees, tr.journey.pillsChurches, tr.journey.pillsVolunteers],
+      images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
+    },
+    {
+      year: "2020–2021",
+      title: tr.journey.title4,
+      summary: tr.journey.summary4,
+      pills: [tr.journey.pillsFormat, tr.journey.pillsReach, tr.journey.pillsTheme],
+      images: ["/fp-4.jpg", "/fp-5.jpg", "/fp-6.jpg", "/fp-7.jpg"],
+    },
+    {
+      year: "2023–2024",
+      title: tr.journey.title5,
+      summary: tr.journey.summary5,
+      pills: [tr.journey.pillsAttendees, tr.journey.pillsChurches, tr.journey.pillsLocation],
+      images: ["/fp-4.jpg", "/fp-5.jpg", "/fp-6.jpg", "/fp-7.jpg"],
+    },
+  ];
+
+  const displayItems = items ?? defaultItems;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -97,24 +141,17 @@ export default function ImpactTimeline({
         <div className="grid min-w-0 grid-cols-1 gap-10 md:grid-cols-[320px_1fr] md:gap-14">
           <div className="md:sticky md:top-24 md:self-start">
             <div className="inline-flex items-center gap-2 rounded-full border border-neutral-900/15 bg-neutral-900/5 px-4 py-2 text-xs font-medium text-neutral-900/70">
-              {label}
+              {t("journey.label")}
             </div>
 
             <h2 className="mt-6 text-3xl font-semibold tracking-tight text-neutral-900 md:text-4xl">
-              <span className="block">The Journey</span>
+              <span className="block">{t("journey.theJourney")}</span>
 
               <span className="mt-2 flex items-center gap-2">
-                <span>Since</span>
+                <span>{t("journey.since")}</span>
 
                 <RotatingText
-                  texts={[
-                    "First Prayer",
-                    "the Calling",
-                    "Faith Began",
-                    "By His Grace",
-                    "Faith Began",
-                    "Rooted in Christ",
-                  ]}
+                  texts={tr.journey.rotating}
                   mainClassName={[
                     "relative inline-flex items-center justify-center",
                     "whitespace-nowrap",
@@ -142,13 +179,13 @@ export default function ImpactTimeline({
             </h2>
 
             <p className="mt-4 max-w-[40ch] text-base leading-relaxed text-neutral-900/70">
-              {subheading}
+              {t("journey.subheading")}
             </p>
 
             <div className="mt-6">
               <p className="hidden text-sm text-neutral-900/55 md:block">
                 <ShinyText
-                  text={hoverHint}
+                  text={t("journey.hoverHint")}
                   speed={2}
                   delay={0}
                   color="#737373"
@@ -161,7 +198,7 @@ export default function ImpactTimeline({
                 />
               </p>
               <p className="text-sm text-neutral-900/55 md:hidden">
-                {mobileHint}
+                {t("journey.mobileHint")}
               </p>
             </div>
           </div>
@@ -174,7 +211,7 @@ export default function ImpactTimeline({
             />
 
             <div className="min-w-0 space-y-7">
-              {items.map((it, idx) => (
+              {displayItems.map((it, idx) => (
                 <TimelineRow key={`${it.year}-${idx}`} item={it} index={idx} />
               ))}
             </div>

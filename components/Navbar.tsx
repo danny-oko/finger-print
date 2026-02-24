@@ -13,13 +13,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import StaggeredMenu from "@/components/StaggeredMenu";
+import { useTranslation } from "@/lib/useTranslation";
+import type { Lang } from "@/lib/translations";
 
-const navItems = [
-  { label: "About", href: "#about" },
-  { label: "Journey", href: "#journey" },
-  { label: "Stories", href: "#stories" },
-  { label: "Gallery", href: "#gallery" },
+const navConfig = [
+  { key: "about" as const, href: "#about" },
+  { key: "journey" as const, href: "#journey" },
+  { key: "stories" as const, href: "#stories" },
+  { key: "gallery" as const, href: "#gallery" },
 ];
+
+const LANG_LABEL: Record<Lang, string> = {
+  en: "EN",
+  mn: "MN",
+  ko: "KR",
+};
 
 const socialItems = [
   { label: "Instagram", link: "https://www.instagram.com/huruunii_hee/" },
@@ -28,20 +36,6 @@ const socialItems = [
   { label: "Gmail", link: "mailto:hello@fingerprint.mn" },
   { label: "Tel", link: "tel:+97699112233" },
 ];
-
-type Lang = "en" | "mn" | "ko";
-
-const LANG_LABEL: Record<Lang, string> = {
-  en: "EN",
-  mn: "MN",
-  ko: "KR",
-};
-
-const LANG_NAME: Record<Lang, string> = {
-  en: "English",
-  mn: "Монгол",
-  ko: "한국어",
-};
 
 function withLang(href: string, lang: Lang) {
   const [path, hash = ""] = href.split("#");
@@ -59,6 +53,7 @@ export default function Navbar({ className }: { className?: string }) {
   const searchParams = useSearchParams();
 
   const lang = (searchParams.get("lang") as Lang | null) ?? "en";
+  const { t } = useTranslation();
 
   const setLang = (next: Lang) => {
     const current = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
@@ -66,27 +61,12 @@ export default function Navbar({ className }: { className?: string }) {
   };
 
   const menuItems = [
-    { label: "Home", ariaLabel: "Go to home page", link: withLang("/", lang) },
-    {
-      label: "About",
-      ariaLabel: "Learn about us",
-      link: withLang("#about", lang),
-    },
-    {
-      label: "Our Vision",
-      ariaLabel: "Our vision",
-      link: withLang("#our-vision", lang),
-    },
-    {
-      label: "Impacts",
-      ariaLabel: "View impacts",
-      link: withLang("#impact", lang),
-    },
-    {
-      label: "Contact",
-      ariaLabel: "Get in touch",
-      link: withLang("/start", lang),
-    },
+    { label: t("nav.home"), ariaLabel: "Go to home page", link: withLang("/", lang) },
+    { label: t("nav.about"), ariaLabel: "Learn about us", link: withLang("#about", lang) },
+    { label: t("nav.journey"), ariaLabel: "Our journey", link: withLang("#journey", lang) },
+    { label: t("nav.stories"), ariaLabel: "Stories", link: withLang("#stories", lang) },
+    { label: t("nav.gallery"), ariaLabel: "Gallery", link: withLang("#gallery", lang) },
+    { label: t("nav.getInTouch"), ariaLabel: "Get in touch", link: withLang("/start", lang) },
   ];
 
   const handleClickToTop = () => {
@@ -158,7 +138,7 @@ export default function Navbar({ className }: { className?: string }) {
             </Link>
 
             <div className="hidden md:flex items-center gap-10 flex-1 justify-center">
-              {navItems.map((item) => {
+              {navConfig.map((item) => {
                 const link = withLang(item.href, lang);
                 return (
                   <a
@@ -167,7 +147,7 @@ export default function Navbar({ className }: { className?: string }) {
                     onClick={(e) => handleNavigate(e, item.href)}
                     className="text-sm font-medium text-foreground/80 hover:text-foreground transition"
                   >
-                    {item.label}
+                    {t(`nav.${item.key}`)}
                   </a>
                 );
               })}
@@ -184,14 +164,14 @@ export default function Navbar({ className }: { className?: string }) {
                 <DropdownMenuContent align="end" className="min-w-[160px]">
                   {(["en", "mn", "ko"] as Lang[]).map((l) => (
                     <DropdownMenuItem key={l} onClick={() => setLang(l)}>
-                      {LANG_NAME[l]} {lang === l ? "✓" : ""}
+                      {t(`langName.${l}`)} {lang === l ? "✓" : ""}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
 
               <Button className="rounded-full px-6" asChild>
-                <Link href={withLang("/start", lang)}>Get In Touch</Link>
+                <Link href={withLang("/start", lang)}>{t("nav.getInTouch")}</Link>
               </Button>
             </div>
           </nav>

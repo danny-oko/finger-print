@@ -5,6 +5,7 @@ import * as React from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/useTranslation";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -59,25 +60,28 @@ function TrackLine({ chunks }: { chunks: Chunk[] }) {
 
 export default function PinnedManifesto({
   className,
-  label = "Why it matters",
+  label,
   height = "70vh",
-  chunks = [
-    { type: "text", value: "Adolescence is a defining season where" },
-    { type: "pill", value: "identity", tone: "mint" },
-    { type: "text", value: "is shaped, where" },
-    { type: "pill", value: "worth", tone: "violet" },
-    { type: "text", value: "is discovered, and faith is anchored in" },
-    { type: "pill", value: "Christ", tone: "orange" },
-    { type: "text", value: "." },
-  ] as Chunk[],
+  chunks: chunksProp,
 }: {
   className?: string;
   label?: string;
   height?: string;
   chunks?: Chunk[];
 }) {
+  const { t } = useTranslation();
   const sectionRef = React.useRef<HTMLElement | null>(null);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
+
+  const chunks: Chunk[] = chunksProp ?? [
+    { type: "text", value: t("manifesto.text1") },
+    { type: "pill", value: t("manifesto.pillIdentity"), tone: "mint" },
+    { type: "text", value: t("manifesto.text2") },
+    { type: "pill", value: t("manifesto.pillWorth"), tone: "violet" },
+    { type: "text", value: t("manifesto.text3") },
+    { type: "pill", value: t("manifesto.pillChrist"), tone: "orange" },
+    { type: "text", value: t("manifesto.text4") },
+  ];
 
   React.useEffect(() => {
     const section = sectionRef.current;

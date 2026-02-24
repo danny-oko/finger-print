@@ -4,20 +4,25 @@ import * as React from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/useTranslation";
 
 const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
 export default function WhySection({
   className,
-label = "Our Identity",
-  main = "Finger Print supports and connects youth ministries across Mongolia’s Evangelical churches — helping teenagers recognize their distinct identity and God-given value within Christ through a shared space of worship, growth, and community.",
-  clarify = "This mission begins in adolescence—the season where identity is formed and value is revealed.",
+  label,
+  main,
+  clarify,
 }: {
   className?: string;
   label?: string;
   main?: string;
   clarify?: string;
 }) {
+  const { t } = useTranslation();
+  const labelText = label ?? t("identity.label");
+  const mainText = main ?? t("identity.main");
+  const clarifyText = clarify ?? t("identity.clarify");
   const sectionRef = React.useRef<HTMLElement | null>(null);
   const pinRef = React.useRef<HTMLDivElement | null>(null);
   const clarifyRef = React.useRef<HTMLParagraphElement | null>(null);
@@ -86,32 +91,32 @@ label = "Our Identity",
       >
         <div className={cn(CONTAINER, "py-24 md:py-28")}>
           <div className="inline-flex items-center gap-2 rounded-full border border-neutral-900/15 bg-neutral-900/5 px-4 py-2 text-xs font-medium text-neutral-900/80">
-            {label}
+            {labelText}
           </div>
 
           <p
             ref={mainRef}
             className="mt-10 text-pretty text-[clamp(34px,4.6vw,64px)] font-semibold leading-[1.06] tracking-tight text-neutral-900"
           >
-            {main}
+            {mainText}
           </p>
 
           <p
             ref={clarifyRef}
             className="mt-10 max-w-[68ch] text-pretty text-lg font-medium leading-relaxed text-neutral-900/70 md:text-xl"
           >
-            {clarify}
+            {clarifyText}
           </p>
 
           <div ref={pillsRef} className="mt-10 flex flex-wrap gap-3">
             <span className="inline-flex items-center rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-black shadow-[0_16px_34px_rgba(0,0,0,.14)]">
-              Identity
+              {t("identity.pillIdentity")}
             </span>
             <span className="inline-flex items-center rounded-2xl bg-violet-200 px-5 py-3 text-sm font-semibold text-black shadow-[0_16px_34px_rgba(0,0,0,.14)]">
-              Unity
+              {t("identity.pillUnity")}
             </span>
             <span className="inline-flex items-center rounded-2xl bg-orange-400 px-5 py-3 text-sm font-semibold text-black shadow-[0_16px_34px_rgba(0,0,0,.14)]">
-              Next Generation
+              {t("identity.pillNextGen")}
             </span>
           </div>
         </div>

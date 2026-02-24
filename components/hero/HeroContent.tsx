@@ -6,12 +6,12 @@ import { Play } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import HeroVideoDialog from "./HeroVideoDialog";
-import { heroCopy, YT_EMBED } from "./types";
-
-import Counter from "@/components/Counter";
+import { YT_EMBED } from "./types";
+import { useTranslation } from "@/lib/useTranslation";
 
 export default function HeroContent() {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -25,19 +25,19 @@ export default function HeroContent() {
     <>
       <div className="w-full pt-6">
         <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white ring-1 ring-white/15">
-          {heroCopy.badge}
+          {t("hero.badge")}
         </div>
 
         <h1 className="mt-5 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl md:text-7xl">
-          {heroCopy.title}
+          {t("hero.title")}
         </h1>
 
         <p className="mt-3 text-base text-white/85 md:text-lg">
-          {heroCopy.subtitle}
+          {t("hero.subtitle")}
         </p>
 
         <p className="mt-4 max-w-[58ch] text-sm text-white/75 md:text-base">
-          {heroCopy.description}
+          {t("hero.description")}
         </p>
 
         <div className="mt-8 flex flex-wrap gap-4">
@@ -46,7 +46,7 @@ export default function HeroContent() {
             onClick={() => setOpen(true)}
           >
             <Play className="h-4 w-4 fill-transparent stroke-[2.2] text-white cursor-pointer" />
-            {heroCopy.ctaPrimary}
+            {t("hero.ctaPrimary")}
           </Button>
 
           <Button
@@ -54,7 +54,7 @@ export default function HeroContent() {
             className="h-11 rounded-full px-8 cursor-pointer"
             asChild
           >
-            <Link href="#about">{heroCopy.ctaSecondary}</Link>
+            <Link href="#about">{t("hero.ctaSecondary")}</Link>
           </Button>
         </div>
       </div>

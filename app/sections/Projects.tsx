@@ -1,29 +1,31 @@
+"use client";
+
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "@/lib/useTranslation";
 
 const videos = [
   {
-    title: "Short Film",
+    titleKey: "shortFilm" as const,
     embed:
       "https://www.youtube-nocookie.com/embed/g5Uk9WVFTt0?controls=0&modestbranding=1&rel=0&playsinline=1",
     link: "https://youtu.be/g5Uk9WVFTt0",
   },
   {
-    title: "Event day Video",
+    titleKey: "eventDayVideo" as const,
     embed: "https://www.youtube.com/embed/dQw4w9WgXcQ?si=rjIuuNjaNL4eLu95",
     link: "https://youtu.be/dQw4w9WgXcQ?si=X_pUPz--ypda4mB3",
   },
 ];
 
 const Projects = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="w-full" id="stories">
       <div className="mx-auto w-[min(1200px,92vw)] py-16">
         <div className="mb-10 flex flex-col gap-3">
-          {/* <p className="text-sm tracking-wide text-muted-foreground">
-            Stuffs we have done
-          </p> */}
-          <h2 className="text-3xl font-bold sm:text-4xl">Stories in Motion</h2>
+          <h2 className="text-3xl font-bold sm:text-4xl">{t("projects.heading")}</h2>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
@@ -41,7 +43,7 @@ const Projects = () => {
               className="group"
             >
               <div className="mb-3 flex items-end justify-between gap-3">
-                <h3 className="text-lg font-semibold">{video.title}</h3>
+                <h3 className="text-lg font-semibold">{t(`projects.${video.titleKey}`)}</h3>
                 <motion.a
                   whileHover={{ y: -1 }}
                   whileTap={{ scale: 0.98 }}
@@ -50,7 +52,7 @@ const Projects = () => {
                   rel="noreferrer"
                   className="text-sm font-medium underline underline-offset-4 decoration-border hover:decoration-foreground"
                 >
-                  Open
+                  {t("projects.open")}
                 </motion.a>
               </div>
 
@@ -59,7 +61,7 @@ const Projects = () => {
                   <iframe
                     className="absolute inset-0 h-full w-full transition-transform duration-500 group-hover:scale-[1.01]"
                     src={video.embed}
-                    title={video.title}
+                    title={t(`projects.${video.titleKey}`)}
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     referrerPolicy="strict-origin-when-cross-origin"

@@ -1,9 +1,9 @@
 "use client";
 
-import * as React from "react";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import * as React from "react";
+import { useTranslation } from "@/lib/useTranslation";
 
 const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
@@ -56,10 +56,10 @@ export default function Footer({
     facebook: "https://www.facebook.com/huruuniihee",
     youtube: "https://www.youtube.com",
     email: "mailto:hello@fingerprint.mn",
-    phone: "tel:+97680070177",
+    phone: "tel:+976-8007-0177",
   };
   const s = socials ?? defaultSocials;
-
+  const { t } = useTranslation();
   const router = useRouter();
 
   const handleNavigate = (
@@ -117,7 +117,7 @@ export default function Footer({
               <div className="grid gap-8 sm:grid-cols-2">
                 <div>
                   <div className="text-xs font-semibold tracking-[0.18em] text-white/55">
-                    NAVIGATION
+                    {t("footer.navigation")}
                   </div>
 
                   <ul className="mt-4 space-y-2.5">
@@ -137,7 +137,7 @@ export default function Footer({
 
                 <div>
                   <div className="text-xs font-semibold tracking-[0.18em] text-white/55">
-                    CONTACT
+                    {t("footer.contact")}
                   </div>
 
                   <div className="mt-4 space-y-2.5">
