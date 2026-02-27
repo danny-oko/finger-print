@@ -1,4 +1,3 @@
-// app/components/Navbar.tsx
 "use client";
 
 import Link from "next/link";
@@ -12,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import StaggeredMenu from "@/components/StaggeredMenu";
 import { useTranslation } from "@/lib/useTranslation";
 import type { Lang } from "@/lib/translations";
 
@@ -101,7 +99,6 @@ export default function Navbar({ className }: { className?: string }) {
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string,
   ) => {
-    // only handle hash links
     if (!href.includes("#")) return;
 
     e.preventDefault();
@@ -122,25 +119,6 @@ export default function Navbar({ className }: { className?: string }) {
 
   return (
     <>
-      {/* <div className={cn("fixed inset-0 z-50 md:hidden", className)}>
-        <StaggeredMenu
-          position="right"
-          items={menuItems}
-          socialItems={socialItems}
-          displaySocials
-          displayItemNumbering
-          menuButtonColor="#bbb5b5"
-          openMenuButtonColor="#111111"
-          changeMenuColorOnOpen
-          colors={["#f5f5f5", "#e5e5e5"]}
-          logoUrl="/logo.png"
-          accentColor="#111111"
-          isFixed
-          closeOnClickAway
-          className="z-1"
-        />
-      </div> */}
-
       <div
         className={cn("fixed inset-x-0 top-0 z-50 hidden md:block", className)}
       >

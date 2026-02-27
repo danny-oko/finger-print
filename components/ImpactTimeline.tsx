@@ -1,4 +1,3 @@
-// app/components/ImpactTimeline.tsx
 "use client";
 
 import * as React from "react";
@@ -87,35 +86,55 @@ export default function ImpactTimeline({
       year: "2017",
       title: tr.journey.title1,
       summary: tr.journey.summary1,
-      pills: [tr.journey.pillsAttendees, tr.journey.pillsChurches, tr.journey.pillsLocation],
+      pills: [
+        tr.journey.pillsAttendees,
+        tr.journey.pillsChurches,
+        tr.journey.pillsLocation,
+      ],
       images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
       year: "2018",
       title: tr.journey.title2,
       summary: tr.journey.summary2,
-      pills: [tr.journey.pillsAttendees, tr.journey.pillsChurches, tr.journey.pillsTheme],
+      pills: [
+        tr.journey.pillsAttendees,
+        tr.journey.pillsChurches,
+        tr.journey.pillsTheme,
+      ],
       images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
       year: "2019",
       title: tr.journey.title3,
       summary: tr.journey.summary3,
-      pills: [tr.journey.pillsAttendees, tr.journey.pillsChurches, tr.journey.pillsVolunteers],
+      pills: [
+        tr.journey.pillsAttendees,
+        tr.journey.pillsChurches,
+        tr.journey.pillsVolunteers,
+      ],
       images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
       year: "2020–2021",
       title: tr.journey.title4,
       summary: tr.journey.summary4,
-      pills: [tr.journey.pillsFormat, tr.journey.pillsReach, tr.journey.pillsTheme],
+      pills: [
+        tr.journey.pillsFormat,
+        tr.journey.pillsReach,
+        tr.journey.pillsTheme,
+      ],
       images: ["/fp-4.jpg", "/fp-5.jpg", "/fp-6.jpg", "/fp-7.jpg"],
     },
     {
       year: "2023–2024",
       title: tr.journey.title5,
       summary: tr.journey.summary5,
-      pills: [tr.journey.pillsAttendees, tr.journey.pillsChurches, tr.journey.pillsLocation],
+      pills: [
+        tr.journey.pillsAttendees,
+        tr.journey.pillsChurches,
+        tr.journey.pillsLocation,
+      ],
       images: ["/fp-4.jpg", "/fp-5.jpg", "/fp-6.jpg", "/fp-7.jpg"],
     },
   ];
@@ -144,11 +163,13 @@ export default function ImpactTimeline({
               {t("journey.label")}
             </div>
 
-            <h2 className="mt-6 text-3xl font-semibold tracking-tight text-neutral-900 md:text-4xl">
-              <span className="block">{t("journey.theJourney")}</span>
+            <h2 className="mt-6 text-3xl font-semibold tracking-tight text-neutral-900 md:text-3xl flex-wrap">
+              <span className="block">
+                {t("journey.theJourney")} {t("journey.since")}
+              </span>
 
               <span className="mt-2 flex items-center gap-2">
-                <span>{t("journey.since")}</span>
+                {/* <span>{t("journey.since")}</span> */}
 
                 <RotatingText
                   texts={tr.journey.rotating}
@@ -222,7 +243,6 @@ export default function ImpactTimeline({
   );
 }
 
-/* ❌ Timeline cards untouched */
 function TimelineRow({ item, index }: { item: TimelineItem; index: number }) {
   const [trailKey, setTrailKey] = React.useState(0);
   const images = React.useMemo(() => item.images ?? [], [item.images]);

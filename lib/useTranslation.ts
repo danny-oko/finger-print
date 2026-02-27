@@ -11,10 +11,7 @@ export function useTranslation(): {
   const searchParams = useSearchParams();
   const lang = (searchParams.get("lang") as Lang | null) ?? "en";
 
-  const t = useCallback(
-    (key: string) => getTranslation(lang, key),
-    [lang],
-  );
+  const t = useCallback((key: string) => getTranslation(lang, key), [lang]);
 
   return { lang, t };
 }
