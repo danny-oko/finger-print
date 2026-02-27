@@ -4,6 +4,9 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useTranslation } from "@/lib/useTranslation";
+import { Instagram, Facebook, Youtube, Mail, Phone } from "lucide-react";
+import FancyWords from "./FancyWords";
+import SocialPill from "./SocialPill";
 
 const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
@@ -74,10 +77,9 @@ export default function Footer({
     const el = document.getElementById(id);
     if (!el) return;
 
-    // keep URL hash updated (optional but nice)
     router.push(href, { scroll: false });
 
-    const NAV_OFFSET = 110; // adjust for your fixed navbar height
+    const NAV_OFFSET = 110;
     const y = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
 
     window.scrollTo({ top: y, behavior: "smooth" });
@@ -95,7 +97,7 @@ export default function Footer({
           <div className="relative">
             <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] lg:gap-14">
               <div>
-                <FancyWord text={bigWord} />
+                <FancyWords text={bigWord} />
 
                 <p className="mt-6 max-w-[52ch] text-sm leading-relaxed text-white/70 md:text-base">
                   {motto}
@@ -168,64 +170,5 @@ export default function Footer({
         </div>
       </div>
     </footer>
-  );
-}
-
-function FancyWord({ text }: { text: string }) {
-  return (
-    <div className="relative">
-      <div
-        aria-hidden
-        className={cn(
-          "select-none",
-          "text-[clamp(52px,7vw,110px)] font-black leading-[0.9] tracking-tight",
-          "text-white/10 blur-[0.2px]",
-          "absolute -left-1 -top-1 rotate-[-2deg]",
-        )}
-      >
-        {text}
-      </div>
-
-      <h2
-        className={cn(
-          "relative",
-          "text-[clamp(52px,7vw,110px)] font-black leading-[0.9] tracking-tight",
-          "rotate-[-2deg]",
-        )}
-      >
-        <span className="bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">
-          {text}
-        </span>
-        <span
-          aria-hidden
-          className={cn(
-            "absolute inset-0",
-            "text-transparent",
-            "[text-stroke:1px_rgba(255,255,255,0.18)]",
-            "[-webkit-text-stroke:1px_rgba(255,255,255,0.18)]",
-          )}
-        >
-          {text}
-        </span>
-      </h2>
-    </div>
-  );
-}
-
-function SocialPill({ href, label }: { href: string; label: string }) {
-  const isExternal = href.startsWith("http");
-  return (
-    <a
-      href={href}
-      target={isExternal ? "_blank" : undefined}
-      rel={isExternal ? "noreferrer" : undefined}
-      className={cn(
-        "inline-flex items-center rounded-full border border-white/15 bg-white/5",
-        "px-4 py-2 text-xs font-medium text-white/75",
-        "transition hover:border-white/25 hover:bg-white/10 hover:text-white",
-      )}
-    >
-      {label}
-    </a>
   );
 }
