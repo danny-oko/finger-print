@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import Gallery from "@/components/Gallery";
 import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/hero/HeroCarousel";
+import CountDown from "@/components/CountDown";
 import { useTranslation } from "@/lib/useTranslation";
 
 export default function HomeClient() {
@@ -29,6 +30,7 @@ export default function HomeClient() {
       <Navbar />
       <main>
         <HeroCarousel slides={slides} />
+        <CountDown />
         <Identity />
         <TimlineClient />
         <Projects />

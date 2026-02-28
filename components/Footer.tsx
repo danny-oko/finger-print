@@ -1,43 +1,24 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import type { FooterProps, SocialItem } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useTranslation } from "@/lib/useTranslation";
 import { Instagram, Facebook, Youtube, Mail, Phone } from "lucide-react";
+
 import FancyWords from "./FancyWords";
 import SocialPill from "./SocialPill";
 
 const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
-type Socials = {
-  youtube?: string;
-  facebook?: string;
-  instagram?: string;
-  email?: string;
-  phone?: string;
-};
-
-type Props = {
-  className?: string;
-  bigWord?: string;
-  motto?: string;
-  rightsText?: string;
-  navItems?: { label: string; href: string }[];
-  email?: string;
-  phone?: string;
-  socials?: Socials;
-};
-
-function withLang(href: string, lang: string) {
-  const [path, hash = ""] = href.split("#");
-  const u = new URL(
-    path || "/",
-    typeof window !== "undefined" ? window.location.origin : "http://localhost",
-  );
-  u.searchParams.set("lang", lang);
-  return `${u.pathname}${u.search}${hash ? `#${hash}` : ""}`;
-}
+const SOCIAL_ITEMS: SocialItem[] = [
+  { key: "instagram", label: "Instagram", Icon: Instagram },
+  { key: "facebook", label: "Facebook", Icon: Facebook },
+  { key: "youtube", label: "YouTube", Icon: Youtube },
+  { key: "email", label: "Email", Icon: Mail },
+  { key: "phone", label: "Call", Icon: Phone },
+];
 
 export default function Footer({
   className,
@@ -53,15 +34,22 @@ export default function Footer({
   email = "hello@fingerprint.mn",
   phone = "+976 8007-0177",
   socials,
-}: Props) {
-  const defaultSocials: Socials = {
+}: FooterProps) {
+  const defaultSocials = {
     instagram: "https://www.instagram.com/huruunii_hee/",
     facebook: "https://www.facebook.com/huruuniihee",
     youtube: "https://www.youtube.com",
     email: "mailto:hello@fingerprint.mn",
     phone: "tel:+976-8007-0177",
   };
+
   const s = socials ?? defaultSocials;
+
+  const socialItems = SOCIAL_ITEMS.map((it) => ({
+    ...it,
+    href: s[it.key],
+  })).filter((it): it is SocialItem & { href: string } => Boolean(it.href));
+
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -72,7 +60,6 @@ export default function Footer({
     if (!href.startsWith("#")) return;
 
     e.preventDefault();
-
     const id = href.slice(1);
     const el = document.getElementById(id);
     if (!el) return;
@@ -81,7 +68,6 @@ export default function Footer({
 
     const NAV_OFFSET = 110;
     const y = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
-
     window.scrollTo({ top: y, behavior: "smooth" });
   };
 
@@ -104,15 +90,14 @@ export default function Footer({
                 </p>
 
                 <div className="mt-8 flex flex-wrap items-center gap-3">
-                  {s.instagram && (
-                    <SocialPill href={s.instagram} label="Instagram" />
-                  )}
-                  {s.facebook && (
-                    <SocialPill href={s.facebook} label="Facebook" />
-                  )}
-                  {s.youtube && <SocialPill href={s.youtube} label="YouTube" />}
-                  {s.email && <SocialPill href={s.email} label="Gmail" />}
-                  {s.phone && <SocialPill href={s.phone} label="Tel" />}
+                  {socialItems.map(({ key, href, label, Icon }) => (
+                    <SocialPill
+                      key={key}
+                      href={href}
+                      label={label}
+                      Icon={Icon}
+                    />
+                  ))}
                 </div>
               </div>
 

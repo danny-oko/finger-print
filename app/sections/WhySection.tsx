@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/useTranslation";
+import { GrainGradient } from "@paper-design/shaders-react";
 
 const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
@@ -85,6 +86,13 @@ export default function WhySection({
 
   return (
     <section ref={sectionRef} className={cn("w-full", className)}>
+      <GrainGradient
+        colors={["#F5F1E8", "#F5F1E8"]}
+        noise={0.15}
+        softness={0.4}
+        intensity={0.2}
+        speed={0}
+      />
       <div
         ref={pinRef}
         className="relative w-full overflow-hidden bg-white text-neutral-900"

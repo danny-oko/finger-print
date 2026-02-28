@@ -169,8 +169,6 @@ export default function ImpactTimeline({
               </span>
 
               <span className="mt-2 flex items-center gap-2">
-                {/* <span>{t("journey.since")}</span> */}
-
                 <RotatingText
                   texts={tr.journey.rotating}
                   mainClassName={[

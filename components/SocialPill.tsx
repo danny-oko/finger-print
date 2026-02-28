@@ -1,21 +1,31 @@
-import React from "react";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
-function SocialPill({ href, label }: { href: string; label: string }) {
+export default function SocialPill({
+  href,
+  label,
+  Icon,
+}: {
+  href: string;
+  label: string;
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}) {
   const isExternal = href.startsWith("http");
+
   return (
     <a
       href={href}
       target={isExternal ? "_blank" : undefined}
       rel={isExternal ? "noreferrer" : undefined}
+      aria-label={label}
       className={cn(
-        "inline-flex items-center rounded-full border border-white/15 bg-white/5",
+        "inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5",
         "px-4 py-2 text-xs font-medium text-white/75",
         "transition hover:border-white/25 hover:bg-white/10 hover:text-white",
       )}
     >
-      {label}
+      <Icon className="h-4 w-4" aria-hidden="true" />
+      <span>{label}</span>
     </a>
   );
 }
-export default SocialPill;
