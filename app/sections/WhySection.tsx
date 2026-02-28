@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/useTranslation";
 import { GrainGradient } from "@paper-design/shaders-react";
+import { Badge } from "@/components/ui/badge";
 
 const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
@@ -98,10 +99,12 @@ export default function WhySection({
         className="relative w-full overflow-hidden bg-white text-neutral-900"
       >
         <div className={cn(CONTAINER, "py-24 md:py-28")}>
-          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-900/15 bg-neutral-900/5 px-4 py-2 text-xs font-medium text-neutral-900/80">
+          <Badge
+            variant="violet"
+            className=" rounded-full px-5 py-2 text-sm font-semibold tracking-normal "
+          >
             {labelText}
-          </div>
-
+          </Badge>
           <p
             ref={mainRef}
             className="mt-10 text-pretty text-[clamp(34px,4.6vw,64px)] font-semibold leading-[1.06] tracking-tight text-neutral-900"

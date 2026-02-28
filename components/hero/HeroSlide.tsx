@@ -1,4 +1,3 @@
-// app/components/hero/HeroSlide.tsx
 "use client";
 
 import { cn } from "@/lib/utils";

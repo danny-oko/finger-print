@@ -7,8 +7,8 @@ import Footer from "@/components/Footer";
 import Gallery from "@/components/Gallery";
 import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/hero/HeroCarousel";
-import CountDown from "@/components/CountDown";
 import { useTranslation } from "@/lib/useTranslation";
+import CountDown from "@/components/CountDown/CountDown";
 
 export default function HomeClient() {
   const { t } = useTranslation();

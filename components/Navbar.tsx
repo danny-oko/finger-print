@@ -54,42 +54,44 @@ export default function Navbar({ className }: { className?: string }) {
   const { t } = useTranslation();
 
   const setLang = (next: Lang) => {
-    const current = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+    const current = `${pathname}${
+      searchParams.toString() ? `?${searchParams.toString()}` : ""
+    }`;
     router.push(withLang(current, next), { scroll: false });
   };
 
-  const menuItems = [
-    {
-      label: t("nav.home"),
-      ariaLabel: "Go to home page",
-      link: withLang("/", lang),
-    },
-    {
-      label: t("nav.about"),
-      ariaLabel: "Learn about us",
-      link: withLang("#about", lang),
-    },
-    {
-      label: t("nav.journey"),
-      ariaLabel: "Our journey",
-      link: withLang("#journey", lang),
-    },
-    {
-      label: t("nav.stories"),
-      ariaLabel: "Stories",
-      link: withLang("#stories", lang),
-    },
-    {
-      label: t("nav.gallery"),
-      ariaLabel: "Gallery",
-      link: withLang("#gallery", lang),
-    },
-    {
-      label: t("nav.getInTouch"),
-      ariaLabel: "Get in touch",
-      link: withLang("/start", lang),
-    },
-  ];
+  // const menuItems = [
+  //   {
+  //     label: t("nav.home"),
+  //     ariaLabel: "Go to home page",
+  //     link: withLang("/", lang),
+  //   },
+  //   {
+  //     label: t("nav.about"),
+  //     ariaLabel: "Learn about us",
+  //     link: withLang("#about", lang),
+  //   },
+  //   {
+  //     label: t("nav.journey"),
+  //     ariaLabel: "Our journey",
+  //     link: withLang("#journey", lang),
+  //   },
+  //   {
+  //     label: t("nav.stories"),
+  //     ariaLabel: "Stories",
+  //     link: withLang("#stories", lang),
+  //   },
+  //   {
+  //     label: t("nav.gallery"),
+  //     ariaLabel: "Gallery",
+  //     link: withLang("#gallery", lang),
+  //   },
+  //   {
+  //     label: t("nav.getInTouch"),
+  //     ariaLabel: "Get in touch",
+  //     link: withLang("/start", lang),
+  //   },
+  // ];
 
   const handleClickToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -122,7 +124,7 @@ export default function Navbar({ className }: { className?: string }) {
       <div
         className={cn("fixed inset-x-0 top-0 z-50 hidden md:block", className)}
       >
-        <div className="mx-auto w-[min(calc(100%-2rem),80vw)] max-w-[1280px] pt-4 sm:pt-6">
+        <div className="mx-auto w-[min(calc(100%-2rem),80vw)] max-w-[1200px] pt-4 sm:pt-6">
           <nav
             className={cn(
               "h-20 w-full rounded-full bg-background/90 backdrop-blur",
