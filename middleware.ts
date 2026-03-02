@@ -8,7 +8,6 @@ function getLangFromCountry(country: string | undefined): Lang {
   if (!country) return "en";
 
   const code = country.toUpperCase();
-  console.log(code);
   if (code === "MN") return "mn";
   if (code === "KR") return "ko";
 
@@ -17,9 +16,6 @@ function getLangFromCountry(country: string | undefined): Lang {
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
-
-  console.log("middleware");
-  console.log(url);
 
   const existingLang = url.searchParams.get("lang");
   if (existingLang && SUPPORTED_LANGS.includes(existingLang as Lang)) {
@@ -41,14 +37,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - api routes
-     * - public folder
-     */
     "/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:ico|png|jpg|jpeg|gif|webp|svg|woff2?)$).*)",
   ],
 };

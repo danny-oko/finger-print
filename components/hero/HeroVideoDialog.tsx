@@ -1,4 +1,3 @@
-// app/components/hero/HeroVideoDialog.tsx
 "use client";
 
 import { cn } from "@/lib/utils";

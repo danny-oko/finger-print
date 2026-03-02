@@ -40,7 +40,6 @@ interface DigitProps {
 }
 
 function Digit({ place, value, height, digitStyle }: DigitProps) {
-  // Decimal point digit
   if (place === '.') {
     return (
       <span
@@ -52,7 +51,6 @@ function Digit({ place, value, height, digitStyle }: DigitProps) {
     );
   }
 
-  // Numeric digit
   const valueRoundedToPlace = Math.floor(value / place);
   const animatedValue = useSpring(valueRoundedToPlace);
 
@@ -80,12 +78,6 @@ interface CounterProps {
   value: number;
   fontSize?: number;
   padding?: number;
-  /**
-   * An array of place values that determines which digit positions
-   * should be displayed. For decimal places, use "." to represent
-   * the decimal point. Leave this prop empty to enable automatic
-   * detection based on the current value.
-   */
   places?: PlaceValue[];
   gap?: number;
   borderRadius?: number;

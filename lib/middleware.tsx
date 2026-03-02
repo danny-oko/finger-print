@@ -9,6 +9,5 @@ export function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
   response.headers.set("x-user-country", country);
-  console.log(country, city);
   return response;
 }

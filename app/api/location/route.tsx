@@ -7,6 +7,5 @@ export function middleware(request: NextRequest) {
   const city = geo.city || "Unknown City";
   const country = geo.country || "Unknown Country";
 
-  console.log(`User from: ${city}, ${country}`);
   return NextResponse.json({ city, country });
 }

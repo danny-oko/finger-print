@@ -1,4 +1,3 @@
-// components/motion/Reveal.tsx
 "use client";
 
 import * as React from "react";

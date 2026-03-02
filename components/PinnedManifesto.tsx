@@ -1,4 +1,3 @@
-// app/components/PinnedManifesto.tsx
 "use client";
 
 import * as React from "react";

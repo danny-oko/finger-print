@@ -1,4 +1,3 @@
-// app/components/HeroVideo.tsx
 "use client";
 
 import React from "react";
@@ -43,7 +42,6 @@ export default function HeroVideo({
 
       <div className="relative z-10 h-full">
         <div className="mx-auto h-full w-[min(1120px,92vw)]">
-          {/* this keeps content out from under the navbar */}
           <div
             className="flex h-full items-end"
             style={{ paddingTop: "calc(var(--nav-h) + var(--nav-gap) + 12px)" }}

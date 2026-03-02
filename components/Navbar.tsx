@@ -27,14 +27,6 @@ const LANG_LABEL: Record<Lang, string> = {
   ko: "KR",
 };
 
-const socialItems = [
-  { label: "Instagram", link: "https://www.instagram.com/huruunii_hee/" },
-  { label: "Facebook", link: "https://www.facebook.com/huruuniihee" },
-  { label: "YouTube", link: "https://www.youtube.com" },
-  { label: "Gmail", link: "mailto:hello@fingerprint.mn" },
-  { label: "Tel", link: "tel:+97699112233" },
-];
-
 function withLang(href: string, lang: Lang) {
   const [path, hash = ""] = href.split("#");
   const u = new URL(
@@ -59,39 +51,6 @@ export default function Navbar({ className }: { className?: string }) {
     }`;
     router.push(withLang(current, next), { scroll: false });
   };
-
-  // const menuItems = [
-  //   {
-  //     label: t("nav.home"),
-  //     ariaLabel: "Go to home page",
-  //     link: withLang("/", lang),
-  //   },
-  //   {
-  //     label: t("nav.about"),
-  //     ariaLabel: "Learn about us",
-  //     link: withLang("#about", lang),
-  //   },
-  //   {
-  //     label: t("nav.journey"),
-  //     ariaLabel: "Our journey",
-  //     link: withLang("#journey", lang),
-  //   },
-  //   {
-  //     label: t("nav.stories"),
-  //     ariaLabel: "Stories",
-  //     link: withLang("#stories", lang),
-  //   },
-  //   {
-  //     label: t("nav.gallery"),
-  //     ariaLabel: "Gallery",
-  //     link: withLang("#gallery", lang),
-  //   },
-  //   {
-  //     label: t("nav.getInTouch"),
-  //     ariaLabel: "Get in touch",
-  //     link: withLang("/start", lang),
-  //   },
-  // ];
 
   const handleClickToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -119,6 +78,27 @@ export default function Navbar({ className }: { className?: string }) {
     window.scrollTo({ top: y, behavior: "smooth" });
   };
 
+  const rightRef = React.useRef<HTMLDivElement | null>(null);
+  const [rightW, setRightW] = React.useState(0);
+
+  React.useLayoutEffect(() => {
+    const el = rightRef.current;
+    if (!el) return;
+
+    const update = () => setRightW(el.getBoundingClientRect().width);
+
+    update();
+
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
   return (
     <>
       <div
@@ -127,6 +107,7 @@ export default function Navbar({ className }: { className?: string }) {
         <div className="mx-auto w-[min(calc(100%-2rem),80vw)] max-w-[1200px] pt-4 sm:pt-6">
           <nav
             className={cn(
+              "relative",
               "h-20 w-full rounded-full bg-background/90 backdrop-blur",
               "shadow-[0_18px_40px_rgba(0,0,0,0.08)]",
               "px-6 md:px-10",
@@ -138,23 +119,22 @@ export default function Navbar({ className }: { className?: string }) {
               href={withLang("/", lang)}
               className="flex items-center shrink-0"
             >
-              <img src="/logo.png" alt="Finger Print" className="h-8 w-auto" />
+              <img src="/logo6.png" alt="Finger Print" className="h-8 w-auto" />
             </Link>
 
-            <div className="hidden md:flex items-center gap-10 flex-1 justify-center">
-              {navConfig.map((item) => {
-                const link = withLang(item.href, lang);
-                return (
+            <div className="absolute left-1/2 -translate-x-1/2 max-w-[50%]">
+              <div className="hidden md:flex items-center gap-10 justify-center">
+                {navConfig.map((item) => (
                   <a
                     key={item.href}
-                    href={link}
+                    href={withLang(item.href, lang)}
                     onClick={(e) => handleNavigate(e, item.href)}
                     className="text-sm font-medium text-foreground/80 hover:text-foreground transition"
                   >
                     {t(`nav.${item.key}`)}
                   </a>
-                );
-              })}
+                ))}
+              </div>
             </div>
 
             <div className="shrink-0 flex items-center gap-2 sm:gap-3">

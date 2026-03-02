@@ -1,4 +1,3 @@
-// components/ScrollHighlightMarquee.tsx
 "use client";
 
 import * as React from "react";

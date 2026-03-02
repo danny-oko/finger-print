@@ -101,11 +101,6 @@ function buildItems(pool: ImageItem[], seg: number): ItemDef[] {
   if (pool.length === 0) {
     return coords.map((c) => ({ ...c, src: "", alt: "" }));
   }
-  if (pool.length > totalSlots) {
-    console.warn(
-      `[DomeGallery] Provided image count (${pool.length}) exceeds available tiles (${totalSlots}). Some images will not be shown.`,
-    );
-  }
 
   const normalizedImages = pool.map((image) => {
     if (typeof image === "string") {
@@ -805,17 +800,6 @@ export default function DomeGallery({
         width: 100% !important;
       }
     }
-
-    // body.dg-scroll-lock {
-    //   position: fixed !important;
-    //   top: 0;
-    //   left: 0;
-    //   width: 100% !important;
-    //   height: 100% !important;
-    //   overflow: hidden !important;
-    //   touch-action: none !important;
-    //   overscroll-behavior: contain !important;
-    // }
     .item__image {
       position: absolute;
       inset: 10px;

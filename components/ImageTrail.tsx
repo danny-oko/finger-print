@@ -1237,7 +1237,6 @@ export default function ImageTrail({
     if (!containerRef.current) return;
     const Cls = variantMap[variant] || variantMap[1];
     new Cls(containerRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [variant, items]);
 
   return (

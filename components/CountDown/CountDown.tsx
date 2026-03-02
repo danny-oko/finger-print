@@ -29,8 +29,7 @@ export default function CountDown() {
     return () => window.clearInterval(id);
   }, []);
 
-  // ✅ no clamp
-  const days = mounted ? String(time.days) : "0"; // will be like "217"
+  const days = mounted ? String(time.days) : "0";
   const hours = mounted ? pad2(time.hours) : "00";
   const minutes = mounted ? pad2(time.minutes) : "00";
   const seconds = mounted ? pad2(time.seconds) : "00";
