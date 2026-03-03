@@ -8,10 +8,7 @@ export default function CountDownHeader() {
   return (
     <div className="mb-10 text-center">
       <div className="mb-4 flex justify-center">
-        <Badge
-          variant="violet"
-          className="rounded-full px-4 py-1.5 text-sm font-semibold tracking-tight"
-        >
+        <Badge className=" rounded-full bg-[#F98C01] text-black px-5 py-1.5 text-sm font-semibold tracking-tight shadow-[0_0_50px_rgba(249,140,1,0.35)] ">
           October 3rd, 2026
         </Badge>
       </div>

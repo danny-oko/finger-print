@@ -8,6 +8,7 @@ import ShinyText from "./ShinyText";
 import RotatingText from "./RotatingText";
 import { useTranslation } from "@/lib/useTranslation";
 import { getTranslations } from "@/lib/translations";
+import { Badge } from "./ui/badge";
 
 type TimelineItem = {
   year: string;
@@ -159,9 +160,10 @@ export default function ImpactTimeline({
       <div className={cn(CONTAINER, "py-20 md:py-28")}>
         <div className="grid min-w-0 grid-cols-1 gap-10 md:grid-cols-[320px_1fr] md:gap-14">
           <div className="md:sticky md:top-24 md:self-start">
-            <div className="inline-flex items-center gap-2 rounded-full border border-neutral-900/15 bg-neutral-900/5 px-4 py-2 text-xs font-medium text-neutral-900/70">
+            {/* <Badge className="rounded-full bg-[#F98C01] px-5 py-1.5 text-sm text-black tracking-tight shadow-[0_0_50px_rgba(249,140,1,0.35)] ">
               {t("journey.label")}
-            </div>
+            </Badge> */}
+            {/* <div className="inline-flex items-center gap-2 rounded-full border border-neutral-900/15 bg-neutral-900/5 px-4 py-2 text-xs font-medium text-neutral-900/70"></div> */}
 
             <h2 className="mt-6 text-3xl font-semibold tracking-tight text-neutral-900 md:text-3xl flex-wrap">
               <span className="block">
@@ -178,7 +180,7 @@ export default function ImpactTimeline({
                     "rounded-2xl px-4 sm:px-5 md:px-6",
                     "py-1.5 sm:py-2",
                     "text-black",
-                    "bg-[linear-gradient(180deg,#FFC36A_0%,#FFE2B7_100%)]",
+                    "bg-[linear-gradient(180deg,#FFC36A_0%,#F98C01_100%)]",
                     "shadow-[0_18px_36px_rgba(0,0,0,.16)]",
                     "ring-1 ring-black/5",
                     "overflow-hidden",

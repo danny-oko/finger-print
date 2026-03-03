@@ -100,8 +100,8 @@ export default function WhySection({
       >
         <div className={cn(CONTAINER, "py-24 md:py-28")}>
           <Badge
-            variant="violet"
-            className=" rounded-full px-5 py-2 text-sm font-semibold tracking-normal "
+            variant="primary"
+            className=" rounded-full px-5 py-2 text-sm text-black tracking-normal "
           >
             {labelText}
           </Badge>
