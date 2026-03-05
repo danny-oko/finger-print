@@ -45,7 +45,7 @@ export default function HeroContent() {
             className="h-11 gap-3 rounded-full px-8 cursor-pointer"
             onClick={() => setOpen(true)}
           >
-            <Play className="h-4 w-4 fill-transparent stroke-[2.2] text-white cursor-pointer" />
+            <Play className="h-4 w-4 fill-transparent stroke-[2.2] text-black cursor-pointer hover:bg-black hover:text-white" />
             {t("hero.ctaPrimary")}
           </Button>
 

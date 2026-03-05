@@ -154,7 +154,7 @@ export default function Navbar({ className }: { className?: string }) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Button className="rounded-full px-6" asChild>
+              <Button className="rounded-full px-6 text-black " asChild>
                 <Link href={withLang("/start", lang)}>
                   {t("nav.getInTouch")}
                 </Link>
