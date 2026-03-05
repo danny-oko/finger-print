@@ -26,7 +26,7 @@ export default function HomeClient() {
 
   return (
     <>
-      <Navbar />
+      <Navbar className="md:hidden lg:block" />
       <main>
         <HeroCarousel slides={slides} />
         <CountDown />

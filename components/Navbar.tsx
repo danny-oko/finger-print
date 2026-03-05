@@ -1,8 +1,10 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import * as React from "react";
+import { Menu, X } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,8 +13,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTranslation } from "@/lib/useTranslation";
+
 import type { Lang } from "@/lib/translations";
+import { useTranslation } from "@/lib/useTranslation";
 
 const navConfig = [
   { key: "about" as const, href: "#about" },
@@ -78,29 +81,38 @@ export default function Navbar({ className }: { className?: string }) {
     window.scrollTo({ top: y, behavior: "smooth" });
   };
 
-  const rightRef = React.useRef<HTMLDivElement | null>(null);
-  const [rightW, setRightW] = React.useState(0);
+  const [isMobileOpen, setIsMobileOpen] = React.useState(false);
 
-  React.useLayoutEffect(() => {
-    const el = rightRef.current;
-    if (!el) return;
+  const handleMobileNavigate = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    handleNavigate(e, href);
+    setIsMobileOpen(false);
+  };
 
-    const update = () => setRightW(el.getBoundingClientRect().width);
-
-    update();
-
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-
-    window.addEventListener("resize", update);
+  // lock body scroll while drawer open
+  React.useEffect(() => {
+    if (!isMobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", update);
+      document.body.style.overflow = prev;
     };
+  }, [isMobileOpen]);
+
+  // close on ESC
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   return (
     <>
+      {/* Desktop navbar */}
       <div
         className={cn("fixed inset-x-0 top-0 z-50 hidden md:block", className)}
       >
@@ -154,13 +166,159 @@ export default function Navbar({ className }: { className?: string }) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Button className="rounded-full px-6 text-black " asChild>
+              <Button className="rounded-full px-6 text-black" asChild>
                 <Link href={withLang("/start", lang)}>
                   {t("nav.getInTouch")}
                 </Link>
               </Button>
             </div>
           </nav>
+        </div>
+      </div>
+
+      {/* Mobile navbar + drawer */}
+      <div className={cn("fixed inset-x-0 top-0 z-50 md:hidden", className)}>
+        <div className="mx-auto w-[min(calc(100%-1.5rem),100%)] max-w-[1200px] pt-3">
+          <nav className="flex h-16 items-center justify-between rounded-full bg-background/90 px-4 shadow-[0_14px_30px_rgba(0,0,0,0.18)] backdrop-blur">
+            {/* LEFT: Logo */}
+            <Link
+              href={withLang("/", lang)}
+              onClick={() => {
+                setIsMobileOpen(false);
+                handleClickToTop();
+              }}
+              className="flex items-center gap-2"
+              aria-label="Home"
+            >
+              <img src="/logo6.png" alt="Finger Print" className="h-7 w-auto" />
+            </Link>
+
+            {/* RIGHT: Language in between + Toggle button (same position) */}
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    className="h-9 rounded-full px-3 text-xs"
+                  >
+                    {LANG_LABEL[lang]}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[160px]">
+                  {(["en", "mn", "ko"] as Lang[]).map((l) => (
+                    <DropdownMenuItem key={l} onClick={() => setLang(l)}>
+                      {t(`langName.${l}`)} {lang === l ? "✓" : ""}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                type="button"
+                variant="secondary"
+                size="icon"
+                onClick={() => setIsMobileOpen((v) => !v)}
+                className="h-9 w-9 rounded-full"
+                aria-label={
+                  isMobileOpen
+                    ? "Close navigation menu"
+                    : "Open navigation menu"
+                }
+                aria-expanded={isMobileOpen}
+              >
+                {isMobileOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
+          </nav>
+        </div>
+
+        <div
+          className={cn(
+            "fixed inset-0 z-[60] md:hidden",
+            isMobileOpen ? "pointer-events-auto" : "pointer-events-none",
+          )}
+        >
+          {/* Backdrop */}
+          <div
+            className={cn(
+              "absolute inset-0 bg-black/35 backdrop-blur-[2px] transition-opacity duration-300",
+              isMobileOpen ? "opacity-100" : "opacity-0",
+            )}
+            onClick={() => setIsMobileOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* Panel (RIGHT, flush to corner) */}
+          <aside
+            role="dialog"
+            aria-modal="true"
+            className={cn(
+              "absolute right-0 top-0 h-full",
+              "w-[88vw] max-w-[420px]",
+              "bg-background/95 backdrop-blur-xl",
+              "shadow-[0_30px_80px_rgba(0,0,0,0.28)]",
+              "border-l border-border",
+              "rounded-l-3xl",
+              "transition-transform duration-300 ease-out",
+              isMobileOpen ? "translate-x-0" : "translate-x-full",
+              "flex flex-col",
+            )}
+          >
+            {/* Header */}
+            <div className="px-5 pt-6 pb-4">
+              <div className="flex items-center gap-3">
+                <img
+                  src="/logo6.png"
+                  alt="Finger Print"
+                  className="h-8 w-auto"
+                />
+              </div>
+
+              <div className="mt-5 h-px w-full bg-border" />
+            </div>
+
+            {/* Nav */}
+            <div className="flex-1 overflow-y-auto px-5 pb-6">
+              <div className="space-y-2">
+                {navConfig.map((item) => (
+                  <a
+                    key={item.href}
+                    href={withLang(item.href, lang)}
+                    onClick={(e) => handleMobileNavigate(e, item.href)}
+                    className={cn(
+                      "group flex items-center justify-between",
+                      "rounded-2xl px-4 py-4",
+                      "bg-muted/30 hover:bg-muted/60",
+                      "active:scale-[0.99] transition",
+                    )}
+                  >
+                    <span className="text-base font-semibold text-foreground">
+                      {t(`nav.${item.key}`)}
+                    </span>
+                    <span className="text-sm text-muted-foreground group-hover:text-foreground/70 transition">
+                      →
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom CTA */}
+            <div className="border-t border-border px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+              <Button className="w-full rounded-2xl py-6 text-black" asChild>
+                <Link
+                  href={withLang("/start", lang)}
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  {t("nav.getInTouch")}
+                </Link>
+              </Button>
+            </div>
+          </aside>
         </div>
       </div>
     </>
