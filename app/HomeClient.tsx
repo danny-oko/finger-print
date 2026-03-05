@@ -32,7 +32,7 @@ export default function HomeClient() {
         <HeroCarousel slides={slides} />
         <CountDown />
         <Identity />
-        <AttendSection contactHref="#contact" />
+        {/* <AttendSection contactHref="#contact" /> */}
         <TimlineClient />
         <Projects />
         <Gallery />
