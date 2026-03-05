@@ -1,5 +1,6 @@
-// app/components/attend/types.ts
-export type AttendItem = {
+export interface AttendItem {
+  id: number;
   title: string;
-  desc: string;
-};
+  body: string;
+  accent?: string;
+}

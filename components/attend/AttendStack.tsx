@@ -33,7 +33,6 @@ export default function AttendStack({
         const CARD_HEIGHT = pinRef.current!.offsetHeight;
         const SCROLL_PER_CARD = CARD_HEIGHT * 0.85;
 
-        // Initial stacked state — cards offset downward and scaled
         cards.forEach((card, i) => {
           if (i === 0) return; // first card is flush
           gsap.set(card, {
@@ -44,10 +43,8 @@ export default function AttendStack({
           });
         });
 
-        // Give the first card the highest z-index
         gsap.set(cards[0], { zIndex: cards.length, y: 0, scale: 1 });
 
-        // Pin the card stack area
         ScrollTrigger.create({
           trigger: containerRef.current,
           start: `top ${navOffset}px`,
@@ -72,7 +69,6 @@ export default function AttendStack({
             },
           });
 
-          // Active card lifts and fades away upward
           tl.to(
             card,
             {
@@ -85,7 +81,6 @@ export default function AttendStack({
             0,
           );
 
-          // Remaining cards collapse upward into new positions
           const remaining = Array.from(cards).slice(i + 1);
           remaining.forEach((rCard, ri) => {
             tl.to(
@@ -102,7 +97,6 @@ export default function AttendStack({
           });
         });
 
-        // Refresh after mount for accurate measurements
         ScrollTrigger.refresh();
       }, containerRef);
     };
@@ -114,21 +108,15 @@ export default function AttendStack({
     };
   }, [items, navOffset]);
 
-  // Container provides the real scroll track height
-  // = pinned element height + scroll length for all card transitions
   return (
     <div
       ref={containerRef}
       className="relative w-full"
       style={{
-        // Will be filled by GSAP pinSpacing=false, so we set minHeight manually
-        // rough: card area ~600px + 85% of 600px per extra card
         minHeight: `calc(600px + ${(items.length - 1) * 85}vh)`,
       }}
     >
-      {/* This div gets pinned by GSAP */}
       <div ref={pinRef} className="w-full" style={{ position: "relative" }}>
-        {/* Card stack: all cards absolutely stacked */}
         <div className="relative w-full" style={{ minHeight: 480 }}>
           {items.map((item, i) => (
             <div
