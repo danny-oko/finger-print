@@ -62,9 +62,225 @@ const DEFAULT_IMAGES: ImageItem[] = [
     alt: "Social media image",
   },
   {
-    src: "/fp-8.jpg",
+    src: "/fp-9.jpg",
     alt: "Social media image",
   },
+  {
+    src: "/fp-10.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-11.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-12.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-13.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-14.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-15.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-16.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-17.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-19.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-20.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-21.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-22.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-23.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-24.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-25.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-26.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-27.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-28.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-29.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-30.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-31.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-32.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-33.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-34.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-37.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-40.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-41.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-43.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-44.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-45.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-46.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-47.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-49.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-50.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-51.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-52.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-53.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-54.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-55.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-56.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-57.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-58.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-59.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-60.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-61.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "/fp-62.jpg",
+    alt: "Social media image",
+  },
+  // {
+  //   src: "/fp-65.jpg",
+  //   alt: "Social media image",
+  // },
+  // {
+  //   src: "/fp-66.jpg",
+  //   alt: "Social media image",
+  // },
+  // {
+  //   src: "/fp-8.jpg",
+  //   alt: "Social media image",
+  // },
+  // {
+  //   src: "/fp-8.jpg",
+  //   alt: "Social media image",
+  // },
+  // {
+  //   src: "/fp-8.jpg",
+  //   alt: "Social media image",
+  // },
+  // {
+  //   src: "/fp-8.jpg",
+  //   alt: "Social media image",
+  // },
+  // {
+  //   src: "/fp-8.jpg",
+  //   alt: "Social media image",
+  // },
+  // {
+  //   src: "/fp-8.jpg",
+  //   alt: "Social media image",
+  // },
 ];
 
 const DEFAULTS = {
@@ -666,7 +882,11 @@ export default function DomeGallery({
     (el.style as any).zIndex = 0;
     const overlay = document.createElement("div");
     overlay.className = "enlarge";
-    overlay.style.cssText = `position:absolute; left:${frameR.left - mainR.left}px; top:${frameR.top - mainR.top}px; width:${frameR.width}px; height:${frameR.height}px; opacity:0; z-index:30; will-change:transform,opacity; transform-origin:top left; transition:transform ${enlargeTransitionMs}ms ease, opacity ${enlargeTransitionMs}ms ease; border-radius:${openedImageBorderRadius}; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.35);`;
+    overlay.style.cssText = `position:absolute; left:${
+      frameR.left - mainR.left
+    }px; top:${frameR.top - mainR.top}px; width:${frameR.width}px; height:${
+      frameR.height
+    }px; opacity:0; z-index:30; will-change:transform,opacity; transform-origin:top left; transition:transform ${enlargeTransitionMs}ms ease, opacity ${enlargeTransitionMs}ms ease; border-radius:${openedImageBorderRadius}; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.35);`;
     const rawSrc =
       parent.dataset.src ||
       (el.querySelector("img") as HTMLImageElement)?.src ||
@@ -678,7 +898,9 @@ export default function DomeGallery({
     const img = document.createElement("img");
     img.src = rawSrc;
     img.alt = rawAlt;
-    img.style.cssText = `width:100%; height:100%; object-fit:cover; filter:${grayscale ? "grayscale(1)" : "none"};`;
+    img.style.cssText = `width:100%; height:100%; object-fit:cover; filter:${
+      grayscale ? "grayscale(1)" : "none"
+    };`;
     overlay.appendChild(img);
     viewerRef.current!.appendChild(overlay);
     const tx0 = tileR.left - frameR.left;
@@ -908,7 +1130,9 @@ export default function DomeGallery({
                       className="w-full h-full object-cover pointer-events-none"
                       style={{
                         backfaceVisibility: "hidden",
-                        filter: `var(--image-filter, ${grayscale ? "grayscale(1)" : "none"})`,
+                        filter: `var(--image-filter, ${
+                          grayscale ? "grayscale(1)" : "none"
+                        })`,
                       }}
                     />
                   </div>

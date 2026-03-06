@@ -20,8 +20,8 @@ import { useTranslation } from "@/lib/useTranslation";
 const navConfig = [
   { key: "about" as const, href: "#about" },
   { key: "journey" as const, href: "#journey" },
-  { key: "stories" as const, href: "#stories" },
   { key: "gallery" as const, href: "#gallery" },
+  { key: "stories" as const, href: "#stories" },
 ];
 
 const LANG_LABEL: Record<Lang, string> = {

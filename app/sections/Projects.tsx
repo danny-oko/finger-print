@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "@/lib/useTranslation";
+import { ArrowUpRight } from "lucide-react";
 
 const videos = [
   {
@@ -25,7 +26,9 @@ const Projects = () => {
     <section className="w-full" id="stories">
       <div className="mx-auto w-[min(1200px,92vw)] py-16">
         <div className="mb-10 flex flex-col gap-3">
-          <h2 className="text-3xl font-bold sm:text-4xl">{t("projects.heading")}</h2>
+          <h2 className="text-3xl font-bold sm:text-4xl">
+            {t("projects.heading")}
+          </h2>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">
@@ -43,16 +46,19 @@ const Projects = () => {
               className="group"
             >
               <div className="mb-3 flex items-end justify-between gap-3">
-                <h3 className="text-lg font-semibold">{t(`projects.${video.titleKey}`)}</h3>
+                <h3 className="text-lg font-semibold">
+                  {t(`projects.${video.titleKey}`)}
+                </h3>
                 <motion.a
                   whileHover={{ y: -1 }}
                   whileTap={{ scale: 0.98 }}
                   href={video.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm font-medium underline underline-offset-4 decoration-border hover:decoration-foreground"
+                  className="text-sm flex gap-1 font-medium underline underline-offset-4 decoration-border hover:decoration-foreground"
                 >
                   {t("projects.open")}
+                  <ArrowUpRight size={24} strokeWidth={1} />
                 </motion.a>
               </div>
 

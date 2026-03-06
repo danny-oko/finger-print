@@ -89,56 +89,57 @@ type Translations = {
   langName: Record<Lang, string>;
 };
 
+// english
 const en: Translations = {
   hero: {
-    badge: "Since 2017 • 5 Editions",
+    badge: "Since 2016 • 6 Editions",
     title: "Finger Print",
-    subtitle: "Teen Seminar for Mongolian Churches",
+    subtitle: "Teen Seminar",
     description:
-      "Supporting and connecting youth ministries across Mongolia's Evangelical churches—helping every teenager discover their God-given identity and worth in Christ.",
+      "Supporting the youth ministries of Evangelical churches in Mongolia and helping every teenager see the unique value and identity given by God in Christ.",
     ctaPrimary: "Watch Short Film",
     ctaSecondary: "Get In Touch",
   },
 
   nav: {
     home: "Home",
-    about: "About",
-    journey: "Journey",
+    about: "Finger Print",
+    journey: "Our Journey",
+    gallery: "Attend",
     stories: "Stories",
-    gallery: "Gallery",
-    getInTouch: "Get In Touch",
+    getInTouch: "Contact",
   },
 
   footer: {
-    navigation: "NAVIGATION",
+    navigation: "MENU",
     contact: "CONTACT",
-    motto: "One movement. One generation. One church family.",
+    motto: "Oh God, how precious are the thoughts You have toward me!",
     rightsText: "All rights reserved • FirstChurch",
   },
 
   identity: {
-    label: "Our Identity",
-    main: "The Finger Print Conference partners with youth churches to help teenagers discover their true value and recognize that they are uniquely created by God. Together we encourage them to live a life of faith rooted in Christ.",
+    label: "What is Finger Print?",
+    main: "The Finger Print conference works together with youth churches to support teenagers so they may realize their value and understand that they are uniquely created in the Lord, helping them live a life of faith in Christ.",
     clarify:
-      "How precious also are thy thoughts unto me, O God!  How great is the sum of them! Psalm 193:17",
+      "How precious also are Your thoughts toward me, O God! Psalm 139:17",
   },
 
   journey: {
     label: "Impact",
     heading: "Impact Timeline",
-    theJourney: "The Journey",
-    since: "Since",
+    theJourney: "",
+    since: "since that moment",
     subheading:
-      "Five editions since 2017, strengthening youth ministry and unity among Evangelical churches.",
-    hoverHint: "Hover over each year to reveal images.",
-    mobileHint: "Swipe images on each year card.",
+      "The Finger Print conference has been renewing and supporting youth church ministries in Mongolia since 2016.",
+    hoverHint: "Hover over the cards to explore :)",
+    mobileHint: "",
     rotating: [
-      "First Prayer",
-      "The Calling",
-      "Faith Began",
-      "By His Grace",
-      "Faith Renewed",
-      "Rooted in Christ",
+      "Called",
+      "Saw Their Worth",
+      "Feared Him",
+      "Made a Decision",
+      "Hope Was Born",
+      "Saved by Christ",
     ],
     edition: "Edition",
     title1: "1st Edition",
@@ -146,16 +147,13 @@ const en: Translations = {
     title3: "3rd Edition",
     title4: "4th Edition",
     title5: "5th Edition",
-    summary1:
-      "The beginning of a shared youth ministry network among Evangelical churches.",
+    summary1: "A collaborative network of Evangelical youth ministries began.",
     summary2:
-      "A stronger focus on identity in Christ through worship, teaching, and fellowship.",
-    summary3:
-      "Deeper collaboration among youth leaders and ministries across churches.",
-    summary4:
-      "Sustaining the movement through challenges while keeping teens connected in faith.",
+      "Focused more deeply on value in Christ through worship, teaching, and fellowship.",
+    summary3: "Collaboration between youth leaders and ministries deepened.",
+    summary4: "Even in difficult times, teenagers remained connected in faith.",
     summary5:
-      "Continuing to serve the next generation with renewed vision and wider cooperation.",
+      "Serving the next generation through a renewed vision and wider cooperation.",
     pillsAttendees: "Attendees: TBA",
     pillsChurches: "Churches: TBA",
     pillsLocation: "Location: Ulaanbaatar",
@@ -166,38 +164,38 @@ const en: Translations = {
   },
 
   slides: {
-    slide1Badge: "Discovering God-Given Identity",
-    slide1Title: "Every life carries a unique imprint.",
+    slide1Badge: "A Time of Worship",
+    slide1Title: "A moment to lift our praise together before God",
     slide1Desc:
-      "A gathering that helps teenagers recognize their value in Christ and grow together in faith.",
-    slide2Badge: "Evangelical Youth Collaboration",
-    slide2Title: "Serving the next generation together.",
+      "A blessed time of joyfully offering praise before the Lord together.",
+    slide2Badge: "Joyful Collaborative Ministry",
+    slide2Title: "A ministry serving the next generation",
     slide2Desc:
-      "An annual gathering connecting Evangelical churches to strengthen youth ministry across Mongolia.",
-    slide3Badge: "National Youth Seminar",
-    slide3Title: "A collaborative youth ministry initiative",
+      "A ministry uniting and strengthening youth ministries of churches across Mongolia.",
+    slide3Badge: "National Teen Seminar",
+    slide3Title: "Collaborative Youth Ministry",
     slide3Desc:
-      '"Finger Print" brings churches together to guide, nurture, and support Mongolia’s teenagers in Christ.',
+      '"Finger Print" unites churches to guide and support Mongolian teenagers in Christ.',
   },
 
   projects: {
-    heading: "Stories in Motion",
+    heading: "Shared Creations",
     shortFilm: "Short Film",
-    eventDayVideo: "Event Day Video",
-    open: "Open",
+    eventDayVideo: "Conference Recap",
+    open: "Watch",
   },
 
   gallery: {
-    title: "The Community",
+    title: "Memories We Created Together",
   },
 
   manifesto: {
     label: "Why It Matters",
-    text1: "Adolescence is a defining season where",
+    text1: "Adolescence is the season where",
     pillIdentity: "identity",
-    text2: "is shaped, where",
-    pillWorth: "worth",
-    text3: "is discovered, and faith is anchored in",
+    text2: "is formed,",
+    pillWorth: "value",
+    text3: "is revealed, and faith finds its foundation in",
     pillChrist: "Christ",
     text4: ".",
   },
@@ -209,56 +207,56 @@ const en: Translations = {
   },
 };
 
+// korean
 const ko: Translations = {
   hero: {
-    badge: "2017년부터 • 5회 개최",
+    badge: "2016년부터 • 6회",
     title: "핑거프린트",
-    subtitle: "몽골 교회 청소년 세미나",
+    subtitle: "청소년 세미나",
     description:
-      "몽골 복음주의 교회들의 청소년 사역을 연결하고 지원하여, 모든 청소년이 그리스도 안에서 하나님이 주신 고유한 정체성과 가치를 발견하도록 돕습니다.",
-    ctaPrimary: "단편 영상 보기",
+      "몽골 복음주의 교회들의 청소년 사역을 지원하며, 모든 청소년이 그리스도 안에서 하나님이 주신 고유한 가치와 정체성을 발견하도록 돕습니다.",
+    ctaPrimary: "단편 영화 보기",
     ctaSecondary: "문의하기",
   },
 
   nav: {
     home: "홈",
-    about: "소개",
-    journey: "여정",
+    about: "핑거프린트",
+    journey: "우리의 여정",
+    gallery: "참여하기",
     stories: "스토리",
-    gallery: "갤러리",
-    getInTouch: "문의하기",
+    getInTouch: "연락하기",
   },
 
   footer: {
     navigation: "메뉴",
     contact: "연락처",
-    motto: "하나의 움직임. 한 세대. 한 교회 가족.",
+    motto: "하나님이시여, 나를 향한 주의 생각은 얼마나 귀한지요!",
     rightsText: "All rights reserved • FirstChurch",
   },
 
   identity: {
-    label: "우리의 정체성",
-    main: "핑거프린트 컨퍼런스는 청소년 교회들과 협력하여 청소년들이 그리스도 안에서 하나님이 주신 가치와 고유한 정체성을 깨닫고 믿음의 삶을 살아가도록 돕습니다.",
-    clarify:
-      "하나님이시여, 주의 생각은 나에게 정말 소중합니다. 어쩌면 주는 그렇게도 많은 생각을 하십니까? 시편 139:17",
+    label: "핑거프린트란 무엇인가?",
+    main: "핑거프린트 컨퍼런스는 청소년 교회들과 협력하여 청소년들이 자신의 가치와 주 안에서 특별히 창조된 존재임을 깨닫고 그리스도 안에서 믿음의 삶을 살아가도록 돕습니다.",
+    clarify: "하나님이시여, 주의 생각이 나에게 얼마나 귀한지요! 시편 139:17",
   },
 
   journey: {
-    label: "임팩트",
-    heading: "임팩트 타임라인",
-    theJourney: "여정",
-    since: "~부터",
+    label: "영향",
+    heading: "영향 타임라인",
+    theJourney: "",
+    since: "그 순간부터",
     subheading:
-      "2017년 이후 5회에 걸쳐 복음주의 교회들의 청소년 사역과 연합을 세워 왔습니다.",
-    hoverHint: "각 연도에 마우스를 올리면 사진이 표시됩니다.",
-    mobileHint: "각 연도 카드에서 이미지를 좌우로 넘겨보세요.",
+      "핑거프린트 컨퍼런스는 2016년부터 몽골 청소년 교회 사역을 새롭게 세우고 지원해 왔습니다.",
+    hoverHint: "카드 위에 마우스를 올려보세요 :)",
+    mobileHint: "",
     rotating: [
-      "첫 기도",
       "부르심",
-      "믿음의 시작",
-      "그의 은혜로",
-      "믿음의 새 시작",
-      "그리스도 안에 뿌리내림",
+      "가치를 발견함",
+      "그를 경외함",
+      "결단함",
+      "희망이 시작됨",
+      "그리스도로 구원받음",
     ],
     edition: "회",
     title1: "1회",
@@ -266,46 +264,43 @@ const ko: Translations = {
     title3: "3회",
     title4: "4회",
     title5: "5회",
-    summary1: "복음주의 교회들 사이에서 청소년 사역 네트워크가 시작되었습니다.",
+    summary1: "복음주의 교회 청소년 사역의 협력 네트워크가 시작되었습니다.",
     summary2:
-      "예배와 말씀, 교제를 통해 그리스도 안의 정체성을 더욱 분명히 붙들었습니다.",
-    summary3: "청소년 리더들과 사역 간 협력이 강화되었습니다.",
-    summary4:
-      "도전 속에서도 청소년들이 믿음 안에 연결되도록 흐름을 이어갔습니다.",
-    summary5: "새로운 비전과 협력으로 다음 세대를 계속 섬기고 있습니다.",
+      "찬양과 말씀, 교제를 통해 그리스도 안의 가치에 더욱 집중했습니다.",
+    summary3: "청소년 리더들과 사역 간 협력이 깊어졌습니다.",
+    summary4: "어려움 속에서도 청소년들이 믿음 안에서 연결되도록 도왔습니다.",
+    summary5: "새로운 비전과 더 넓은 협력으로 다음 세대를 섬기고 있습니다.",
     pillsAttendees: "참가자: 미정",
     pillsChurches: "교회: 미정",
     pillsLocation: "장소: 울란바토르",
     pillsTheme: "주제: 미정",
     pillsVolunteers: "봉사자: 미정",
     pillsFormat: "형식: 미정",
-    pillsReach: "확장: 미정",
+    pillsReach: "범위: 미정",
   },
 
   slides: {
-    slide1Badge: "하나님이 주신 정체성 발견",
-    slide1Title: "각 사람의 삶에는 고유한 흔적이 있습니다.",
-    slide1Desc:
-      "청소년들이 그리스도 안에서 자신의 가치를 발견하고 믿음 안에서 성장하도록 돕는 모임입니다.",
-    slide2Badge: "복음주의 청소년 연합",
-    slide2Title: "다음 세대를 함께 섬깁니다.",
-    slide2Desc:
-      "몽골 전역의 교회들이 연합하여 청소년 사역을 세우는 연례 모임입니다.",
+    slide1Badge: "찬양의 시간",
+    slide1Title: "함께 하나님 앞에 찬양을 올리는 시간",
+    slide1Desc: "주님 앞에서 기쁨으로 함께 찬양을 드리는 은혜의 시간입니다.",
+    slide2Badge: "기쁨이 가득한 협력 사역",
+    slide2Title: "다음 세대를 섬기는 사역",
+    slide2Desc: "몽골 교회의 청소년 사역을 하나로 모으고 세우는 사역입니다.",
     slide3Badge: "전국 청소년 세미나",
-    slide3Title: "함께 세우는 청소년 사역",
+    slide3Title: "협력 청소년 사역",
     slide3Desc:
-      '"핑거프린트"는 교회들이 함께 몽골 청소년들을 그리스도 안에서 양육하고 지원하도록 연결합니다.',
+      '"Finger Print"는 교회들을 하나로 모아 몽골 청소년들을 그리스도 안에서 인도하고 지원합니다.',
   },
 
   projects: {
-    heading: "움직이는 이야기",
-    shortFilm: "단편 영상",
-    eventDayVideo: "행사 영상",
-    open: "열기",
+    heading: "함께 만든 이야기",
+    shortFilm: "단편 영화",
+    eventDayVideo: "컨퍼런스 하이라이트",
+    open: "보기",
   },
 
   gallery: {
-    title: "공동체",
+    title: "함께 만든 추억",
   },
 
   manifesto: {
@@ -314,9 +309,9 @@ const ko: Translations = {
     pillIdentity: "정체성",
     text2: "이 형성되고",
     pillWorth: "가치",
-    text3: "가 발견되며 믿음이",
+    text3: "가 드러나며 믿음이",
     pillChrist: "그리스도",
-    text4: " 안에 굳게 세워지는 시기입니다.",
+    text4: " 안에서 굳게 세워지는 중요한 시기입니다.",
   },
 
   langName: {
@@ -326,6 +321,7 @@ const ko: Translations = {
   },
 };
 
+// mongolian
 const mn: Translations = {
   hero: {
     badge: "2016 оноос хойш • 6 удаа",
@@ -349,7 +345,7 @@ const mn: Translations = {
   footer: {
     navigation: "ЦЭС",
     contact: "ХОЛБОО БАРИХ",
-    motto: "Нэг хөдөлгөөн. Нэг үе. Нэг сүмийн гэр бүл.",
+    motto: "Аяа Бурхан, надад хандсан бодлууд тань хичнээн нандин бэ!",
     rightsText: "All rights reserved • FirstChurch",
   },
 
@@ -363,19 +359,20 @@ const mn: Translations = {
   journey: {
     label: "Нөлөө",
     heading: "Нөлөөний цагийн шугам",
-    theJourney: "Бидний аялал",
-    since: "Тэр цагаас",
+    theJourney: "",
+    since: "тэр мөчөөс",
     subheading:
-      "2017 оноос хойш 5 удаа евангелийн сүмүүдийн өсвөрийн үйлчлэлийг дэмжиж, нэгдлийг бэхжүүлсээр ирлээ.",
-    hoverHint: "Жил бүрийн дээр хулганаа авч зургуудыг харна уу.",
-    mobileHint: "Жил бүрийн картан дээр зургуудыг гүйлгэнэ үү.",
+      // "2017 оноос хойш 5 удаа евангелийн сүмүүдийн өсвөрийн үйлчлэлийг дэмжиж, нэгдлийг бэхжүүлсээр ирлээ.",
+      "Хурууны хээ конфференц нь 2016 оноос хойш Монголын өсвөрийн чуулганы үйлчлэлийн сэргээн болсож, дэмжсээр ирсэн.",
+    hoverHint: "Картууд дээр хулганаа байршуулаадд үзээрэй :)",
+    mobileHint: "",
     rotating: [
-      "Анхны залбирал",
-      "Дуудлага",
-      "Итгэл эхэлсэн",
-      "Түүний нигүүлслээр",
-      "Итгэл шинэчлэгдсэн",
-      "Христод үндэслэсэн",
+      "Дуудагдсан",
+      "Үнэ цэнээ харсан",
+      "Түүнээс эмээсэн",
+      "Шийдвэр гаргасан",
+      "Найдвар төрсөн",
+      "Христээр аврагдсан",
     ],
     edition: "удаа",
     title1: "1-р удаа",
@@ -416,14 +413,14 @@ const mn: Translations = {
   },
 
   projects: {
-    heading: "Хөдөлгөөнт түүхүүд",
-    shortFilm: "Богино кино",
-    eventDayVideo: "Арга хэмжээний видео",
+    heading: "Хамтын бүтээл",
+    shortFilm: "Богино хэмжээний кино",
+    eventDayVideo: "Конфференцийн хураангуй",
     open: "Үзэх",
   },
 
   gallery: {
-    title: "Нийгэмлэг",
+    title: "Хамтдаа бүтээсэн дурсамжууд",
   },
 
   manifesto: {
