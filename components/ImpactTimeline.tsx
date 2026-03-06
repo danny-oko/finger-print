@@ -1,14 +1,13 @@
 "use client";
 
-import * as React from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { cn } from "@/lib/utils";
-import ImageTrail from "./ImageTrail";
-import ShinyText from "./ShinyText";
-import RotatingText from "./RotatingText";
-import { useTranslation } from "@/lib/useTranslation";
 import { getTranslations } from "@/lib/translations";
-import { Badge } from "./ui/badge";
+import { useTranslation } from "@/lib/useTranslation";
+import { cn } from "@/lib/utils";
+import { motion, useScroll, useTransform } from "framer-motion";
+import * as React from "react";
+import ImageTrail from "./ImageTrail";
+import RotatingText from "./RotatingText";
+import ShinyText from "./ShinyText";
 
 type TimelineItem = {
   year: string;
@@ -204,7 +203,7 @@ export default function ImpactTimeline({
             </p>
 
             <div className="mt-6">
-              <p className="hidden text-sm text-neutral-900/55 md:block">
+              <p className="hidden text-sm text-neutral-900/55 md:block sm:hidden">
                 <ShinyText
                   text={t("journey.hoverHint")}
                   speed={2}

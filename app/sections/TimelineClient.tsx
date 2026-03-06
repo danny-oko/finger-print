@@ -1,4 +1,3 @@
-import React from "react";
 import ImpactTimeline from "@/components/ImpactTimeline";
 
 const TimlineClient = () => {

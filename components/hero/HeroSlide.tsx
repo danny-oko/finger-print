@@ -17,7 +17,7 @@ export default function HeroSlide({
   return (
     <div
       className={cn(
-        "relative isolate overflow-hidden rounded-sm",
+        "relative isolate overflow-hidden  sm:rounded-none",
         "h-[90vh] min-h-[400px] sm:min-h-[500px] md:min-h-[560px] w-full",
       )}
     >

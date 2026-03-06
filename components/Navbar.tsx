@@ -1,11 +1,10 @@
 "use client";
 
-import * as React from "react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import * as React from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 import type { Lang } from "@/lib/translations";
 import { useTranslation } from "@/lib/useTranslation";
@@ -252,7 +252,6 @@ export default function Navbar({ className }: { className?: string }) {
             aria-hidden="true"
           />
 
-          {/* Panel (RIGHT, flush to corner) */}
           <aside
             role="dialog"
             aria-modal="true"
@@ -268,7 +267,6 @@ export default function Navbar({ className }: { className?: string }) {
               "flex flex-col",
             )}
           >
-            {/* Header */}
             <div className="px-5 pt-6 pb-4">
               <div className="flex items-center gap-3">
                 <img
@@ -281,7 +279,6 @@ export default function Navbar({ className }: { className?: string }) {
               <div className="mt-5 h-px w-full bg-border" />
             </div>
 
-            {/* Nav */}
             <div className="flex-1 overflow-y-auto px-5 pb-6">
               <div className="space-y-2">
                 {navConfig.map((item) => (
