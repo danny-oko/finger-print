@@ -95,6 +95,16 @@ type Translations = {
     minutes: string;
     seconds: string;
   };
+  attend: {
+    heading: string;
+    subtitle: string;
+    attendTitle: string;
+    attendDescription: string;
+    serveTitle: string;
+    serveDescription: string;
+    supportTitle: string;
+    supportDescription: string;
+  };
   langName: Record<Lang, string>;
 };
 
@@ -216,6 +226,20 @@ const en: Translations = {
     hours: "Hours",
     minutes: "Minutes",
     seconds: "Seconds",
+  },
+
+  attend: {
+    heading: "Join the Finger Print Conference",
+    subtitle: "You can participate in several ways",
+    attendTitle: "Attend the Conference",
+    attendDescription:
+      "If you are a teenager, you can join on your own or together with a friend.",
+    serveTitle: "Serve on a Team",
+    serveDescription:
+      "You can serve with the worship team, welcome team, or organizing team.",
+    supportTitle: "Support Financially",
+    supportDescription:
+      "If you wish, you can support this ministry financially so more teens can attend.",
   },
 
   langName: {
@@ -340,6 +364,20 @@ const ko: Translations = {
     hours: "시간",
     minutes: "분",
     seconds: "초",
+  },
+
+  attend: {
+    heading: "핑거프린트 컨퍼런스에 참여하기",
+    subtitle: "여러 가지 방법으로 함께할 수 있습니다",
+    attendTitle: "컨퍼런스에 참가하기",
+    attendDescription:
+      "청소년이라면 혼자 또는 친구와 함께 컨퍼런스에 참가할 수 있습니다.",
+    serveTitle: "봉사팀으로 섬기기",
+    serveDescription:
+      "찬양팀, 환영팀, 진행팀 등에 함께 섬기며 컨퍼런스를 돕 수 있습니다.",
+    supportTitle: "재정으로 후원하기",
+    supportDescription:
+      "원하신다면 더 많은 청소년이 참여할 수 있도록 재정으로 후원할 수 있습니다.",
   },
 
   langName: {
@@ -470,6 +508,20 @@ const mn: Translations = {
     hours: "Цаг",
     minutes: "Минут",
     seconds: "Секунд",
+  },
+
+  attend: {
+    heading: "Хурууны хээ конферренсэд нэгдэх",
+    subtitle: "Та дараах байдлаар оролцох боломжтой",
+    attendTitle: "Конферренцэд оролцох",
+    attendDescription:
+      "Хэрэв та өсвөр насны хүүхэд бол ганцаараа эсвэл найзтайгаа хамт оролцох боломжтой.",
+    serveTitle: "Үйлчлэлд нэгдэх",
+    serveDescription:
+      "Магтаалын баг, мэндчилгээний баг болон зохион байгуулах багт нэгдэж үйлчлэх боломжтой.",
+    supportTitle: "Санхүүгийн дэмжлэг",
+    supportDescription:
+      "Хэрэв та хүсвэл энэхүү үйл ажиллагааг санхүүгээр дэмжих боломжтой.",
   },
 
   langName: {

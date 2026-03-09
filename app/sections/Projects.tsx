@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
 import { useTranslation } from "@/lib/useTranslation";
+import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 
 const videos = [

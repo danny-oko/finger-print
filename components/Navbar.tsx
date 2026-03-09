@@ -19,8 +19,8 @@ import { useTranslation } from "@/lib/useTranslation";
 
 const navConfig = [
   { key: "about" as const, href: "#about" },
+  { key: "gallery" as const, href: "#attend" },
   { key: "journey" as const, href: "#journey" },
-  { key: "gallery" as const, href: "#gallery" },
   { key: "stories" as const, href: "#stories" },
 ];
 

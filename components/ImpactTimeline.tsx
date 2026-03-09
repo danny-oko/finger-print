@@ -184,7 +184,11 @@ export default function ImpactTimeline({
                       animate={{ y: 0 }}
                       exit={{ y: "-120%" }}
                       staggerDuration={0.025}
-                      transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                      transition={{
+                        type: "spring",
+                        damping: 30,
+                        stiffness: 400,
+                      }}
                       rotationInterval={2800}
                       animatePresenceMode="wait"
                     />
@@ -220,7 +224,11 @@ export default function ImpactTimeline({
                       animate={{ y: 0 }}
                       exit={{ y: "-120%" }}
                       staggerDuration={0.025}
-                      transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                      transition={{
+                        type: "spring",
+                        damping: 30,
+                        stiffness: 400,
+                      }}
                       rotationInterval={2800}
                       animatePresenceMode="wait"
                     />

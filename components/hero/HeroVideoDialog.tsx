@@ -1,8 +1,9 @@
 "use client";
 
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useEffect } from "react";
 
 export default function HeroVideoDialog({
   open,
@@ -15,13 +16,26 @@ export default function HeroVideoDialog({
   title?: string;
   src: string;
 }) {
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onOpenChange(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onOpenChange]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
           "p-0 border-0 shadow-none rounded-xl",
           "flex items-center justify-center",
-          "w-[min(96vw,1100px)]",
+          "w-[min(98vw,1400px)] max-h-[90vh]",
           "bg-transparent",
         )}
       >

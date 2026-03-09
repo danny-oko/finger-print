@@ -1,5 +1,6 @@
 "use client";
 
+import AttendSection from "@/app/sections/AttendSection";
 import Identity from "@/app/sections/Identity";
 import Projects from "@/app/sections/Projects";
 import TimlineClient from "@/app/sections/TimelineClient";
@@ -9,7 +10,6 @@ import Gallery from "@/components/Gallery";
 import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/hero/HeroCarousel";
 import { useTranslation } from "@/lib/useTranslation";
-
 export default function HomeClient() {
   const { t } = useTranslation();
 
@@ -31,6 +31,7 @@ export default function HomeClient() {
         <HeroCarousel slides={slides} />
         <CountDown />
         <Identity />
+        <AttendSection />
         <TimlineClient />
         <Projects />
         <Gallery />
