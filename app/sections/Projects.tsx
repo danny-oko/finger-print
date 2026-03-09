@@ -23,7 +23,7 @@ const Projects = () => {
 
   return (
     <section className="w-full" id="stories">
-      <div className="mx-auto w-[min(1200px,92vw)] py-16">
+      <div className="mx-auto w-[min(1200px,80vw)] ">
         <div className="mb-10 flex flex-col gap-3">
           <h2 className="text-3xl font-bold sm:text-4xl">
             {t("projects.heading")}

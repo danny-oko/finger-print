@@ -2,9 +2,11 @@ import ImpactTimeline from "@/components/ImpactTimeline";
 
 const TimlineClient = () => {
   return (
-    <div id="journey" className="relative">
-      <ImpactTimeline />
-    </div>
+    <section id="journey" className="relative w-full">
+      <div className="mx-auto w-[min(1200px,80vw)]">
+        <ImpactTimeline />
+      </div>
+    </section>
   );
 };
 

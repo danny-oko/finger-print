@@ -14,7 +14,7 @@ function getLangFromCountry(country: string | undefined): Lang {
   return "en";
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
 
   const existingLang = url.searchParams.get("lang");
@@ -40,3 +40,4 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:ico|png|jpg|jpeg|gif|webp|svg|woff2?)$).*)",
   ],
 };
+
