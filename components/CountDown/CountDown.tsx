@@ -23,8 +23,6 @@ function useIsMdUp() {
 }
 
 export default function CountDown() {
-  useIsMdUp();
-
   const [mounted, setMounted] = React.useState(false);
   const [time, setTime] = React.useState<TimeLeft>({
     totalMs: 0,
@@ -58,27 +56,39 @@ export default function CountDown() {
         <div className="bg-black px-4 py-10 shadow-none sm:px-12 sm:py-16 sm:shadow-[0_30px_90px_rgba(0,0,0,0.18)] md:rounded-3xl">
           <CountDownHeader />
 
+          {/* Mobile layout: Days (full row), Hours + Minutes; no Seconds */}
           <div
             className={cn(
               "mx-auto mt-10 w-fit max-w-full",
-              "grid grid-cols-2 items-end justify-items-center justify-center gap-x-10 gap-y-10",
-              "md:flex md:flex-row md:flex-wrap md:items-end md:justify-center md:gap-14",
+              "grid grid-cols-2 items-end justify-items-center gap-x-10 gap-y-10",
+              "md:hidden",
             )}
           >
             <CountDownUnit
               label="Days"
               value={fullDays}
               minDigits={daysMinDigits}
-              className="col-span-2 md:col-span-1"
+              className="col-span-2"
             />
             <CountDownUnit label="Hours" value={hours} minDigits={2} />
             <CountDownUnit label="Minutes" value={minutes} minDigits={2} />
+          </div>
+
+          {/* Desktop layout: 2x2 grid (Days, Hours / Minutes, Seconds) */}
+          <div
+            className={cn(
+              "mx-auto mt-10 w-fit max-w-full",
+              "hidden md:grid md:grid-cols-2 md:items-end md:justify-items-center md:gap-x-16 md:gap-y-12",
+            )}
+          >
             <CountDownUnit
-              label="Seconds"
-              value={seconds}
-              minDigits={2}
-              className="hidden md:flex"
+              label="Days"
+              value={fullDays}
+              minDigits={daysMinDigits}
             />
+            <CountDownUnit label="Hours" value={hours} minDigits={2} />
+            <CountDownUnit label="Minutes" value={minutes} minDigits={2} />
+            <CountDownUnit label="Seconds" value={seconds} minDigits={2} />
           </div>
         </div>
       </div>

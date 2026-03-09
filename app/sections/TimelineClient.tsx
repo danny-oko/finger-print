@@ -2,7 +2,7 @@ import ImpactTimeline from "@/components/ImpactTimeline";
 
 const TimlineClient = () => {
   return (
-    <div id="journey">
+    <div id="journey" className="relative">
       <ImpactTimeline />
     </div>
   );

@@ -1,11 +1,11 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import type { FooterProps, SocialItem } from "@/lib/types";
+import { useTranslation } from "@/lib/useTranslation";
+import { cn } from "@/lib/utils";
+import { Facebook, Instagram, Mail, Phone, Youtube } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-import { useTranslation } from "@/lib/useTranslation";
-import { Instagram, Facebook, Youtube, Mail, Phone } from "lucide-react";
 
 import FancyWords from "./FancyWords";
 import SocialPill from "./SocialPill";
@@ -72,7 +72,7 @@ export default function Footer({
   };
 
   return (
-    <footer className={cn("w-full bg-black text-white", className)}>
+    <footer id="footer" className={cn("w-full bg-black text-white", className)}>
       <div className={cn(CONTAINER, "py-16 md:py-20")}>
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-black px-6 py-10 md:px-10 md:py-14">
           <div className="pointer-events-none absolute inset-0 opacity-80">

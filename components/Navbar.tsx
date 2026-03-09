@@ -91,7 +91,6 @@ export default function Navbar({ className }: { className?: string }) {
     setIsMobileOpen(false);
   };
 
-  // lock body scroll while drawer open
   React.useEffect(() => {
     if (!isMobileOpen) return;
     const prev = document.body.style.overflow;
@@ -101,7 +100,6 @@ export default function Navbar({ className }: { className?: string }) {
     };
   }, [isMobileOpen]);
 
-  // close on ESC
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsMobileOpen(false);
@@ -114,7 +112,7 @@ export default function Navbar({ className }: { className?: string }) {
     <>
       {/* Desktop navbar */}
       <div
-        className={cn("fixed inset-x-0 top-0 z-50 hidden md:block", className)}
+        className={cn("fixed inset-x-0 top-0 z-50 hidden lg:block", className)}
       >
         <div className="mx-auto w-[min(calc(100%-2rem),80vw)] max-w-[1200px] pt-4 sm:pt-6">
           <nav
@@ -134,8 +132,8 @@ export default function Navbar({ className }: { className?: string }) {
               <img src="/logo6.png" alt="Finger Print" className="h-8 w-auto" />
             </Link>
 
-            <div className="absolute left-1/2 -translate-x-1/2 max-w-[50%]">
-              <div className="hidden md:flex items-center gap-10 justify-center">
+            <div className="absolute left-1/2 -translate-x-1/2 max-w-[55%]">
+              <div className="hidden lg:flex items-center gap-8 justify-center">
                 {navConfig.map((item) => (
                   <a
                     key={item.href}
@@ -167,7 +165,10 @@ export default function Navbar({ className }: { className?: string }) {
               </DropdownMenu>
 
               <Button className="rounded-full px-6 text-black" asChild>
-                <Link href={withLang("/start", lang)}>
+                <Link
+                  href={withLang("#footer", lang)}
+                  onClick={(e) => handleNavigate(e, "#footer")}
+                >
                   {t("nav.getInTouch")}
                 </Link>
               </Button>
@@ -177,7 +178,7 @@ export default function Navbar({ className }: { className?: string }) {
       </div>
 
       {/* Mobile navbar + drawer */}
-      <div className={cn("fixed inset-x-0 top-0 z-50 md:hidden", className)}>
+      <div className={cn("fixed inset-x-0 top-0 z-50 lg:hidden", className)}>
         <div className="mx-auto w-[min(calc(100%-1.5rem),100%)] max-w-[1200px] pt-3">
           <nav className="flex h-16 items-center justify-between rounded-full bg-background/90 px-4 shadow-[0_14px_30px_rgba(0,0,0,0.18)] backdrop-blur">
             {/* LEFT: Logo */}
@@ -238,7 +239,7 @@ export default function Navbar({ className }: { className?: string }) {
 
         <div
           className={cn(
-            "fixed inset-0 z-[60] md:hidden",
+            "fixed inset-0 z-60 lg:hidden",
             isMobileOpen ? "pointer-events-auto" : "pointer-events-none",
           )}
         >
@@ -268,12 +269,23 @@ export default function Navbar({ className }: { className?: string }) {
             )}
           >
             <div className="px-5 pt-6 pb-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between gap-3">
                 <img
                   src="/logo6.png"
                   alt="Finger Print"
                   className="h-8 w-auto"
                 />
+                {/* Close button aligned with navbar toggle position */}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="h-9 w-9 rounded-full shadow-none"
+                  aria-label="Close navigation menu"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
               </div>
 
               <div className="mt-5 h-px w-full bg-border" />
