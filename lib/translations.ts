@@ -111,7 +111,7 @@ type Translations = {
 // english
 const en: Translations = {
   hero: {
-    badge: "Since 2016 • 6 Editions",
+    badge: "Since 2016 • 7 Editions",
     title: "Finger Print",
     subtitle: "Teen Seminar",
     description: "Oh God, how precious are the thoughts You have toward me!",
@@ -252,7 +252,7 @@ const en: Translations = {
 // korean
 const ko: Translations = {
   hero: {
-    badge: "2016년부터 • 6회",
+    badge: "2016년부터 • 7회",
     title: "핑거프린트",
     subtitle: "청소년 세미나",
     description:
@@ -390,7 +390,7 @@ const ko: Translations = {
 // mongolian
 const mn: Translations = {
   hero: {
-    badge: "2016 оноос хойш • 6 удаа",
+    badge: "2016 оноос хойш • 7 удаа",
     title: "Хурууны Хээ",
     subtitle: "Өсвөрийн Конферренс",
     description:
@@ -464,14 +464,12 @@ const mn: Translations = {
   },
 
   slides: {
-    slide1Badge: "Магтаал хүндэтгэлийн цаг",
-    slide1Title: "Хамтдаа Бурханы өмнө өөрсдийн магтаалыг өргөх цаг",
-    slide1Desc:
-      "Хамтаа Эзэний өмнө баяр хөөртэйгөөр магтаалыг өргөх ивээлтэй цаг.",
-    slide2Badge: "Баяр хөөр дүүрэн хамтын үйлчлэл",
-    slide2Title: "Хойч үедээ үйлчлэх үйлчлэл",
-    slide2Desc:
-      "Даяар Монгол чуулгануудын өвсөрийн үйлчлэлийг нэгтгэх, босгон байгуулах үйчлэл.",
+    slide1Badge: "2025 он",
+    slide1Title: "Хурууны Хээ",
+    slide1Desc: "Өсвөрийн Конферренс - Миний үнэ цэнэ",
+    slide2Badge: "2024 он",
+    slide2Title: "Хурууны Хээ",
+    slide2Desc: "Өсвөрийн Конферренс - Connect",
     slide3Badge: "Үндэсний өсвөрийн семинар",
     slide3Title: "Хамтын өсвөрийн үйлчлэл",
     slide3Desc:

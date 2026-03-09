@@ -6,16 +6,18 @@ import { Slide } from "./types";
 export default function HeroMedia({
   slide,
   priority,
+  muted = true,
 }: {
   slide: Slide;
   priority?: boolean;
+  muted?: boolean;
 }) {
   if (slide.type === "video") {
     return (
       <video
         className="absolute inset-0 h-full w-full object-cover"
         autoPlay
-        muted
+        muted={muted}
         loop
         playsInline
         preload="metadata"

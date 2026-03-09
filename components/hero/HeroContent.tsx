@@ -2,14 +2,20 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Play } from "lucide-react";
+import { Play, Volume2, VolumeX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import HeroVideoDialog from "./HeroVideoDialog";
 import { YT_EMBED } from "./types";
 import { useTranslation } from "@/lib/useTranslation";
 
-export default function HeroContent() {
+export default function HeroContent({
+  muted,
+  onToggleMute,
+}: {
+  muted: boolean;
+  onToggleMute: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
 
@@ -40,7 +46,7 @@ export default function HeroContent() {
           {t("hero.description")}
         </p>
 
-        <div className="mt-8 flex flex-wrap gap-4">
+        <div className="mt-8 flex flex-wrap items-center gap-4">
           <Button
             className="h-11 gap-3 rounded-full px-8 cursor-pointer"
             onClick={() => setOpen(true)}
@@ -56,6 +62,19 @@ export default function HeroContent() {
           >
             <Link href="#about">{t("hero.ctaSecondary")}</Link>
           </Button>
+
+          <button
+            type="button"
+            onClick={onToggleMute}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-black/30 text-white/90 backdrop-blur transition hover:bg-black/60"
+            aria-label={muted ? "Unmute background video" : "Mute background video"}
+          >
+            {muted ? (
+              <VolumeX className="h-5 w-5" />
+            ) : (
+              <Volume2 className="h-5 w-5" />
+            )}
+          </button>
         </div>
       </div>
 

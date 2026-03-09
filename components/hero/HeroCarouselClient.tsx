@@ -17,6 +17,7 @@ import { Slide } from "./types";
 export default function HeroCarouselClient({ slides }: { slides: Slide[] }) {
   const [api, setApi] = React.useState<CarouselApi | null>(null);
   const [active, setActive] = React.useState(0);
+  const [muted, setMuted] = React.useState(true);
 
   React.useEffect(() => {
     if (!api) return;
@@ -53,7 +54,12 @@ export default function HeroCarouselClient({ slides }: { slides: Slide[] }) {
         <CarouselContent className="m-0">
           {slides.map((slide, idx) => (
             <CarouselItem key={idx} className="p-0">
-              <HeroSlide slide={slide} index={idx} />
+              <HeroSlide
+                slide={slide}
+                index={idx}
+                muted={muted}
+                onToggleMute={() => setMuted((prev) => !prev)}
+              />
             </CarouselItem>
           ))}
         </CarouselContent>

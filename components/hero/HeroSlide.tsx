@@ -10,9 +10,13 @@ import { CONTAINER, Slide } from "./types";
 export default function HeroSlide({
   slide,
   index,
+  muted,
+  onToggleMute,
 }: {
   slide: Slide;
   index: number;
+  muted: boolean;
+  onToggleMute: () => void;
 }) {
   return (
     <div
@@ -21,7 +25,7 @@ export default function HeroSlide({
         "h-[90vh] min-h-[400px] sm:min-h-[500px] md:min-h-[560px] w-full",
       )}
     >
-      <HeroMedia slide={slide} priority={index === 0} />
+      <HeroMedia slide={slide} priority={index === 0} muted={muted} />
       <HeroOverlay />
 
       <div className="relative z-10 h-full">
@@ -35,7 +39,7 @@ export default function HeroSlide({
           >
             <div className="w-full pb-14 md:pb-16">
               {index === 0 ? (
-                <HeroContent />
+                <HeroContent muted={muted} onToggleMute={onToggleMute} />
               ) : (
                 <ImageSlideCaption index={index} />
               )}
