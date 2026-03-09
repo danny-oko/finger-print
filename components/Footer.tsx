@@ -25,16 +25,21 @@ export default function Footer({
   bigWord = "Finger Print",
   motto = "One movement. One generation. One church family.",
   rightsText = "All rights reserved • FirstChurch",
-  navItems = [
-    { label: "About", href: "#about" },
-    { label: "attend", href: "#attend" },
-    { label: "journey", href: "#journey" },
-    { label: "stories", href: "#stories" },
-  ],
+  navItems,
   email = "hello@fingerprint.mn",
   phone = "+976 8007-0177",
   socials,
 }: FooterProps) {
+  const { t } = useTranslation();
+  const router = useRouter();
+
+  const resolvedNavItems = navItems ?? [
+    { label: t("nav.about"), href: "#about" },
+    { label: t("nav.gallery"), href: "#attend" },
+    { label: t("nav.journey"), href: "#journey" },
+    { label: t("nav.stories"), href: "#stories" },
+  ];
+
   const defaultSocials = {
     instagram: "https://www.instagram.com/huruunii_hee/",
     facebook: "https://www.facebook.com/huruuniihee",
@@ -49,9 +54,6 @@ export default function Footer({
     ...it,
     href: s[it.key],
   })).filter((it): it is SocialItem & { href: string } => Boolean(it.href));
-
-  const { t } = useTranslation();
-  const router = useRouter();
 
   const handleNavigate = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -75,11 +77,6 @@ export default function Footer({
     <footer id="footer" className={cn("w-full bg-black text-white", className)}>
       <div className={cn(CONTAINER, "py-16 md:py-20")}>
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-black px-6 py-10 md:px-10 md:py-14">
-          <div className="pointer-events-none absolute inset-0 opacity-80">
-            <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-            <div className="absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-          </div>
-
           <div className="relative">
             <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] lg:gap-14">
               <div>
@@ -108,7 +105,7 @@ export default function Footer({
                   </div>
 
                   <ul className="mt-4 space-y-2.5">
-                    {navItems.map((item) => (
+                    {resolvedNavItems.map((item) => (
                       <li key={item.href}>
                         <a
                           href={item.href}
