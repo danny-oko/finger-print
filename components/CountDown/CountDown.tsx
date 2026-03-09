@@ -5,6 +5,7 @@ import * as React from "react";
 import CountDownHeader from "./CountDownHeader";
 import CountDownUnit from "./CountDownUnit";
 import { TARGET_ISO, getTimeLeft, pad2, type TimeLeft } from "./utils";
+import { useTranslation } from "@/lib/useTranslation";
 
 const CONTAINER = "mx-auto w-full md:w-[min(calc(100%-2rem),80vw,1200px)]";
 
@@ -23,6 +24,7 @@ function useIsMdUp() {
 }
 
 export default function CountDown() {
+  const { t } = useTranslation();
   const [mounted, setMounted] = React.useState(false);
   const [time, setTime] = React.useState<TimeLeft>({
     totalMs: 0,
@@ -65,30 +67,53 @@ export default function CountDown() {
             )}
           >
             <CountDownUnit
-              label="Days"
+              label={t("countdown.days")}
               value={fullDays}
               minDigits={daysMinDigits}
               className="col-span-2"
             />
-            <CountDownUnit label="Hours" value={hours} minDigits={2} />
-            <CountDownUnit label="Minutes" value={minutes} minDigits={2} />
+            <CountDownUnit
+              label={t("countdown.hours")}
+              value={hours}
+              minDigits={2}
+            />
+            <CountDownUnit
+              label={t("countdown.minutes")}
+              value={minutes}
+              minDigits={2}
+            />
           </div>
 
-          {/* Desktop layout: 2x2 grid (Days, Hours / Minutes, Seconds) */}
+          {/* Desktop layout:
+              - md–lg: 2x2 grid
+              - xl+: single centered row */}
           <div
             className={cn(
               "mx-auto mt-10 w-fit max-w-full",
-              "hidden md:grid md:grid-cols-2 md:items-end md:justify-items-center md:gap-x-16 md:gap-y-12",
+              "hidden md:grid md:grid-cols-2 md:items-end md:justify-items-center md:gap-x-16 md:gap-y-10",
+              "xl:flex xl:flex-row xl:flex-nowrap xl:items-end xl:justify-center xl:gap-12",
             )}
           >
             <CountDownUnit
-              label="Days"
+              label={t("countdown.days")}
               value={fullDays}
               minDigits={daysMinDigits}
             />
-            <CountDownUnit label="Hours" value={hours} minDigits={2} />
-            <CountDownUnit label="Minutes" value={minutes} minDigits={2} />
-            <CountDownUnit label="Seconds" value={seconds} minDigits={2} />
+            <CountDownUnit
+              label={t("countdown.hours")}
+              value={hours}
+              minDigits={2}
+            />
+            <CountDownUnit
+              label={t("countdown.minutes")}
+              value={minutes}
+              minDigits={2}
+            />
+            <CountDownUnit
+              label={t("countdown.seconds")}
+              value={seconds}
+              minDigits={2}
+            />
           </div>
         </div>
       </div>

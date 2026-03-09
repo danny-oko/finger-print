@@ -86,6 +86,15 @@ type Translations = {
     pillChrist: string;
     text4: string;
   };
+  countdown: {
+    dateLabel: string;
+    title: string;
+    happeningIn: string;
+    days: string;
+    hours: string;
+    minutes: string;
+    seconds: string;
+  };
   langName: Record<Lang, string>;
 };
 
@@ -127,7 +136,7 @@ const en: Translations = {
     label: "Impact",
     heading: "Impact Timeline",
     theJourney: "",
-    since: "since that moment",
+    since: "Since that moment",
     subheading:
       "The Finger Print conference has been renewing and supporting youth church ministries in Mongolia since 2016.",
     hoverHint: "Hover over the cards to explore :)",
@@ -185,7 +194,7 @@ const en: Translations = {
   },
 
   gallery: {
-    title: "Memories We Created Together",
+    title: "Memories",
   },
 
   manifesto: {
@@ -197,6 +206,16 @@ const en: Translations = {
     text3: "is revealed, and faith finds its foundation in",
     pillChrist: "Christ",
     text4: ".",
+  },
+
+  countdown: {
+    dateLabel: "October 3rd, 2026",
+    title: "Finger Print 2026",
+    happeningIn: "Is Happening In",
+    days: "Days",
+    hours: "Hours",
+    minutes: "Minutes",
+    seconds: "Seconds",
   },
 
   langName: {
@@ -313,6 +332,16 @@ const ko: Translations = {
     text4: " 안에서 굳게 세워지는 중요한 시기입니다.",
   },
 
+  countdown: {
+    dateLabel: "2026년 10월 3일",
+    title: "Finger Print 2026",
+    happeningIn: "까지 남은 시간",
+    days: "일",
+    hours: "시간",
+    minutes: "분",
+    seconds: "초",
+  },
+
   langName: {
     en: "영어",
     mn: "몽골어",
@@ -325,9 +354,9 @@ const mn: Translations = {
   hero: {
     badge: "2016 оноос хойш • 6 удаа",
     title: "Хурууны Хээ",
-    subtitle: "Өсвөрийн Семинар",
+    subtitle: "Өсвөрийн Конферренс",
     description:
-      "Монголын евангелийн чуулгануудын өсвөрийн үйлчлэлийг дэмжиж, өсвөр насны хүүхэд бүр Христ дотор Бурханаас өгсөн өвөрмөц үнэ цэнэ, мөн чанарыг нь харуулах зорилготой.",
+      "Чуулгануудын өсвөрийн үйлчлэлийг дэмжиж, өсвөр насны хүүхэд бүр Христ дотор Бурханаас өгсөн өвөрмөц үнэ цэнэ, мөн чанарыг нь харуулах зорилготой.",
     ctaPrimary: "Богино хэмжээний кино үзэх",
     ctaSecondary: "Холбоо барих",
   },
@@ -344,7 +373,8 @@ const mn: Translations = {
   footer: {
     navigation: "ЦЭС",
     contact: "ХОЛБОО БАРИХ",
-    motto: "Аяа Бурхан, надад хандсан бодлууд тань хичнээн нандин бэ!",
+    motto:
+      "Аяа Бурхан, надад хандсан бодлууд тань Хичнээн нандин бэ!  Нийлбэр нь хичнээн их вэ!",
     rightsText: "All rights reserved • FirstChurch",
   },
 
@@ -352,16 +382,15 @@ const mn: Translations = {
     label: "Хурууны хээ гэж юу вэ?",
     main: "Хурууны хээ конференц нь өсвөр үеийг өөрийн үнэ цэнэ болон Эзэний доторх онцгой бүтээл гэдгээ ухаарч, Христ итгэлийн амьдралаар амьдрахад нь өсвөрийн чуулгануудтай хамтран дэмжлэг үзүүлэх зорилготой.",
     clarify:
-      "Аяа Бурхан, надад хандсан бодлууд тань хичнээн нандин бэ! Дуулал 139:17",
+      "Аяа Бурхан, надад хандсан бодлууд тань Хичнээн нандин бэ!  Нийлбэр нь хичнээн их вэ!Дуулал 139:17",
   },
 
   journey: {
     label: "Нөлөө",
     heading: "Нөлөөний цагийн шугам",
     theJourney: "",
-    since: "тэр мөчөөс",
+    since: "Тэр мөчөөс",
     subheading:
-      // "2017 оноос хойш 5 удаа евангелийн сүмүүдийн өсвөрийн үйлчлэлийг дэмжиж, нэгдлийг бэхжүүлсээр ирлээ.",
       "Хурууны хээ конфференц нь 2016 оноос хойш Монголын өсвөрийн чуулганы үйлчлэлийн сэргээн болсож, дэмжсээр ирсэн.",
     hoverHint: "Картууд дээр хулганаа байршуулаадд үзээрэй :)",
     mobileHint: "",
@@ -431,6 +460,16 @@ const mn: Translations = {
     text3: "илэрч, итгэл",
     pillChrist: "Христ",
     text4: "дотор бат сууриа олдог чухал үе юм.",
+  },
+
+  countdown: {
+    dateLabel: "2026 оны 10-р сарын 3",
+    title: "Хурууны хээ 2026",
+    happeningIn: "болох хүртэл",
+    days: "Өдөр",
+    hours: "Цаг",
+    minutes: "Минут",
+    seconds: "Секунд",
   },
 
   langName: {
