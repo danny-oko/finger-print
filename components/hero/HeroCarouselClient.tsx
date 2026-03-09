@@ -33,15 +33,15 @@ export default function HeroCarouselClient({ slides }: { slides: Slide[] }) {
     };
   }, [api]);
 
-  React.useEffect(() => {
-    if (!api || slides.length <= 1) return;
+  // React.useEffect(() => {
+  //   if (!api || slides.length <= 1) return;
 
-    const id = window.setInterval(() => {
-      api.scrollNext();
-    }, 15000);
+  //   const id = window.setInterval(() => {
+  //     api.scrollNext();
+  //   }, 15000);
 
-    return () => window.clearInterval(id);
-  }, [api, slides.length]);
+  //   return () => window.clearInterval(id);
+  // }, [api, slides.length]);
 
   return (
     <div className="mx-auto w-full">

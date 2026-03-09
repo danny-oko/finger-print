@@ -42,24 +42,36 @@ export default function WhySection({
     if (!section || !pin || !clarifyEl || !mainEl) return;
 
     const ctx = gsap.context(() => {
-      gsap.set(clarifyEl, { opacity: 0, y: 18 });
+      gsap.set(clarifyEl, { autoAlpha: 0, y: 18 });
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: "+=140%",
-          scrub: 1,
-          pin: pin,
-          anticipatePin: 1,
-        },
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top top",
+        end: "+=140%",
+        pin: pin,
+        anticipatePin: 1,
       });
 
-      tl.to(mainEl, { opacity: 0.94, duration: 0.2 }, 0).to(
-        clarifyEl,
-        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
-        0.25,
-      );
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: "top 55%",
+            toggleActions: "play none none none",
+            once: true,
+          },
+        })
+        .to(mainEl, { opacity: 0.94, duration: 0.2 })
+        .to(
+          clarifyEl,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "power2.out",
+          },
+          "-=0.05",
+        );
     }, section);
 
     return () => ctx.revert();

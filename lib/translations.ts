@@ -95,8 +95,7 @@ const en: Translations = {
     badge: "Since 2016 • 6 Editions",
     title: "Finger Print",
     subtitle: "Teen Seminar",
-    description:
-      "Supporting the youth ministries of Evangelical churches in Mongolia and helping every teenager see the unique value and identity given by God in Christ.",
+    description: "Oh God, how precious are the thoughts You have toward me!",
     ctaPrimary: "Watch Short Film",
     ctaSecondary: "Get In Touch",
   },
