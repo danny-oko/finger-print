@@ -159,43 +159,74 @@ export default function ImpactTimeline({
       <div className={cn(CONTAINER, "py-20 md:py-28")}>
         <div className="grid min-w-0 grid-cols-1 gap-10 md:grid-cols-[320px_1fr] md:gap-14">
           <div className="md:sticky md:top-24 md:self-start">
-            {/* <Badge className="rounded-full bg-[#F98C01] px-5 py-1.5 text-sm text-black tracking-tight shadow-[0_0_50px_rgba(249,140,1,0.35)] ">
-              {t("journey.label")}
-            </Badge> */}
-            {/* <div className="inline-flex items-center gap-2 rounded-full border border-neutral-900/15 bg-neutral-900/5 px-4 py-2 text-xs font-medium text-neutral-900/70"></div> */}
-
             <h2 className="mt-6 text-3xl font-semibold tracking-tight text-neutral-900 md:text-3xl flex-wrap">
-              <span className="block">
-                {t("journey.theJourney")} {t("journey.since")}
-              </span>
-
-              <span className="mt-2 flex items-center gap-2">
-                <RotatingText
-                  texts={tr.journey.rotating}
-                  mainClassName={[
-                    "relative inline-flex items-center justify-center",
-                    "whitespace-nowrap",
-                    "min-w-max",
-                    "rounded-2xl px-4 sm:px-5 md:px-6",
-                    "py-1.5 sm:py-2",
-                    "text-black",
-                    "bg-[linear-gradient(180deg,#FFC36A_0%,#F98C01_100%)]",
-                    "shadow-[0_18px_36px_rgba(0,0,0,.16)]",
-                    "ring-1 ring-black/5",
-                    "overflow-hidden",
-                  ].join(" ")}
-                  splitLevelClassName="overflow-hidden"
-                  elementLevelClassName="inline-block whitespace-nowrap"
-                  staggerFrom="last"
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  exit={{ y: "-120%" }}
-                  staggerDuration={0.025}
-                  transition={{ type: "spring", damping: 30, stiffness: 400 }}
-                  rotationInterval={2800}
-                  animatePresenceMode="wait"
-                />
-              </span>
+              {lang === "mn" || lang === "ko" ? (
+                <>
+                  <span className="mt-0 flex items-center gap-2">
+                    <RotatingText
+                      texts={tr.journey.rotating}
+                      mainClassName={[
+                        "relative inline-flex items-center justify-center",
+                        "whitespace-nowrap",
+                        "min-w-max",
+                        "rounded-2xl px-4 sm:px-5 md:px-6",
+                        "py-1.5 sm:py-2",
+                        "text-black",
+                        "bg-[linear-gradient(180deg,#FFC36A_0%,#F98C01_100%)]",
+                        "shadow-[0_18px_36px_rgba(0,0,0,.16)]",
+                        "ring-1 ring-black/5",
+                        "overflow-hidden",
+                      ].join(" ")}
+                      splitLevelClassName="overflow-hidden"
+                      elementLevelClassName="inline-block whitespace-nowrap"
+                      staggerFrom="last"
+                      initial={{ y: "100%" }}
+                      animate={{ y: 0 }}
+                      exit={{ y: "-120%" }}
+                      staggerDuration={0.025}
+                      transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                      rotationInterval={2800}
+                      animatePresenceMode="wait"
+                    />
+                  </span>
+                  <span className="mt-3 block">
+                    {t("journey.theJourney")} {t("journey.since")}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="block">
+                    {t("journey.theJourney")} {t("journey.since")}
+                  </span>
+                  <span className="mt-2 flex items-center gap-2">
+                    <RotatingText
+                      texts={tr.journey.rotating}
+                      mainClassName={[
+                        "relative inline-flex items-center justify-center",
+                        "whitespace-nowrap",
+                        "min-w-max",
+                        "rounded-2xl px-4 sm:px-5 md:px-6",
+                        "py-1.5 sm:py-2",
+                        "text-black",
+                        "bg-[linear-gradient(180deg,#FFC36A_0%,#F98C01_100%)]",
+                        "shadow-[0_18px_36px_rgba(0,0,0,.16)]",
+                        "ring-1 ring-black/5",
+                        "overflow-hidden",
+                      ].join(" ")}
+                      splitLevelClassName="overflow-hidden"
+                      elementLevelClassName="inline-block whitespace-nowrap"
+                      staggerFrom="last"
+                      initial={{ y: "100%" }}
+                      animate={{ y: 0 }}
+                      exit={{ y: "-120%" }}
+                      staggerDuration={0.025}
+                      transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                      rotationInterval={2800}
+                      animatePresenceMode="wait"
+                    />
+                  </span>
+                </>
+              )}
             </h2>
 
             <p className="mt-4 max-w-[40ch] text-base leading-relaxed text-neutral-900/70">

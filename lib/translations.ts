@@ -448,7 +448,7 @@ const mn: Translations = {
   },
 
   gallery: {
-    title: "Хамтдаа бүтээсэн дурсамжууд",
+    title: "Эзэн дотор бүтээсэн дурсамжууд",
   },
 
   manifesto: {
