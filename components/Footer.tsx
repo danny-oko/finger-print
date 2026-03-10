@@ -33,12 +33,17 @@ export default function Footer({
   const { t } = useTranslation();
   const router = useRouter();
 
-  const resolvedNavItems = navItems ?? [
-    { label: t("nav.about"), href: "#about" },
-    { label: t("nav.gallery"), href: "#attend" },
-    { label: t("nav.journey"), href: "#journey" },
-    { label: t("nav.stories"), href: "#stories" },
+  const navConfig = [
+    { key: "about" as const, href: "#about", label: t("nav.about") },
+    { key: "attend" as const, href: "#attend", label: t("nav.attend") },
+    { key: "journey" as const, href: "#journey", label: t("nav.journey") },
+    { key: "stories" as const, href: "#stories", Label: t("nav.stories") },
   ];
+  // const resolvedNavItems = navItems ?? [
+  //   { label: t("nav.about"), href: "#about" },
+  //   { label: t("nav.journey"), href: "#journey" },
+  //   { label: t("nav.stories"), href: "#stories" },
+  // ];
 
   const defaultSocials = {
     instagram: "https://www.instagram.com/huruunii_hee/",
@@ -105,7 +110,7 @@ export default function Footer({
                   </div>
 
                   <ul className="mt-4 space-y-2.5">
-                    {resolvedNavItems.map((item) => (
+                    {navConfig.map((item) => (
                       <li key={item.href}>
                         <a
                           href={item.href}

@@ -12,9 +12,9 @@ type Translations = {
   nav: {
     home: string;
     about: string;
+    attend: string;
     journey: string;
     stories: string;
-    gallery: string;
     getInTouch: string;
   };
   footer: {
@@ -121,9 +121,9 @@ const en: Translations = {
 
   nav: {
     home: "Home",
-    about: "Finger Print",
-    journey: "Our Journey",
-    gallery: "Attend",
+    about: "About",
+    attend: "Attend",
+    journey: "Journey",
     stories: "Stories",
     getInTouch: "Contact",
   },
@@ -265,8 +265,8 @@ const ko: Translations = {
   nav: {
     home: "홈",
     about: "핑거프린트",
+    attend: "참여하기",
     journey: "우리의 여정",
-    gallery: "참여하기",
     stories: "이야기",
     getInTouch: "연락하기",
   },
@@ -402,8 +402,8 @@ const mn: Translations = {
   nav: {
     home: "Нүүр",
     about: "Хурууны хээ",
+    attend: "Оролцох",
     journey: "Бидний аялал",
-    gallery: "Оролцох",
     stories: "Түүхүүд",
     getInTouch: "Холбогдох",
   },
