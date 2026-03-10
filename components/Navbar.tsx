@@ -316,11 +316,10 @@ export default function Navbar({ className }: { className?: string }) {
               </div>
             </div>
 
-            {/* Bottom CTA */}
             <div className="border-t border-border px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <Button className="w-full rounded-2xl py-6 text-black" asChild>
                 <Link
-                  href={withLang("/start", lang)}
+                  href={withLang("#footer", lang)}
                   onClick={() => setIsMobileOpen(false)}
                 >
                   {t("nav.getInTouch")}
