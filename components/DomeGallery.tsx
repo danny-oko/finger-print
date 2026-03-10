@@ -33,254 +33,60 @@ type ItemDef = {
 };
 
 const DEFAULT_IMAGES: ImageItem[] = [
-  {
-    src: "/fp-1.jpg",
-    alt: "Abstract art",
-  },
-  {
-    src: "/fp-2.jpg",
-    alt: "Modern sculpture",
-  },
-  {
-    src: "/fp-3.jpg",
-    alt: "Digital artwork",
-  },
-  {
-    src: "/fp-4.jpg",
-    alt: "Contemporary art",
-  },
-  {
-    src: "/fp-5.jpg",
-    alt: "Geometric pattern",
-  },
-  {
-    src: "/fp-6.jpg",
-    alt: "Textured surface",
-  },
-  {
-    src: "/fp-7.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-9.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-10.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-11.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-12.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-13.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-14.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-15.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-16.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-17.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-19.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-20.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-21.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-22.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-23.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-24.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-25.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-26.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-27.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-28.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-29.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-30.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-31.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-32.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-33.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-34.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-37.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-40.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-41.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-43.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-44.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-45.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-46.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-47.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-49.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-50.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-51.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-52.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-53.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-54.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-55.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-56.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-57.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-58.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-59.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-60.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-61.jpg",
-    alt: "Social media image",
-  },
-  {
-    src: "/fp-62.jpg",
-    alt: "Social media image",
-  },
-  // {
-  //   src: "/fp-65.jpg",
-  //   alt: "Social media image",
-  // },
-  // {
-  //   src: "/fp-66.jpg",
-  //   alt: "Social media image",
-  // },
-  // {
-  //   src: "/fp-8.jpg",
-  //   alt: "Social media image",
-  // },
-  // {
-  //   src: "/fp-8.jpg",
-  //   alt: "Social media image",
-  // },
-  // {
-  //   src: "/fp-8.jpg",
-  //   alt: "Social media image",
-  // },
-  // {
-  //   src: "/fp-8.jpg",
-  //   alt: "Social media image",
-  // },
-  // {
-  //   src: "/fp-8.jpg",
-  //   alt: "Social media image",
-  // },
-  // {
-  //   src: "/fp-8.jpg",
-  //   alt: "Social media image",
-  // },
+  { src: "/fp-31.jpg", alt: "Social media image" },
+  { src: "/fp-7.jpg", alt: "Social media image" },
+  { src: "/fp-44.jpg", alt: "Social media image" },
+  { src: "/fp-3.jpg", alt: "Digital artwork" },
+  { src: "/fp-58.jpg", alt: "Social media image" },
+  { src: "/fp-12.jpg", alt: "Social media image" },
+  { src: "/fp-26.jpg", alt: "Social media image" },
+  { src: "/fp-1.jpg", alt: "Abstract art" },
+  { src: "/fp-50.jpg", alt: "Social media image" },
+  { src: "/fp-22.jpg", alt: "Social media image" },
+  { src: "/fp-41.jpg", alt: "Social media image" },
+  { src: "/fp-9.jpg", alt: "Social media image" },
+  { src: "/fp-34.jpg", alt: "Social media image" },
+  { src: "/fp-2.jpg", alt: "Modern sculpture" },
+  { src: "/fp-53.jpg", alt: "Social media image" },
+  { src: "/fp-17.jpg", alt: "Social media image" },
+  { src: "/fp-29.jpg", alt: "Social media image" },
+  { src: "/fp-46.jpg", alt: "Social media image" },
+  { src: "/fp-15.jpg", alt: "Social media image" },
+  { src: "/fp-60.jpg", alt: "Social media image" },
+  { src: "/fp-25.jpg", alt: "Social media image" },
+  { src: "/fp-5.jpg", alt: "Geometric pattern" },
+  { src: "/fp-47.jpg", alt: "Social media image" },
+  { src: "/fp-37.jpg", alt: "Social media image" },
+  { src: "/fp-10.jpg", alt: "Social media image" },
+  { src: "/fp-52.jpg", alt: "Social media image" },
+  { src: "/fp-33.jpg", alt: "Social media image" },
+  { src: "/fp-13.jpg", alt: "Social media image" },
+  { src: "/fp-55.jpg", alt: "Social media image" },
+  { src: "/fp-4.jpg", alt: "Contemporary art" },
+  { src: "/fp-61.jpg", alt: "Social media image" },
+  { src: "/fp-20.jpg", alt: "Social media image" },
+  { src: "/fp-28.jpg", alt: "Social media image" },
+  { src: "/fp-51.jpg", alt: "Social media image" },
+  { src: "/fp-14.jpg", alt: "Social media image" },
+  { src: "/fp-23.jpg", alt: "Social media image" },
+  { src: "/fp-49.jpg", alt: "Social media image" },
+  { src: "/fp-6.jpg", alt: "Textured surface" },
+  { src: "/fp-62.jpg", alt: "Social media image" },
+  { src: "/fp-27.jpg", alt: "Social media image" },
+  { src: "/fp-45.jpg", alt: "Social media image" },
+  { src: "/fp-19.jpg", alt: "Social media image" },
+  { src: "/fp-30.jpg", alt: "Social media image" },
+  { src: "/fp-24.jpg", alt: "Social media image" },
+  { src: "/fp-32.jpg", alt: "Social media image" },
+  { src: "/fp-54.jpg", alt: "Social media image" },
+  { src: "/fp-11.jpg", alt: "Social media image" },
+  { src: "/fp-21.jpg", alt: "Social media image" },
+  { src: "/fp-59.jpg", alt: "Social media image" },
+  { src: "/fp-16.jpg", alt: "Social media image" },
+  { src: "/fp-43.jpg", alt: "Social media image" },
+  { src: "/fp-56.jpg", alt: "Social media image" },
+  { src: "/fp-40.jpg", alt: "Social media image" },
+  { src: "/fp-57.jpg", alt: "Social media image" },
 ];
 
 const DEFAULTS = {
@@ -1179,8 +985,9 @@ export default function DomeGallery({
               ref={scrimRef}
               className="scrim absolute inset-0 z-10 pointer-events-none opacity-0 transition-opacity duration-500"
               style={{
-                background: "rgba(0, 0, 0, 0.4)",
-                backdropFilter: "blur(3px)",
+                // bg on toggle disabled
+                // background: "rgba(0, 0, 0, 0.4)",
+                backdropFilter: "blur(1px)",
               }}
             />
             <div

@@ -23,7 +23,7 @@ const Gallery = () => {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white to-transparent" />
 
-        <div className="h-[85vh] min-h-[640px] w-screen relative left-1/2 -translate-x-1/2">
+        <div className="h-[72vh] min-h-[640px] w-screen relative left-1/2 -translate-x-1/2">
           <DomeGallery
             fit={2}
             minRadius={520}
