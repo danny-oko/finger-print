@@ -27,7 +27,7 @@ export default function JourneyClient({ className }: { className?: string }) {
 
   const defaultItems: TimelineItem[] = [
     {
-      year: "2017",
+      year: "2016",
       title: tr.journey.title1,
       summary: tr.journey.summary1,
       pills: [
@@ -38,7 +38,7 @@ export default function JourneyClient({ className }: { className?: string }) {
       images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
-      year: "2018",
+      year: "2017",
       title: tr.journey.title2,
       summary: tr.journey.summary2,
       pills: [
@@ -60,7 +60,7 @@ export default function JourneyClient({ className }: { className?: string }) {
       images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
-      year: "2020–2021",
+      year: "2024",
       title: tr.journey.title4,
       summary: tr.journey.summary4,
       pills: [
@@ -71,7 +71,7 @@ export default function JourneyClient({ className }: { className?: string }) {
       images: ["/fp-4.jpg", "/fp-5.jpg", "/fp-6.jpg", "/fp-7.jpg"],
     },
     {
-      year: "2023–2024",
+      year: "2025",
       title: tr.journey.title5,
       summary: tr.journey.summary5,
       pills: [
