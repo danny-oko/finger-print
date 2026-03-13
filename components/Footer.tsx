@@ -66,6 +66,7 @@ export default function Footer({
   ) => {
     if (!href.startsWith("#")) return;
 
+    
     e.preventDefault();
     const id = href.slice(1);
     const el = document.getElementById(id);
