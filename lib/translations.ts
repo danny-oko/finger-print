@@ -110,7 +110,7 @@ type Translations = {
 
 const en: Translations = {
   hero: {
-    badge: "Since 2016 • 7 Editions",
+    badge: "Since 2016 • 6 Editions",
     title: "Finger Print",
     subtitle: "Teen Conference",
     description:
@@ -253,7 +253,7 @@ const en: Translations = {
 // korean
 const ko: Translations = {
   hero: {
-    badge: "2016년부터 • 7회",
+    badge: "2016년부터 • 6회",
     title: "핑거프린트",
     subtitle: "청소년 컨퍼런스",
     description:
@@ -390,7 +390,7 @@ const ko: Translations = {
 // mongolian
 const mn: Translations = {
   hero: {
-    badge: "2016 оноос хойш • 7 удаа",
+    badge: "2016 оноос хойш • 6 удаа",
     title: "Хурууны Хээ",
     subtitle: "Өсвөрийн Конферренс",
     description:
@@ -449,11 +449,11 @@ const mn: Translations = {
     summary1: `"Хурууны хээ"`,
     summary2: `"Гэрэл дотор амьдарцгаая” - Иохан 8:12 “Би бол ертөнцийн гэрэл мөн. Намайг дагадаг хүн харанхуй дотор явахгүй, харин амийн гэрэлтэй болно гэж айлдав.`,
     summary3: `“Итгэлээр алхацгаая” - 2 Коринт 5:7 Учир нь бид үзэгдэх зүйлсээр биш харин итгэлээр алхдаг`,
-    summary4: ` “CONNECT” - 2ТИМОТ 2:22 22 Залуу насны дур хүслүүдээс зугт. Цэвэр зүрхнээс Эзэнийг дуудагчдын хамт зөвт байдал, итгэл, хайр ба амар тайвныг мөшгө.`,
+    summary4: ` “CONNECT” - 2ТИМОТ 2:22 Залуу насны дур хүслүүдээс зугт. Цэвэр зүрхнээс Эзэнийг дуудагчдын хамт зөвт байдал, итгэл, хайр ба амар тайвныг мөшгө.`,
     summary5: `“You are worthy” Исаиа 43:4 Чи Миний нүдэнд үнэтэй, Хүндтэй, Би чамд хайртай…`,
-    pillsAttendees: "Оролцогчид: Тодорхойгүй",
-    pillsChurches: "Сүмүүд: Тодорхойгүй",
-    pillsLocation: "Байршил: Улаанбаатар",
+    pillsAttendees: "Хамрагдсан хүүхэд: 200",
+    pillsChurches: "Оролцсон цуглаан: Тодорхойгүй",
+    pillsLocation: "",
     pillsTheme: "Сэдэв: Тодорхойгүй",
     pillsVolunteers: "Сайн дурынхан: Тодорхойгүй",
     pillsFormat: "Формат: Тодорхойгүй",
