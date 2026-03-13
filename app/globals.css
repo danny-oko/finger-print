@@ -142,3 +142,8 @@ body {
   /* font-weight: 600; */
   /* min-height: 400vh; */
 }
+
+/* Hide SSR hero first slide once client carousel has hydrated */
+#hero-section-root[data-hydrated] .hero-first-static {
+  display: none;
+}

@@ -199,7 +199,7 @@ const en: Translations = {
   },
 
   projects: {
-    heading: "Shared Creations",
+    heading: "",
     shortFilm: "Short Film",
     eventDayVideo: "Conference Recap",
     open: "Watch",
@@ -337,7 +337,7 @@ const ko: Translations = {
   },
 
   projects: {
-    heading: "함께 만든 이야기",
+    heading: "",
     shortFilm: "단편 영화",
     eventDayVideo: "컨퍼런스 요약",
     open: "보기",
@@ -474,9 +474,9 @@ const mn: Translations = {
   },
 
   projects: {
-    heading: "Хамтын бүтээл",
+    heading: "",
     shortFilm: "Богино хэмжээний кино",
-    eventDayVideo: "Конфференцийн хураангуй",
+    eventDayVideo: "Хурууны хээ 2025",
     open: "Үзэх",
   },
 

@@ -8,6 +8,7 @@ import CountDown from "@/components/CountDown/CountDown";
 import Footer from "@/components/Footer";
 import Gallery from "@/components/Gallery";
 import HeroCarousel from "@/components/hero/HeroCarousel";
+import type { Lang } from "@/lib/translations";
 
 const HERO_SLIDES = [
   {
@@ -32,12 +33,25 @@ function SectionFallback({ className }: { className?: string }) {
   return <div className={className ?? "min-h-[120px]"} aria-hidden />;
 }
 
-export default function Page() {
+const SUPPORTED_LANGS = ["en", "mn", "ko"] as const;
+function parseLang(lang: string | null): Lang {
+  if (lang && SUPPORTED_LANGS.includes(lang as Lang)) return lang as Lang;
+  return "en";
+}
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const params = await searchParams;
+  const lang = parseLang(params.lang ?? null);
+
   return (
     <>
       <main>
         <Suspense fallback={<SectionFallback className="min-h-[90vh]" />}>
-          <HeroCarousel slides={HERO_SLIDES} />
+          <HeroCarousel slides={HERO_SLIDES} lang={lang} />
         </Suspense>
         <Suspense fallback={<SectionFallback />}>
           <CountDown />
