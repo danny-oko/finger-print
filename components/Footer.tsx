@@ -68,7 +68,6 @@ export default function Footer({
 
     e.preventDefault();
     const id = href.slice(1);
-    
     const el = document.getElementById(id);
     if (!el) return;
 
