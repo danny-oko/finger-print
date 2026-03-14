@@ -1,6 +1,6 @@
 export type Lang = "en" | "mn" | "ko";
 
-type Translations = {
+export type Translations = {
   hero: {
     badge: string;
     title: string;
@@ -9,6 +9,7 @@ type Translations = {
     ctaPrimary: string;
     ctaSecondary: string;
   };
+
   nav: {
     home: string;
     about: string;
@@ -17,17 +18,20 @@ type Translations = {
     stories: string;
     getInTouch: string;
   };
+
   footer: {
     navigation: string;
     contact: string;
     motto: string;
     rightsText: string;
   };
+
   identity: {
     label: string;
     main: string;
     clarify: string;
   };
+
   journey: {
     label: string;
     heading: string;
@@ -48,14 +52,28 @@ type Translations = {
     summary3: string;
     summary4: string;
     summary5: string;
-    pillsAttendees: string;
-    pillsChurches: string;
-    pillsLocation: string;
-    pillsTheme: string;
-    pillsVolunteers: string;
-    pillsFormat: string;
-    pillsReach: string;
+    pillsChurches1: string;
+    pillsChurches2: string;
+    pillsChurches3: string;
+    pillsChurches4: string;
+    pillsChurches5: string;
+    pillsAttendees1: string;
+    pillsVolunteers1: string;
+    pillsServants1?: string;
+    pillsAttendees2: string;
+    pillsVolunteers2: string;
+    pillsServants2?: string;
+    pillsAttendees3: string;
+    pillsVolunteers3: string;
+    pillsServants3?: string;
+    pillsAttendees4: string;
+    pillsVolunteers4: string;
+    pillsServants4?: string;
+    pillsAttendees5: string;
+    pillsVolunteers5: string;
+    pillsServants5?: string;
   };
+
   slides: {
     slide1Badge: string;
     slide1Title: string;
@@ -67,15 +85,18 @@ type Translations = {
     slide3Title: string;
     slide3Desc: string;
   };
+
   projects: {
     heading: string;
     shortFilm: string;
     eventDayVideo: string;
     open: string;
   };
+
   gallery: {
     title: string;
   };
+
   manifesto: {
     label: string;
     text1: string;
@@ -86,6 +107,7 @@ type Translations = {
     pillChrist: string;
     text4: string;
   };
+
   countdown: {
     dateLabel: string;
     title: string;
@@ -95,6 +117,7 @@ type Translations = {
     minutes: string;
     seconds: string;
   };
+
   attend: {
     heading: string;
     subtitle: string;
@@ -105,447 +128,522 @@ type Translations = {
     supportTitle: string;
     supportDescription: string;
   };
-  langName: Record<Lang, string>;
-};
-
-const en: Translations = {
-  hero: {
-    badge: "Since 2016 • 6 Editions",
-    title: "Finger Print",
-    subtitle: "Teen Conference",
-    description:
-      "Supporting youth ministries of churches and helping every teenager discover the unique value and identity given by God in Christ.",
-    ctaPrimary: "Watch Short Film",
-    ctaSecondary: "Contact",
-  },
-
-  nav: {
-    home: "Home",
-    about: "About",
-    attend: "Attend",
-    journey: "Journey",
-    stories: "Stories",
-    getInTouch: "Contact",
-  },
-
-  footer: {
-    navigation: "MENU",
-    contact: "CONTACT",
-    motto:
-      "Oh God, how precious are the thoughts You have toward me! How vast is their sum!",
-    rightsText: "All rights reserved • FirstChurch",
-  },
-
-  identity: {
-    label: "What is Finger Print?",
-    main: "The Finger Print conference works together with youth churches to support teenagers so they may realize their value and understand that they are uniquely created in the Lord, helping them live a life of faith in Christ.",
-    clarify:
-      "Oh God, how precious are the thoughts You have toward me! How vast is their sum! Psalm 139:17",
-  },
-
-  journey: {
-    label: "Impact",
-    heading: "Impact Timeline",
-    theJourney: "",
-    since: "Since that moment",
-    subheading:
-      "Since 2016, the Finger Print conference has been renewing and supporting youth ministries of churches in Mongolia.",
-    hoverHint: "Hover over the cards to explore :)",
-    mobileHint: "",
-    rotating: [
-      "Called",
-      "Saw Their Worth",
-      "Feared Him",
-      "Made a Decision",
-      "Hope Was Born",
-      "Saved by Christ",
-    ],
-    edition: "Edition",
-    title1: "1st Edition",
-    title2: "2nd Edition",
-    title3: "3rd Edition",
-    title4: "4th Edition",
-    title5: "5th Edition",
-    summary1:
-      "A collaborative network of youth ministries among Evangelical churches began.",
-    summary2:
-      "Through worship, teaching, and fellowship, the focus deepened on value in Christ.",
-    summary3:
-      "Collaboration between youth leaders and ministries became stronger.",
-    summary4:
-      "Even during difficult times, teenagers remained connected in faith.",
-    summary5:
-      "Serving the next generation through renewed vision and wider collaboration.",
-    pillsAttendees: "Attendees: TBA",
-    pillsChurches: "Churches: TBA",
-    pillsLocation: "Location: Ulaanbaatar",
-    pillsTheme: "Theme: TBA",
-    pillsVolunteers: "Volunteers: TBA",
-    pillsFormat: "Format: TBA",
-    pillsReach: "Reach: TBA",
-  },
-
-  slides: {
-    slide1Badge: "2025",
-    slide1Title: "Finger Print",
-    slide1Desc: "Teen Conference - My Value",
-    slide2Badge: "2024",
-    slide2Title: "Finger Print",
-    slide2Desc: "Teen Conference - Connect",
-    slide3Badge: "National Teen Seminar",
-    slide3Title: "Collaborative Youth Ministry",
-    slide3Desc:
-      '"Finger Print" unites churches to guide and support Mongolian teenagers in Christ.',
-  },
-
-  projects: {
-    heading: "",
-    shortFilm: "Short Film",
-    eventDayVideo: "Conference Recap",
-    open: "Watch",
-  },
-
-  gallery: {
-    title: "Memories Created in the Lord",
-  },
-
-  manifesto: {
-    label: "Why It Matters",
-    text1: "Adolescence is the time when",
-    pillIdentity: "identity",
-    text2: "is formed,",
-    pillWorth: "value",
-    text3: "is revealed, and faith finds its foundation in",
-    pillChrist: "Christ",
-    text4: ".",
-  },
-
-  countdown: {
-    dateLabel: "October 3, 2026",
-    title: "Finger Print 2026",
-    happeningIn: "Until It Happens",
-    days: "Days",
-    hours: "Hours",
-    minutes: "Minutes",
-    seconds: "Seconds",
-  },
-
-  attend: {
-    heading: "Join the Finger Print Conference",
-    subtitle: "You can participate in the following ways",
-    attendTitle: "Attend the Conference",
-    attendDescription:
-      "If you are a teenager, you can participate alone or together with a friend.",
-    serveTitle: "Join a Ministry Team",
-    serveDescription:
-      "You can serve by joining the worship team, welcome team, or organizing team.",
-    supportTitle: "Financial Support",
-    supportDescription:
-      "If you wish, you can support this ministry financially.",
-  },
 
   langName: {
-    en: "English",
-    mn: "Монгол",
-    ko: "한국어",
-  },
-};
-// korean
-const ko: Translations = {
-  hero: {
-    badge: "2016년부터 • 6회",
-    title: "핑거프린트",
-    subtitle: "청소년 컨퍼런스",
-    description:
-      "교회의 청소년 사역을 지원하며, 모든 청소년이 그리스도 안에서 하나님이 주신 고유한 가치와 정체성을 발견하도록 돕습니다.",
-    ctaPrimary: "단편 영화 보기",
-    ctaSecondary: "문의하기",
-  },
-
-  nav: {
-    home: "홈",
-    about: "핑거프린트",
-    attend: "참여하기",
-    journey: "우리의 여정",
-    stories: "이야기",
-    getInTouch: "연락하기",
-  },
-
-  footer: {
-    navigation: "메뉴",
-    contact: "연락처",
-    motto:
-      "하나님이시여, 나를 향한 주의 생각은 얼마나 귀한지요! 그 수가 얼마나 많은지요!",
-    rightsText: "All rights reserved • FirstChurch",
-  },
-
-  identity: {
-    label: "핑거프린트란 무엇인가?",
-    main: "핑거프린트 컨퍼런스는 청소년 교회들과 협력하여 청소년들이 자신의 가치와 주 안에서 특별히 창조된 존재임을 깨닫고 그리스도 안에서 믿음의 삶을 살아가도록 돕습니다.",
-    clarify:
-      "하나님이시여, 나를 향한 주의 생각은 얼마나 귀한지요! 그 수가 얼마나 많은지요! 시편 139:17",
-  },
-
-  journey: {
-    label: "영향",
-    heading: "영향 타임라인",
-    theJourney: "",
-    since: "그 순간부터",
-    subheading:
-      "핑거프린트 컨퍼런스는 2016년부터 몽골 교회의 청소년 사역을 새롭게 세우고 지원해 왔습니다.",
-    hoverHint: "카드 위에 마우스를 올려보세요 :)",
-    mobileHint: "",
-    rotating: [
-      "부르심",
-      "가치를 발견함",
-      "그를 경외함",
-      "결단함",
-      "희망이 시작됨",
-      "그리스도로 구원받음",
-    ],
-    edition: "회",
-    title1: "1회",
-    title2: "2회",
-    title3: "3회",
-    title4: "4회",
-    title5: "5회",
-    summary1: "복음주의 교회 청소년 사역의 협력 네트워크가 시작되었습니다.",
-    summary2: "찬양과 말씀, 교제를 통해 그리스도 안의 가치에 더 집중했습니다.",
-    summary3: "청소년 지도자들과 사역 간의 협력이 더욱 깊어졌습니다.",
-    summary4: "어려운 시기에도 청소년들이 믿음 안에서 연결되도록 도왔습니다.",
-    summary5: "새로운 비전과 더 넓은 협력으로 다음 세대를 섬기고 있습니다.",
-    pillsAttendees: "참가자: 미정",
-    pillsChurches: "교회: 미정",
-    pillsLocation: "장소: 울란바토르",
-    pillsTheme: "주제: 미정",
-    pillsVolunteers: "봉사자: 미정",
-    pillsFormat: "형식: 미정",
-    pillsReach: "범위: 미정",
-  },
-
-  slides: {
-    slide1Badge: "2025년",
-    slide1Title: "핑거프린트",
-    slide1Desc: "청소년 컨퍼런스 - 나의 가치",
-    slide2Badge: "2024년",
-    slide2Title: "핑거프린트",
-    slide2Desc: "청소년 컨퍼런스 - Connect",
-    slide3Badge: "전국 청소년 세미나",
-    slide3Title: "협력 청소년 사역",
-    slide3Desc:
-      '"Finger Print"는 교회들을 하나로 모아 몽골 청소년들을 그리스도 안에서 인도하고 지원합니다.',
-  },
-
-  projects: {
-    heading: "",
-    shortFilm: "단편 영화",
-    eventDayVideo: "컨퍼런스 요약",
-    open: "보기",
-  },
-
-  gallery: {
-    title: "주 안에서 만든 추억",
-  },
-
-  manifesto: {
-    label: "왜 중요한가",
-    text1: "청소년기는",
-    pillIdentity: "정체성",
-    text2: "이 형성되고",
-    pillWorth: "가치",
-    text3: "가 드러나며 믿음이",
-    pillChrist: "그리스도",
-    text4: " 안에서 굳게 세워지는 중요한 시기입니다.",
-  },
-
-  countdown: {
-    dateLabel: "2026년 10월 3일",
-    title: "Finger Print 2026",
-    happeningIn: "까지 남은 시간",
-    days: "일",
-    hours: "시간",
-    minutes: "분",
-    seconds: "초",
-  },
-
-  attend: {
-    heading: "핑거프린트 컨퍼런스에 참여하기",
-    subtitle: "다음과 같은 방법으로 함께할 수 있습니다",
-    attendTitle: "컨퍼런스 참가",
-    attendDescription:
-      "청소년이라면 혼자 또는 친구와 함께 컨퍼런스에 참여할 수 있습니다.",
-    serveTitle: "사역팀 참여",
-    serveDescription: "찬양팀, 환영팀, 진행팀 등에 참여하여 섬길 수 있습니다.",
-    supportTitle: "재정 후원",
-    supportDescription: "원하신다면 이 사역을 재정적으로 후원할 수 있습니다.",
-  },
-
-  langName: {
-    en: "영어",
-    mn: "몽골어",
-    ko: "한국어",
-  },
+    en: string;
+    mn: string;
+    ko: string;
+  };
 };
 
-// mongolian
-const mn: Translations = {
-  hero: {
-    badge: "2016 оноос хойш • 6 удаа",
-    title: "Хурууны Хээ",
-    subtitle: "Өсвөрийн Конферренс",
-    description:
-      "Чуулгануудын өсвөрийн үйлчлэлийг дэмжиж, өсвөр насны хүүхэд бүр Христ дотор Бурханаас өгсөн өвөрмөц үнэ цэнэ, мөн чанарыг нь харуулах зорилготой.",
-    ctaPrimary: "Богино хэмжээний кино үзэх",
-    ctaSecondary: "Холбоо барих",
+export const translations: Record<string, Translations> = {
+  en: {
+    hero: {
+      badge: "Since 2016 • 6 times",
+      title: "Finger Print",
+      subtitle: "Youth Conference",
+      description:
+        "A conference that supports youth ministries and helps teenagers discover their God-given identity and value in Christ.",
+      ctaPrimary: "Watch short film",
+      ctaSecondary: "Contact us",
+    },
+
+    nav: {
+      home: "Home",
+      about: "Finger Print",
+      attend: "Attend",
+      journey: "Our Journey",
+      stories: "Stories",
+      getInTouch: "Get in touch",
+    },
+
+    footer: {
+      navigation: "NAVIGATION",
+      contact: "CONTACT",
+      motto:
+        "How precious are Your thoughts concerning me, O God! How vast is the sum of them!",
+      rightsText: "All rights reserved • FirstChurch",
+    },
+
+    identity: {
+      label: "What is Finger Print?",
+      main: "Finger Print conference exists to help teenagers understand their value and identity in Christ and to support youth ministries in churches across Mongolia.",
+      clarify:
+        "How precious are Your thoughts concerning me, O God! How vast is the sum of them! — Psalm 139:17",
+    },
+
+    journey: {
+      label: "Impact",
+      heading: "Impact Timeline",
+      theJourney: "",
+      since: "Since then",
+      subheading:
+        "Finger Print conference has supported and strengthened youth ministries in Mongolia since 2016.",
+      hoverHint: "Hover over the cards to explore :)",
+      mobileHint: "",
+      rotating: [
+        "Called",
+        "Found their value",
+        "Feared Him",
+        "Made decisions",
+        "Found hope",
+        "Saved by Christ",
+      ],
+      edition: "edition",
+      title1: "First",
+      title2: "Second",
+      title3: "Third",
+      title4: "Fourth",
+      title5: "Fifth",
+
+      summary1: `"Finger Print"`,
+
+      summary2: `"Let us live in the light” - John 8:12\n“I am the light of the world. Whoever follows me will never walk in darkness, but will have the light of life.”`,
+
+      summary3: `"Let us walk by faith” - 2 Corinthians 5:7\nFor we walk by faith, not by sight.`,
+
+      summary4: `"CONNECT” - 2 Timothy 2:22\nFlee the evil desires of youth and pursue righteousness, faith, love and peace.`,
+
+      summary5: `"You are worthy” - Isaiah 43:4\nYou are precious in my eyes, honored, and I love you.`,
+
+      pillsChurches1: "Churches: 10+",
+      pillsChurches2: "Churches: 10+",
+      pillsChurches3: "Churches: 10+",
+      pillsChurches4: "Churches: 10+",
+      pillsChurches5: "Churches: 10+",
+
+      pillsAttendees1: "Attendees: 200+",
+      pillsVolunteers1: "Volunteers: Unknown",
+      pillsServants1: "Servants: 30+",
+
+      pillsAttendees2: "Attendees: 300+",
+      pillsVolunteers2: "Volunteers: 25+",
+      pillsServants2: "Servants: 25+",
+
+      pillsAttendees3: "Attendees: 300+",
+      pillsVolunteers3: "Volunteers: 30+",
+      pillsServants3: "Servants: 30+",
+
+      pillsAttendees4: "Attendees: 350+",
+      pillsVolunteers4: "Volunteers: 35+",
+      pillsServants4: "Servants: 35+",
+
+      pillsAttendees5: "Attendees: 280+",
+      pillsVolunteers5: "Volunteers: 30+",
+      pillsServants5: "Servants: 30+",
+    },
+
+    slides: {
+      slide1Badge: "2025",
+      slide1Title: "Finger Print",
+      slide1Desc: "Youth Conference - My Value",
+
+      slide2Badge: "2024",
+      slide2Title: "Finger Print",
+      slide2Desc: "Youth Conference - Connect",
+
+      slide3Badge: "National Youth Seminar",
+      slide3Title: "United Youth Ministry",
+      slide3Desc:
+        "Finger Print unites churches to guide and support Mongolian teenagers in Christ together.",
+    },
+
+    projects: {
+      heading: "",
+      shortFilm: "Short Film",
+      eventDayVideo: "Finger Print 2025",
+      open: "Watch",
+    },
+
+    gallery: {
+      title: "Memories made in the Lord",
+    },
+
+    manifesto: {
+      label: "Why it matters",
+      text1: "Teenage years are when",
+      pillIdentity: "identity",
+      text2: "is formed and",
+      pillWorth: "value",
+      text3: "is discovered in",
+      pillChrist: "Christ",
+      text4: ".",
+    },
+
+    countdown: {
+      dateLabel: "October 3, 2026",
+      title: "Finger Print 2026",
+      happeningIn: "Starts in",
+      days: "Days",
+      hours: "Hours",
+      minutes: "Minutes",
+      seconds: "Seconds",
+    },
+
+    attend: {
+      heading: "Join the Finger Print conference",
+      subtitle: "You can participate in the following ways",
+
+      attendTitle: "Attend the conference",
+      attendDescription: "Teenagers can attend individually or with friends.",
+
+      serveTitle: "Serve",
+      serveDescription:
+        "Join the worship team, welcoming team, or organizing team.",
+
+      supportTitle: "Financial support",
+      supportDescription: "You can also support the event financially.",
+    },
+
+    langName: {
+      en: "English",
+      mn: "Монгол",
+      ko: "한국어",
+    },
   },
 
-  nav: {
-    home: "Нүүр",
-    about: "Хурууны хээ",
-    attend: "Оролцох",
-    journey: "Бидний аялал",
-    stories: "Түүхүүд",
-    getInTouch: "Холбогдох",
+  mn: {
+    hero: {
+      badge: "2016 оноос хойш • 6 удаа",
+      title: "Хурууны Хээ",
+      subtitle: "Өсвөрийн Конференц",
+      description:
+        "Чуулгануудын өсвөрийн үйлчлэлийг дэмжиж, өсвөр насны хүүхэд бүр Христ дотор Бурханаас өгсөн өвөрмөц үнэ цэнэ, мөн чанарыг нь харуулах зорилготой.",
+      ctaPrimary: "Богино хэмжээний кино үзэх",
+      ctaSecondary: "Холбоо барих",
+    },
+
+    nav: {
+      home: "Нүүр",
+      about: "Хурууны хээ",
+      attend: "Оролцох",
+      journey: "Бидний аялал",
+      stories: "Түүхүүд",
+      getInTouch: "Холбогдох",
+    },
+
+    footer: {
+      navigation: "ЦЭС",
+      contact: "ХОЛБОО БАРИХ",
+      motto:
+        "Аяа Бурхан, надад хандсан бодлууд тань хичнээн нандин бэ! Нийлбэр нь хичнээн их вэ!",
+      rightsText: "All rights reserved • FirstChurch",
+    },
+
+    identity: {
+      label: "Хурууны хээ гэж юу вэ?",
+      main: "Хурууны хээ конференц нь өсвөр үеийг өөрийн үнэ цэнэ болон Эзэний доторх онцгой бүтээл гэдгээ ухаарч, Христ итгэлийн амьдралаар амьдрахад нь өсвөрийн чуулгануудтай хамтран дэмжлэг үзүүлэх зорилготой.",
+      clarify:
+        "Аяа Бурхан, надад хандсан бодлууд тань хичнээн нандин бэ! Нийлбэр нь хичнээн их вэ! Дуулал 139:17",
+    },
+
+    journey: {
+      label: "Нөлөө",
+      heading: "Нөлөөний цагийн шугам",
+      theJourney: "",
+      since: "Тэр мөчөөс",
+      subheading:
+        "Хурууны хээ конференц нь 2016 оноос хойш Монголын өсвөрийн чуулганы үйлчлэлийг сэргээж, дэмжсээр ирсэн.",
+      hoverHint: "Картууд дээр хулганаа байрлуулж үзээрэй :)",
+      mobileHint: "",
+      rotating: [
+        "Дуудагдсан",
+        "Үнэ цэнээ харсан",
+        "Түүнээс эмээсэн",
+        "Шийдвэр гаргасан",
+        "Найдвар төрсөн",
+        "Христээр аврагдсан",
+      ],
+      edition: "удаа",
+      title1: "Анхны удаа",
+      title2: "2 дахь удаа",
+      title3: "3 дахь удаа",
+      title4: "4 дэх удаа",
+      title5: "5 дахь удаа",
+
+      summary1: `"Хурууны хээ"`,
+      summary2: `“Гэрэл дотор амьдарцгаая” - Иохан 8:12 “Би бол ертөнцийн гэрэл мөн. Намайг дагадаг хүн харанхуй дотор явахгүй, харин амийн гэрэлтэй болно гэж айлдав”`,
+      summary3: ` “Эзэнд найдацгаая” - Матай 19:26 Энэ нь хүмүүст боломжгүй, харин Бурханд бүх зүйл боломжтой`,
+      summary4: `CONNECT” - 2ТИМОТ 2:22 22 Залуу насны дур хүслүүдээс зугт. Цэвэр зүрхнээс Эзэнийг дуудагчдын хамт зөвт байдал, итгэл, хайр ба амар тайвныг мөшгө.`,
+      summary5: `“You are worthy” - Исаиа 43:4 Чи Миний нүдэнд үнэтэй, Хүндтэй, Би чамд хайртай…`,
+
+      pillsAttendees1: "Хамрагдсан хүүхдүүд: 200+",
+      pillsVolunteers1: "Үйлчилсэн багш: 30+",
+
+      pillsAttendees2: "Хамрагдсан хүүхдүүд: 300+",
+      pillsVolunteers2: "Үйлчилсэн багш: 25+",
+
+      pillsAttendees3: "Хамрагдсан хүүхдүүд: 300+",
+      pillsVolunteers3: "Үйлчилсэн багш: 30+",
+
+      pillsAttendees4: "Хамрагдсан хүүхэд: 350+",
+      pillsVolunteers4: "Үйлчилсэн багш: 35+",
+
+      pillsAttendees5: "Хамрагдсан хүүхэд: 280+",
+      pillsVolunteers5: "Үйлчилсэн багш: 30+",
+
+      pillsChurches1: "Оролцогч чуулганууд: 8+",
+      pillsChurches2: "Оролцогч чуулганууд: 14+",
+      pillsChurches3: "Оролцогч чуулганууд: +",
+      pillsChurches4: "Оролцогч чуулганууд: 10+",
+      pillsChurches5: "Оролцогч чуулганууд: 10+",
+    },
+
+    slides: {
+      slide1Badge: "2025 он",
+      slide1Title: "Хурууны Хээ",
+      slide1Desc: "Өсвөрийн Конференц - Миний үнэ цэнэ",
+
+      slide2Badge: "2024 он",
+      slide2Title: "Хурууны Хээ",
+      slide2Desc: "Өсвөрийн Конференц - Connect",
+
+      slide3Badge: "Үндэсний өсвөрийн семинар",
+      slide3Title: "Хамтын өсвөрийн үйлчлэл",
+      slide3Desc:
+        '"Finger Print" нь сүмүүдийг Монголын өсвөрүүдийг Христ дотор хамт удирдан, дэмжихэд нэгтгэнэ.',
+    },
+
+    projects: {
+      heading: "",
+      shortFilm: "Богино хэмжээний кино",
+      eventDayVideo: "Хурууны хээ 2025",
+      open: "Үзэх",
+    },
+
+    gallery: {
+      title: "Эзэн дотор бүтээсэн дурсамжууд",
+    },
+
+    manifesto: {
+      label: "Яагаад чухал вэ",
+      text1: "Өсвөр нас бол",
+      pillIdentity: "мөн чанар",
+      text2: "төлөвшиж,",
+      pillWorth: "үнэ цэнэ",
+      text3: "илэрч, итгэл",
+      pillChrist: "Христ",
+      text4: "дотор бат сууриа олдог чухал үе юм.",
+    },
+
+    countdown: {
+      dateLabel: "2026 оны 10-р сарын 3",
+      title: "Хурууны хээ 2026",
+      happeningIn: "болох хүртэл",
+      days: "Өдөр",
+      hours: "Цаг",
+      minutes: "Минут",
+      seconds: "Секунд",
+    },
+
+    attend: {
+      heading: "Хурууны хээ конференцэд нэгдэх",
+      subtitle: "Та дараах байдлаар оролцох боломжтой",
+
+      attendTitle: "Конференцэд оролцох",
+      attendDescription:
+        "Хэрэв та өсвөр насны хүүхэд бол ганцаараа эсвэл найзтайгаа хамт оролцох боломжтой.",
+
+      serveTitle: "Үйлчлэлд нэгдэх",
+      serveDescription:
+        "Магтаалын баг, мэндчилгээний баг болон зохион байгуулах багт нэгдэж үйлчлэх боломжтой.",
+
+      supportTitle: "Санхүүгийн дэмжлэг",
+      supportDescription:
+        "Хэрэв та хүсвэл энэхүү үйл ажиллагааг санхүүгээр дэмжих боломжтой.",
+    },
+
+    langName: {
+      en: "English",
+      mn: "Монгол",
+      ko: "한국어",
+    },
   },
 
-  footer: {
-    navigation: "ЦЭС",
-    contact: "ХОЛБОО БАРИХ",
-    motto:
-      "Аяа Бурхан, надад хандсан бодлууд тань Хичнээн нандин бэ!  Нийлбэр нь хичнээн их вэ!",
-    rightsText: "All rights reserved • FirstChurch",
-  },
+  ko: {
+    hero: {
+      badge: "2016년부터 • 6회",
+      title: "Finger Print",
+      subtitle: "청소년 컨퍼런스",
+      description:
+        "교회의 청소년 사역을 지원하고, 청소년들이 그리스도 안에서 하나님이 주신 자신의 정체성과 가치를 발견하도록 돕는 컨퍼런스입니다.",
+      ctaPrimary: "단편 영화 보기",
+      ctaSecondary: "문의하기",
+    },
 
-  identity: {
-    label: "Хурууны хээ гэж юу вэ?",
-    main: "Хурууны хээ конференц нь өсвөр үеийг өөрийн үнэ цэнэ болон Эзэний доторх онцгой бүтээл гэдгээ ухаарч, Христ итгэлийн амьдралаар амьдрахад нь өсвөрийн чуулгануудтай хамтран дэмжлэг үзүүлэх зорилготой.",
-    clarify:
-      "Аяа Бурхан, надад хандсан бодлууд тань Хичнээн нандин бэ!  Нийлбэр нь хичнээн их вэ!Дуулал 139:17",
-  },
+    nav: {
+      home: "홈",
+      about: "Finger Print",
+      attend: "참여하기",
+      journey: "우리의 여정",
+      stories: "이야기",
+      getInTouch: "문의",
+    },
 
-  journey: {
-    label: "Нөлөө",
-    heading: "Нөлөөний цагийн шугам",
-    theJourney: "",
-    since: "Тэр мөчөөс",
-    subheading:
-      "Хурууны хээ конфференц нь 2016 оноос хойш Монголын өсвөрийн чуулганы үйлчлэлийн сэргээн болсож, дэмжсээр ирсэн.",
-    hoverHint: "Картууд дээр хулганаа байршуулаадд үзээрэй :)",
-    mobileHint: "",
-    rotating: [
-      "Дуудагдсан",
-      "Үнэ цэнээ харсан",
-      "Түүнээс эмээсэн",
-      "Шийдвэр гаргасан",
-      "Найдвар төрсөн",
-      "Христээр аврагдсан",
-    ],
-    edition: "удаа",
-    title1: "Анхы удаа",
-    title2: "2 дахь удаа",
-    title3: "3 дахь удаа",
-    title4: "4 дэх удаа",
-    title5: "5 дахь удаа",
-    summary1: `"Хурууны хээ"`,
-    summary2: `"Гэрэл дотор амьдарцгаая” - Иохан 8:12 “Би бол ертөнцийн гэрэл мөн. Намайг дагадаг хүн харанхуй дотор явахгүй, харин амийн гэрэлтэй болно гэж айлдав.`,
-    summary3: `“Итгэлээр алхацгаая” - 2 Коринт 5:7 Учир нь бид үзэгдэх зүйлсээр биш харин итгэлээр алхдаг`,
-    summary4: ` “CONNECT” - 2ТИМОТ 2:22 Залуу насны дур хүслүүдээс зугт. Цэвэр зүрхнээс Эзэнийг дуудагчдын хамт зөвт байдал, итгэл, хайр ба амар тайвныг мөшгө.`,
-    summary5: `“You are worthy” Исаиа 43:4 Чи Миний нүдэнд үнэтэй, Хүндтэй, Би чамд хайртай…`,
-    pillsAttendees: "Хамрагдсан хүүхэд: 200",
-    pillsChurches: "Оролцсон цуглаан: Тодорхойгүй",
-    pillsLocation: "",
-    pillsTheme: "Сэдэв: Тодорхойгүй",
-    pillsVolunteers: "Сайн дурынхан: Тодорхойгүй",
-    pillsFormat: "Формат: Тодорхойгүй",
-    pillsReach: "Хүрээ: Тодорхойгүй",
-  },
+    footer: {
+      navigation: "메뉴",
+      contact: "연락처",
+      motto:
+        "하나님이여, 주께서 나를 향해 가지신 생각이 어찌 그리 귀하신지요! 그 수가 얼마나 많은지요!",
+      rightsText: "All rights reserved • FirstChurch",
+    },
 
-  slides: {
-    slide1Badge: "2025 он",
-    slide1Title: "Хурууны Хээ",
-    slide1Desc: "Өсвөрийн Конферренс - Миний үнэ цэнэ",
-    slide2Badge: "2024 он",
-    slide2Title: "Хурууны Хээ",
-    slide2Desc: "Өсвөрийн Конферренс - Connect",
-    slide3Badge: "Үндэсний өсвөрийн семинар",
-    slide3Title: "Хамтын өсвөрийн үйлчлэл",
-    slide3Desc:
-      '"Finger Print" нь сүмүүдийг Монголын өсвөрүүдийг Христ дотор хамт удирдан, дэмжихэд нэгтгэнэ.',
-  },
+    identity: {
+      label: "Finger Print란 무엇인가요?",
+      main: "Finger Print 컨퍼런스는 청소년들이 그리스도 안에서 자신의 가치와 정체성을 깨닫고 믿음의 삶을 살아가도록 돕기 위해 교회 청소년 사역과 함께 협력하는 사역입니다.",
+      clarify:
+        "하나님이여, 주께서 나를 향해 가지신 생각이 어찌 그리 귀하신지요! 그 수가 얼마나 많은지요! — 시편 139:17",
+    },
 
-  projects: {
-    heading: "",
-    shortFilm: "Богино хэмжээний кино",
-    eventDayVideo: "Хурууны хээ 2025",
-    open: "Үзэх",
-  },
+    journey: {
+      label: "영향",
+      heading: "영향의 타임라인",
+      theJourney: "",
+      since: "그 이후로",
+      subheading:
+        "Finger Print 컨퍼런스는 2016년부터 몽골의 교회 청소년 사역을 격려하고 지원해 왔습니다.",
+      hoverHint: "카드 위에 마우스를 올려보세요 :)",
+      mobileHint: "",
+      rotating: [
+        "부르심을 받음",
+        "자신의 가치를 발견함",
+        "하나님을 경외함",
+        "결단함",
+        "소망을 발견함",
+        "그리스도로 구원받음",
+      ],
+      edition: "회",
+      title1: "첫 번째",
+      title2: "두 번째",
+      title3: "세 번째",
+      title4: "네 번째",
+      title5: "다섯 번째",
 
-  gallery: {
-    title: "Эзэн дотор бүтээсэн дурсамжууд",
-  },
+      summary1: `"Finger Print"`,
 
-  manifesto: {
-    label: "Яагаад чухал вэ",
-    text1: "Өсвөр нас бол",
-    pillIdentity: "мөн чанар",
-    text2: "төлөвшиж,",
-    pillWorth: "үнэ цэнэ",
-    text3: "илэрч, итгэл",
-    pillChrist: "Христ",
-    text4: "дотор бат сууриа олдог чухал үе юм.",
-  },
+      summary2: `"빛 가운데 살자” - 요한복음 8:12\n“나는 세상의 빛이다. 나를 따르는 사람은 어둠 속을 걷지 않고 생명의 빛을 얻게 될 것이다.”`,
 
-  countdown: {
-    dateLabel: "2026 оны 10-р сарын 3",
-    title: "Хурууны хээ 2026",
-    happeningIn: "болох хүртэл",
-    days: "Өдөр",
-    hours: "Цаг",
-    minutes: "Минут",
-    seconds: "Секунд",
-  },
+      summary3: `"믿음으로 걷자” - 고린도후서 5:7\n우리는 보이는 것으로가 아니라 믿음으로 행합니다.`,
 
-  attend: {
-    heading: "Хурууны хээ конферренсэд нэгдэх",
-    subtitle: "Та дараах байдлаар оролцох боломжтой",
-    attendTitle: "Конферренцэд оролцох",
-    attendDescription:
-      "Хэрэв та өсвөр насны хүүхэд бол ганцаараа эсвэл найзтайгаа хамт оролцох боломжтой.",
-    serveTitle: "Үйлчлэлд нэгдэх",
-    serveDescription:
-      "Магтаалын баг, мэндчилгээний баг болон зохион байгуулах багт нэгдэж үйлчлэх боломжтой.",
-    supportTitle: "Санхүүгийн дэмжлэг",
-    supportDescription:
-      "Хэрэв та хүсвэл энэхүү үйл ажиллагааг санхүүгээр дэмжих боломжтой.",
-  },
+      summary4: `"CONNECT” - 디모데후서 2:22\n젊은 시절의 욕망을 피하고 의와 믿음과 사랑과 화평을 추구하십시오.`,
 
-  langName: {
-    en: "English",
-    mn: "Монгол",
-    ko: "한국어",
+      summary5: `"You are worthy” - 이사야 43:4\n너는 내 눈에 보배롭고 존귀하며 내가 너를 사랑한다.`,
+
+      pillsChurches1: "참여 교회: 10+",
+      pillsChurches2: "참여 교회: 10+",
+      pillsChurches3: "참여 교회: 10+",
+      pillsChurches4: "참여 교회: 10+",
+      pillsChurches5: "참여 교회: 10+",
+
+      pillsAttendees1: "참석자: 200+",
+      pillsVolunteers1: "자원봉사자: 미확인",
+      pillsServants1: "섬기는 이: 30+",
+
+      pillsAttendees2: "참석자: 300+",
+      pillsVolunteers2: "자원봉사자: 25+",
+      pillsServants2: "섬기는 이: 25+",
+
+      pillsAttendees3: "참석자: 300+",
+      pillsVolunteers3: "자원봉사자: 30+",
+      pillsServants3: "섬기는 이: 30+",
+
+      pillsAttendees4: "참석자: 350+",
+      pillsVolunteers4: "자원봉사자: 35+",
+      pillsServants4: "섬기는 이: 35+",
+
+      pillsAttendees5: "참석자: 280+",
+      pillsVolunteers5: "자원봉사자: 30+",
+      pillsServants5: "섬기는 이: 30+",
+    },
+
+    slides: {
+      slide1Badge: "2025년",
+      slide1Title: "Finger Print",
+      slide1Desc: "청소년 컨퍼런스 - 나의 가치",
+
+      slide2Badge: "2024년",
+      slide2Title: "Finger Print",
+      slide2Desc: "청소년 컨퍼런스 - Connect",
+
+      slide3Badge: "전국 청소년 세미나",
+      slide3Title: "연합 청소년 사역",
+      slide3Desc:
+        "Finger Print는 몽골의 교회들이 함께 청소년들을 그리스도 안에서 인도하고 지원하도록 돕습니다.",
+    },
+
+    projects: {
+      heading: "",
+      shortFilm: "단편 영화",
+      eventDayVideo: "Finger Print 2025",
+      open: "보기",
+    },
+
+    gallery: {
+      title: "주 안에서 만들어진 추억",
+    },
+
+    manifesto: {
+      label: "왜 중요한가",
+      text1: "청소년 시기는",
+      pillIdentity: "정체성",
+      text2: "이 형성되고",
+      pillWorth: "가치",
+      text3: "가 발견되며 믿음이",
+      pillChrist: "그리스도",
+      text4: "안에서 세워지는 중요한 시기입니다.",
+    },
+
+    countdown: {
+      dateLabel: "2026년 10월 3일",
+      title: "Finger Print 2026",
+      happeningIn: "시작까지",
+      days: "일",
+      hours: "시간",
+      minutes: "분",
+      seconds: "초",
+    },
+
+    attend: {
+      heading: "Finger Print 컨퍼런스에 참여하기",
+      subtitle: "다음과 같은 방법으로 참여할 수 있습니다",
+
+      attendTitle: "컨퍼런스 참석",
+      attendDescription: "청소년은 혼자 또는 친구와 함께 참석할 수 있습니다.",
+
+      serveTitle: "섬기기",
+      serveDescription: "찬양팀, 환영팀 또는 행사 준비팀에 참여할 수 있습니다.",
+
+      supportTitle: "재정 후원",
+      supportDescription: "행사를 재정적으로 후원할 수도 있습니다.",
+    },
+
+    langName: {
+      en: "English",
+      mn: "Монгол",
+      ko: "한국어",
+    },
   },
 };
 
-const translations: Record<Lang, Translations> = { en, mn, ko };
-
-function getByPath(obj: unknown, path: string): string | undefined {
+function getByPath(obj: unknown, path: string): string | string[] | undefined {
   const keys = path.split(".");
   let current: unknown = obj;
   for (const key of keys) {
     if (current == null || typeof current !== "object") return undefined;
     current = (current as Record<string, unknown>)[key];
   }
-  return typeof current === "string" ? current : undefined;
+  return typeof current === "string" || Array.isArray(current)
+    ? current
+    : undefined;
 }
 
 export function getTranslation(lang: Lang, key: string): string {
-  const data = translations[lang] ?? en;
-  const value = getByPath(data, key) ?? getByPath(en, key);
+  const data = translations[lang] ?? translations.en;
+  const value = getByPath(data, key) ?? getByPath(translations.en, key);
+  if (Array.isArray(value)) return value[0] ?? "";
   return typeof value === "string" ? value : "";
 }
 
 export function getTranslations(lang: Lang): Translations {
-  return translations[lang] ?? en;
+  return (translations[lang] ?? translations.en) as Translations;
 }
-
-export { en, ko, mn };

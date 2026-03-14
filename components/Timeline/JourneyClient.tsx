@@ -14,7 +14,6 @@ type TimelineItem = {
   title: string;
   summary: string;
   pills?: string[];
-  images?: string[];
 };
 
 const CONTAINER = "mx-auto w-full max-w-[1200px] px-4 sm:px-6";
@@ -31,55 +30,45 @@ export default function JourneyClient({ className }: { className?: string }) {
       title: tr.journey.title1,
       summary: tr.journey.summary1,
       pills: [
-        tr.journey.pillsAttendees,
-        tr.journey.pillsChurches,
-        tr.journey.pillsLocation,
+        tr.journey.pillsAttendees1,
+        tr.journey.pillsServants1 ?? tr.journey.pillsVolunteers1,
       ],
-      images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
       year: "2017",
       title: tr.journey.title2,
       summary: tr.journey.summary2,
       pills: [
-        tr.journey.pillsAttendees,
-        tr.journey.pillsChurches,
-        tr.journey.pillsTheme,
+        tr.journey.pillsAttendees2,
+        tr.journey.pillsServants2 ?? tr.journey.pillsVolunteers2,
       ],
-      images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
       year: "2019",
       title: tr.journey.title3,
       summary: tr.journey.summary3,
       pills: [
-        tr.journey.pillsAttendees,
-        tr.journey.pillsChurches,
-        tr.journey.pillsVolunteers,
+        tr.journey.pillsAttendees3,
+        tr.journey.pillsServants3 ?? tr.journey.pillsVolunteers3,
       ],
-      images: ["/fp-1.jpg", "/fp-2.jpg", "/fp-3.jpg", "/fp-4.jpg"],
     },
     {
       year: "2024",
       title: tr.journey.title4,
       summary: tr.journey.summary4,
       pills: [
-        tr.journey.pillsFormat,
-        tr.journey.pillsReach,
-        tr.journey.pillsTheme,
+        tr.journey.pillsAttendees4,
+        tr.journey.pillsServants4 ?? tr.journey.pillsVolunteers4,
       ],
-      images: ["/fp-4.jpg", "/fp-5.jpg", "/fp-6.jpg", "/fp-7.jpg"],
     },
     {
       year: "2025",
       title: tr.journey.title5,
       summary: tr.journey.summary5,
       pills: [
-        tr.journey.pillsAttendees,
-        tr.journey.pillsChurches,
-        tr.journey.pillsLocation,
+        tr.journey.pillsAttendees5,
+        tr.journey.pillsServants5 ?? tr.journey.pillsVolunteers5,
       ],
-      images: ["/fp-4.jpg", "/fp-5.jpg", "/fp-6.jpg", "/fp-7.jpg"],
     },
   ];
 
