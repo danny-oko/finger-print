@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useCallback } from "react";
 import { useGesture } from "@use-gesture/react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 type ImageItem = string | { src: string; alt?: string };
 
@@ -33,60 +33,244 @@ type ItemDef = {
 };
 
 const DEFAULT_IMAGES: ImageItem[] = [
-  { src: "/fp-31.jpg", alt: "Social media image" },
-  { src: "/fp-7.jpg", alt: "Social media image" },
-  { src: "/fp-44.jpg", alt: "Social media image" },
-  { src: "/fp-3.jpg", alt: "Digital artwork" },
-  { src: "/fp-58.jpg", alt: "Social media image" },
-  { src: "/fp-12.jpg", alt: "Social media image" },
-  { src: "/fp-26.jpg", alt: "Social media image" },
-  { src: "/fp-1.jpg", alt: "Abstract art" },
-  { src: "/fp-50.jpg", alt: "Social media image" },
-  { src: "/fp-22.jpg", alt: "Social media image" },
-  { src: "/fp-41.jpg", alt: "Social media image" },
-  { src: "/fp-9.jpg", alt: "Social media image" },
-  { src: "/fp-34.jpg", alt: "Social media image" },
-  { src: "/fp-2.jpg", alt: "Modern sculpture" },
-  { src: "/fp-53.jpg", alt: "Social media image" },
-  { src: "/fp-17.jpg", alt: "Social media image" },
-  { src: "/fp-29.jpg", alt: "Social media image" },
-  { src: "/fp-46.jpg", alt: "Social media image" },
-  { src: "/fp-15.jpg", alt: "Social media image" },
-  { src: "/fp-60.jpg", alt: "Social media image" },
-  { src: "/fp-25.jpg", alt: "Social media image" },
-  { src: "/fp-5.jpg", alt: "Geometric pattern" },
-  { src: "/fp-47.jpg", alt: "Social media image" },
-  { src: "/fp-37.jpg", alt: "Social media image" },
-  { src: "/fp-10.jpg", alt: "Social media image" },
-  { src: "/fp-52.jpg", alt: "Social media image" },
-  { src: "/fp-33.jpg", alt: "Social media image" },
-  { src: "/fp-13.jpg", alt: "Social media image" },
-  { src: "/fp-55.jpg", alt: "Social media image" },
-  { src: "/fp-4.jpg", alt: "Contemporary art" },
-  { src: "/fp-61.jpg", alt: "Social media image" },
-  { src: "/fp-20.jpg", alt: "Social media image" },
-  { src: "/fp-28.jpg", alt: "Social media image" },
-  { src: "/fp-51.jpg", alt: "Social media image" },
-  { src: "/fp-14.jpg", alt: "Social media image" },
-  { src: "/fp-23.jpg", alt: "Social media image" },
-  { src: "/fp-49.jpg", alt: "Social media image" },
-  { src: "/fp-6.jpg", alt: "Textured surface" },
-  { src: "/fp-62.jpg", alt: "Social media image" },
-  { src: "/fp-27.jpg", alt: "Social media image" },
-  { src: "/fp-45.jpg", alt: "Social media image" },
-  { src: "/fp-19.jpg", alt: "Social media image" },
-  { src: "/fp-30.jpg", alt: "Social media image" },
-  { src: "/fp-24.jpg", alt: "Social media image" },
-  { src: "/fp-32.jpg", alt: "Social media image" },
-  { src: "/fp-54.jpg", alt: "Social media image" },
-  { src: "/fp-11.jpg", alt: "Social media image" },
-  { src: "/fp-21.jpg", alt: "Social media image" },
-  { src: "/fp-59.jpg", alt: "Social media image" },
-  { src: "/fp-16.jpg", alt: "Social media image" },
-  { src: "/fp-43.jpg", alt: "Social media image" },
-  { src: "/fp-56.jpg", alt: "Social media image" },
-  { src: "/fp-40.jpg", alt: "Social media image" },
-  { src: "/fp-57.jpg", alt: "Social media image" },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470935/16-2_bvi1p2.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470912/fp-1_gd70xf.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470909/fp-22_cgxtcb.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470903/fp-41_fyvzzf.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470906/fp-29_lekibe.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470911/fp-7_lswdui.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470920/16-4_bccrlj.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470913/2018-7_gvmlyn.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470900/fp-47_oisthq.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470929/16-1_cvuqvb.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470911/fp-21_wbeg2s.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470902/fp-59_i2ihau.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470911/fp-8_jkbmvx.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470914/2018-4_b0nhok.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470925/16-18_ft4uk4.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470901/fp-58_qjjncc.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470909/fp-15_xfeeeu.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470906/fp-25_mon6nk.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470913/fp-2_szjclh.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470911/fp-12_cadqec.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470908/fp-17_do4uc7.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470930/16-3_uhdony.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470906/fp-40_pj7bzl.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470928/16-16_hlyz7m.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470905/fp-30_dmaleb.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470902/fp-43_ixywol.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470904/fp-37_qxu7nf.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470913/2018-5_r9a0nl.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470911/fp-6_okbc9o.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470917/16-14_fgh0a5.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470909/fp-14_hseehb.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470910/fp-11_els7xd.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470907/fp-18_wzu1fq.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470901/fp-60_brrbcu.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470924/16-15_pphkq2.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470899/fp-51_eagywl.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470900/fp-2019_sufxcv.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470912/fp-3_mtz7ll.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470925/16-12_qc73ts.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470929/16-6_movh6g.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470905/fp-32_skjgbg.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470912/2018-8_dis94n.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470903/fp-57_cpo4ch.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470918/16-8_xcvo53.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470898/fp-52_dxex1n.jpg",
+    alt: "Social media image",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470907/fp-20_ism2hw.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470902/fp-56_nj8wfu.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470930/16-5_ndabp2.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470903/fp-62_qhsrv3.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470904/fp-34_xytk6k.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470915/16-9_hk7ulu.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470906/fp-27_uhu7fw.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470913/2018-6_hjkfyt.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470909/fp-23_gwrwyt.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470911/fp-9_p0zndj.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470900/fp-45_kvs6fy.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470934/16-10_hhpvzk.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470905/fp-28_d0izpt.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470921/16-11_sgrkgx.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470901/fp-46_e967ex.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470919/16-13_kg9mop.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470899/fp-49_ylpach.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470931/16-17_r6il1h.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470914/fp-5_joirph.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470926/16-7_p5mhnj.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470904/fp-33_wkoci1.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470910/fp-13_x1lbjw.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470903/fp-55_gocf2b.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470912/fp---46_dajsye.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470899/fp-50_glvops.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470908/fp-16_yctq4p.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470909/fp-19_fixzja.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470898/fp-53_dnlcy4.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470902/fp-44_y1p22k.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470905/fp-31_lro0hr.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470907/fp-24_ylpjbz.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470900/fp-61_jptbbs.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470906/fp-38_mlnpwv.jpg",
+  },
+  {
+    src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470898/fp-54_crrqqt.jpg",
+  },
 ];
 
 const DEFAULTS = {

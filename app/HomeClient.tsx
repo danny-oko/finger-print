@@ -16,9 +16,9 @@ export default function HomeClient() {
   const slides = [
     {
       type: "video" as const,
-      src: "https://res.cloudinary.com/doxmbmqjm/video/upload/v1770894807/Huruunii_Hee_V1_Hooloigui_ar7um2.mp4",
+      src: "https://res.cloudinary.com/dx2oi41mo/video/upload/f_auto,q_auto,w_1280,vc_auto/v1773475306/dennig_unsne_tvvvuw.mp4",
       poster:
-        "https://res.cloudinary.com/doxmbmqjm/video/upload/so_0,f_jpg,q_auto,w_1600/Huruunii_Hee_V1_Hooloigui_ar7um2.jpg",
+        "https://res.cloudinary.com/dx2oi41mo/video/upload/f_auto,q_auto,w_1280,so_0/v1773475306/dennig_unsne_tvvvuw.jpg",
     },
     { type: "image" as const, src: "/fp-4.jpg", alt: "Community" },
     { type: "image" as const, src: "/fp-2024_long.jpg", alt: "Seminar moment" },

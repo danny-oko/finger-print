@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import DomeGallery from "./DomeGallery";
 import { useTranslation } from "@/lib/useTranslation";
+import DomeGallery from "./DomeGallery";
 
 const CONTAINER = "mx-auto w-[min(1200px,92vw)]";
 

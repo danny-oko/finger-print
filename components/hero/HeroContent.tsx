@@ -67,7 +67,9 @@ export default function HeroContent({
             type="button"
             onClick={onToggleMute}
             className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-black/30 text-white/90 backdrop-blur transition hover:bg-black/60"
-            aria-label={muted ? "Unmute background video" : "Mute background video"}
+            aria-label={
+              muted ? "Unmute background video" : "Mute background video"
+            }
           >
             {muted ? (
               <VolumeX className="h-5 w-5" />

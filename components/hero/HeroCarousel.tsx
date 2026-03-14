@@ -1,7 +1,9 @@
 import { cn } from "@/lib/utils";
 import type { Lang } from "@/lib/translations";
 
-import HeroCarouselHydration, { HERO_SECTION_ID } from "./HeroCarouselHydration";
+import HeroCarouselHydration, {
+  HERO_SECTION_ID,
+} from "./HeroCarouselHydration";
 import HeroFirstSlideStatic from "./HeroFirstSlideStatic";
 import type { Slide } from "./types";
 
@@ -24,10 +26,7 @@ export default function HeroCarousel({
   }
 
   return (
-    <section
-      id={HERO_SECTION_ID}
-      className={cn("relative w-full", className)}
-    >
+    <section id={HERO_SECTION_ID} className={cn("relative w-full", className)}>
       <div className="hero-first-static absolute inset-0 z-0">
         <HeroFirstSlideStatic firstSlide={firstSlide} lang={lang} />
       </div>
