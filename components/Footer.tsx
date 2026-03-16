@@ -26,7 +26,7 @@ export default function Footer({
   motto = "One movement. One generation. One church family.",
   rightsText = "All rights reserved • FirstChurch",
   navItems,
-  email = "hello@fingerprint.mn",
+  email = "javhaaa.k@gmail.com",
   phone = "+976 8007-0177",
   socials,
 }: FooterProps) {
@@ -49,7 +49,7 @@ export default function Footer({
     instagram: "https://www.instagram.com/huruunii_hee/",
     facebook: "https://www.facebook.com/huruuniihee",
     youtube: "https://www.youtube.com",
-    email: "mailto:hello@fingerprint.mn",
+    email: "mailto: javhaaa.k@gmail.com",
     phone: "tel:+976-8007-0177",
   };
 
