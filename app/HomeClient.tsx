@@ -33,7 +33,7 @@ export default function HomeClient() {
         <Identity />
         <AttendSection />
         <TimlineClient />
-        <Projects />
+        {/* <Projects /> */}
         <Gallery />
       </main>
       <Footer
