@@ -65,18 +65,15 @@ export default async function Page({
         <Suspense fallback={<SectionFallback className="min-h-[400px]" />}>
           <TimelineSection />
         </Suspense>
-        <Suspense fallback={<SectionFallback className="min-h-[400px]" />}>
+        {/* <Suspense fallback={<SectionFallback className="min-h-[400px]" />}>
           <Projects />
-        </Suspense>
+        </Suspense> */}
         <Suspense fallback={<SectionFallback className="min-h-[300px]" />}>
           <Gallery />
         </Suspense>
       </main>
       <Suspense fallback={<SectionFallback className="min-h-[200px]" />}>
-        <Footer
-          bigWord="FINGER PRINT"
-          socials={FOOTER_SOCIALS}
-        />
+        <Footer bigWord="FINGER PRINT" socials={FOOTER_SOCIALS} />
       </Suspense>
     </>
   );
