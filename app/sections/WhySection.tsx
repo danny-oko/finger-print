@@ -4,9 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/lib/useTranslation";
 import { cn } from "@/lib/utils";
 import { GrainGradient } from "@paper-design/shaders-react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import * as React from "react";
 
 const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
@@ -26,59 +23,8 @@ export default function WhySection({
   const mainText = main ?? t("identity.main");
   const clarifyText = clarify ?? t("identity.clarify");
 
-  const sectionRef = React.useRef<HTMLElement | null>(null);
-  const pinRef = React.useRef<HTMLDivElement | null>(null);
-  const clarifyRef = React.useRef<HTMLParagraphElement | null>(null);
-  const mainRef = React.useRef<HTMLParagraphElement | null>(null);
-
-  React.useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    const section = sectionRef.current;
-    const pin = pinRef.current;
-    const clarifyEl = clarifyRef.current;
-    const mainEl = mainRef.current;
-
-    if (!section || !pin || !clarifyEl || !mainEl) return;
-
-    const ctx = gsap.context(() => {
-      gsap.set(clarifyEl, { autoAlpha: 0, y: 18 });
-
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top top",
-        end: "+=140%",
-        pin: pin,
-        anticipatePin: 1,
-      });
-
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: "top 55%",
-            toggleActions: "play none none none",
-            once: true,
-          },
-        })
-        .to(mainEl, { opacity: 0.94, duration: 0.2 })
-        .to(
-          clarifyEl,
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.6,
-            ease: "power2.out",
-          },
-          "-=0.05",
-        );
-    }, section);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <section ref={sectionRef} className={cn("w-full", className)}>
+    <section className={cn("h-[90vh] w-full", className)}>
       <GrainGradient
         colors={["#F5F1E8", "#F5F1E8"]}
         noise={0.15}
@@ -87,10 +33,7 @@ export default function WhySection({
         speed={0}
       />
 
-      <div
-        ref={pinRef}
-        className="relative w-full overflow-hidden bg-white text-neutral-900"
-      >
+      <div className="relative w-full overflow-hidden bg-white text-neutral-900">
         <div className={cn(CONTAINER, "py-24 md:py-28")}>
           <Badge
             variant="primary"
@@ -99,17 +42,11 @@ export default function WhySection({
             {labelText}
           </Badge>
 
-          <p
-            ref={mainRef}
-            className="mt-10 text-pretty text-[clamp(30px,4.3vw,64px)] font-semibold leading-[1.06] tracking-tight text-neutral-900"
-          >
+          <p className="mt-10 text-pretty text-[clamp(28px,4vw,64px)] font-semibold leading-[1.06] tracking-tight text-neutral-900">
             {mainText}
           </p>
 
-          <p
-            ref={clarifyRef}
-            className="mt-10 max-w-[68ch] text-pretty text-lg font-medium leading-relaxed text-neutral-900/70 md:text-xl"
-          >
+          <p className="mt-10 max-w-[68ch] text-pretty text-lg font-medium leading-relaxed text-neutral-900/70 md:text-xl">
             {clarifyText}
           </p>
         </div>
