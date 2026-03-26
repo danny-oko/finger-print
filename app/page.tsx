@@ -2,7 +2,6 @@ import { Suspense } from "react";
 
 import AttendSection from "@/app/sections/AttendSection";
 import Identity from "@/app/sections/Identity";
-import Projects from "@/app/sections/Projects";
 import TimelineSection from "@/app/sections/TimelineSection";
 import CountDown from "@/components/CountDown/CountDown";
 import Footer from "@/components/Footer";

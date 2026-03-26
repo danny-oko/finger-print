@@ -1,12 +1,12 @@
 "use client";
 
-import * as React from "react";
+import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/useTranslation";
+import { cn } from "@/lib/utils";
+import { GrainGradient } from "@paper-design/shaders-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { cn } from "@/lib/utils";
-import { useTranslation } from "@/lib/useTranslation";
-import { GrainGradient } from "@paper-design/shaders-react";
-import { Badge } from "@/components/ui/badge";
+import * as React from "react";
 
 const CONTAINER = "mx-auto w-[min(calc(100%-2rem),80vw,1200px)]";
 
@@ -101,7 +101,7 @@ export default function WhySection({
 
           <p
             ref={mainRef}
-            className="mt-10 text-pretty text-[clamp(34px,4.6vw,64px)] font-semibold leading-[1.06] tracking-tight text-neutral-900"
+            className="mt-10 text-pretty text-[clamp(30px,4.3vw,64px)] font-semibold leading-[1.06] tracking-tight text-neutral-900"
           >
             {mainText}
           </p>
