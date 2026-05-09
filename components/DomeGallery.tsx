@@ -271,7 +271,9 @@ const DEFAULT_IMAGES: ImageItem[] = [
   {
     src: "https://res.cloudinary.com/dx2oi41mo/image/upload/f_auto,q_auto,w_1200/v1773470898/fp-54_crrqqt.jpg",
   },
-  // billy end orj irne
+  {
+    src: "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778338696/billy_uc7jzo.jpg",
+  },
   {
     src: "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778338696/billy_uc7jzo.jpg",
   },
