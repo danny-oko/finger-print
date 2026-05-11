@@ -2,7 +2,15 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 const SUPPORTED_LANGS = ["en", "mn", "ko"] as const;
-type Lang = (typeof SUPPORTED_LANGS)[number];
+type Lang = typeof SUPPORTED_LANGS[number];
+
+const LANG_COOKIE = "fp_lang";
+
+const LANG_COOKIE_OPTS = {
+  path: "/",
+  maxAge: 60 * 60 * 24 * 365,
+  sameSite: "lax" as const,
+};
 
 function getLangFromCountry(country: string | undefined): Lang {
   if (!country) return "en";
@@ -17,10 +25,20 @@ function getLangFromCountry(country: string | undefined): Lang {
 export function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
 
-  const existingLang = url.searchParams.get("lang");
-  if (existingLang && SUPPORTED_LANGS.includes(existingLang as Lang)) {
+  const urlLang = url.searchParams.get("lang");
+  if (urlLang && SUPPORTED_LANGS.includes(urlLang as Lang)) {
     const res = NextResponse.next();
-    res.headers.set("x-default-lang", existingLang);
+    res.cookies.set(LANG_COOKIE, urlLang, LANG_COOKIE_OPTS);
+    res.headers.set("x-default-lang", urlLang);
+    return res;
+  }
+
+  const cookieLang = request.cookies.get(LANG_COOKIE)?.value;
+  if (cookieLang && SUPPORTED_LANGS.includes(cookieLang as Lang)) {
+    const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.searchParams.set("lang", cookieLang);
+    const res = NextResponse.rewrite(rewriteUrl);
+    res.headers.set("x-default-lang", cookieLang);
     return res;
   }
 
@@ -30,6 +48,7 @@ export function proxy(request: NextRequest) {
   url.searchParams.set("lang", defaultLang);
 
   const response = NextResponse.redirect(url);
+  response.cookies.set(LANG_COOKIE, defaultLang, LANG_COOKIE_OPTS);
   response.headers.set("x-user-country", country ?? "");
   response.headers.set("x-default-lang", defaultLang);
   return response;
@@ -40,4 +59,3 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:ico|png|jpg|jpeg|gif|webp|svg|woff2?)$).*)",
   ],
 };
-

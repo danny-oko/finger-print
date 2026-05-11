@@ -9,6 +9,8 @@ import Gallery from "@/components/Gallery";
 import HeroCarousel from "@/components/hero/HeroCarousel";
 import type { Lang } from "@/lib/translations";
 
+export const dynamic = "force-dynamic";
+
 const HERO_SLIDES = [
   {
     type: "video" as const,
