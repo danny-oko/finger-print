@@ -1,13 +1,13 @@
 "use client";
 
+import { Play, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Play, Volume2, VolumeX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/useTranslation";
 import HeroVideoDialog from "./HeroVideoDialog";
 import { YT_EMBED } from "./types";
-import { useTranslation } from "@/lib/useTranslation";
 
 export default function HeroContent({
   muted,

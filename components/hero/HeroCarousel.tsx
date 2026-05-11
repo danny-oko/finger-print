@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import type { Lang } from "@/lib/translations";
+import { cn } from "@/lib/utils";
 
 import HeroCarouselHydration, {
   HERO_SECTION_ID,

@@ -16,8 +16,8 @@ const HERO_SLIDES = [
     poster:
       "https://res.cloudinary.com/dx2oi41mo/video/upload/f_auto,q_auto,w_1280,so_0/v1773475306/dennig_unsne_tvvvuw.jpg",
   },
-  { type: "image" as const, src: "/fp-4.jpg", alt: "Community" },
-  { type: "image" as const, src: "/fp-2024_long.jpg", alt: "Seminar moment" },
+  // { type: "image" as const, src: "/fp-4.jpg", alt: "Community" },
+  // { type: "image" as const, src: "/fp-2024_long.jpg", alt: "Seminar moment" },
 ];
 
 const FOOTER_SOCIALS = {
