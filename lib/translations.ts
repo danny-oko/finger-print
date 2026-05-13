@@ -47,16 +47,19 @@ export type Translations = {
     title3: string;
     title4: string;
     title5: string;
+    title6: string;
     summary1: string;
     summary2: string;
     summary3: string;
     summary4: string;
     summary5: string;
+    summary6: string;
     pillsChurches1: string;
     pillsChurches2: string;
     pillsChurches3: string;
     pillsChurches4: string;
     pillsChurches5: string;
+    pillsChurches6: string;
     pillsAttendees1: string;
     pillsVolunteers1: string;
     pillsServants1?: string;
@@ -72,6 +75,9 @@ export type Translations = {
     pillsAttendees5: string;
     pillsVolunteers5: string;
     pillsServants5?: string;
+    pillsAttendees6: string;
+    pillsVolunteers6: string;
+    pillsServants6: string;
   };
 
   slides: {
@@ -189,48 +195,46 @@ export const translations: Record<string, Translations> = {
         "Found hope",
         "Saved by Christ",
       ],
+
       edition: "edition",
       title1: "First",
       title2: "Second",
       title3: "Third",
       title4: "Fourth",
       title5: "Fifth",
+      title6: "Sixth",
 
       summary1: `"Finger Print"`,
-
       summary2: `"Let us live in the light” - John 8:12\n“I am the light of the world. Whoever follows me will never walk in darkness, but will have the light of life.”`,
-
-      summary3: `"Let us walk by faith” - 2 Corinthians 5:7\nFor we walk by faith, not by sight.`,
-
-      summary4: `"CONNECT” - 2 Timothy 2:22\nFlee the evil desires of youth and pursue righteousness, faith, love and peace.`,
-
-      summary5: `"You are worthy” - Isaiah 43:4\nYou are precious in my eyes, honored, and I love you.`,
-
-      pillsChurches1: "Churches: 10+",
-      pillsChurches2: "Churches: 10+",
-      pillsChurches3: "Churches: 10+",
-      pillsChurches4: "Churches: 10+",
-      pillsChurches5: "Churches: 10+",
+      summary3: `"Let us hope in the Lord” - Matthew 19:26\nWith man this is impossible, but with God all things are possible.`,
+      summary4: `"Let us walk by faith" - For we walk by faith, not by sight. 2 Corinthians 5:7`,
+      summary5: `"CONNECT” - 2 Timothy 2:22\nFlee the evil desires of youth and pursue righteousness, faith, love and peace.`,
+      summary6: `"You are worthy” - Isaiah 43:4\nYou are precious in my eyes, honored, and I love you.`,
 
       pillsAttendees1: "Attendees: 200+",
-      pillsVolunteers1: "Volunteers: Unknown",
-      pillsServants1: "Servants: 30+",
+      pillsVolunteers1: "Volunteers: 30+",
 
       pillsAttendees2: "Attendees: 300+",
       pillsVolunteers2: "Volunteers: 25+",
-      pillsServants2: "Servants: 25+",
 
       pillsAttendees3: "Attendees: 300+",
       pillsVolunteers3: "Volunteers: 30+",
-      pillsServants3: "Servants: 30+",
 
-      pillsAttendees4: "Attendees: 350+",
-      pillsVolunteers4: "Volunteers: 35+",
-      pillsServants4: "Servants: 35+",
+      pillsAttendees4: "Attendees: 160+",
+      pillsVolunteers4: "Volunteers: 30+",
 
-      pillsAttendees5: "Attendees: 280+",
-      pillsVolunteers5: "Volunteers: 30+",
-      pillsServants5: "Servants: 30+",
+      pillsAttendees5: "Attendees: 350+",
+      pillsVolunteers5: "Volunteers: 35+",
+
+      pillsAttendees6: "Attendees: 280+",
+      pillsVolunteers6: "Volunteers: 30+",
+
+      pillsChurches1: "Participating Churches: 8+",
+      pillsChurches2: "Participating Churches: 14+",
+      pillsChurches3: "Participating Churches: 10+",
+      pillsChurches4: "Participating Churches: 33+",
+      pillsChurches5: "Participating Churches: 10+",
+      pillsChurches6: "Participating Churches: 10+",
     },
 
     slides: {
@@ -354,18 +358,21 @@ export const translations: Record<string, Translations> = {
         "Найдвар төрсөн",
         "Христээр аврагдсан",
       ],
+
       edition: "удаа",
       title1: "Анхны удаа",
       title2: "2 дахь удаа",
       title3: "3 дахь удаа",
       title4: "4 дэх удаа",
       title5: "5 дахь удаа",
+      title6: "6дахь удаа",
 
       summary1: `"Хурууны хээ"`,
       summary2: `“Гэрэл дотор амьдарцгаая” - Иохан 8:12 “Би бол ертөнцийн гэрэл мөн. Намайг дагадаг хүн харанхуй дотор явахгүй, харин амийн гэрэлтэй болно гэж айлдав”`,
-      summary3: ` “Эзэнд найдацгаая” - Матай 19:26 Энэ нь хүмүүст боломжгүй, харин Бурханд бүх зүйл боломжтой`,
-      summary4: `CONNECT” - 2ТИМОТ 2:22 22 Залуу насны дур хүслүүдээс зугт. Цэвэр зүрхнээс Эзэнийг дуудагчдын хамт зөвт байдал, итгэл, хайр ба амар тайвныг мөшгө.`,
-      summary5: `“You are worthy” - Исаиа 43:4 Чи Миний нүдэнд үнэтэй, Хүндтэй, Би чамд хайртай…`,
+      summary3: `“Эзэнд найдацгаая” - Матай 19:26 Энэ нь хүмүүст боломжгүй, харин Бурханд бүх зүйл боломжтой`,
+      summary4: `"Итэлээр алхацгаая" - Учир нь бид үзэгдэх зүйлсээр бус, харин итгэлээр алхдаг 2 Коринт 5:7`,
+      summary5: `CONNECT” - 2ТИМОТ 2:22 22 Залуу насны дур хүслүүдээс зугт. Цэвэр зүрхнээс Эзэнийг дуудагчдын хамт зөвт байдал, итгэл, хайр ба амар тайвныг мөшгө.`,
+      summary6: `“You are worthy” - Исаиа 43:4 Чи Миний нүдэнд үнэтэй, Хүндтэй, Би чамд хайртай…`,
 
       pillsAttendees1: "Хамрагдсан хүүхдүүд: 200+",
       pillsVolunteers1: "Үйлчилсэн багш: 30+",
@@ -376,17 +383,21 @@ export const translations: Record<string, Translations> = {
       pillsAttendees3: "Хамрагдсан хүүхдүүд: 300+",
       pillsVolunteers3: "Үйлчилсэн багш: 30+",
 
-      pillsAttendees4: "Хамрагдсан хүүхэд: 350+",
-      pillsVolunteers4: "Үйлчилсэн багш: 35+",
+      pillsAttendees4: "Хамрагдсан хүүхдүүд: 160+",
+      pillsVolunteers4: "Үйлчилсэн багш: 30+",
 
-      pillsAttendees5: "Хамрагдсан хүүхэд: 280+",
-      pillsVolunteers5: "Үйлчилсэн багш: 30+",
+      pillsAttendees5: "Хамрагдсан хүүхэд: 350+",
+      pillsVolunteers5: "Үйлчилсэн багш: 35+",
+
+      pillsAttendees6: "Хамрагдсан хүүхэд: 280+",
+      pillsVolunteers6: "Үйлчилсэн багш: 30+",
 
       pillsChurches1: "Оролцогч чуулганууд: 8+",
       pillsChurches2: "Оролцогч чуулганууд: 14+",
-      pillsChurches3: "Оролцогч чуулганууд: +",
-      pillsChurches4: "Оролцогч чуулганууд: 10+",
+      pillsChurches3: "Оролцогч чуулганууд: 10+",
+      pillsChurches4: "Оролцогч чуулганууд: 33+",
       pillsChurches5: "Оролцогч чуулганууд: 10+",
+      pillsChurches6: "Оролцогч чуулганууд: 10+",
     },
 
     slides: {
@@ -512,48 +523,46 @@ export const translations: Record<string, Translations> = {
         "소망을 발견함",
         "그리스도로 구원받음",
       ],
+
       edition: "회",
       title1: "첫 번째",
       title2: "두 번째",
       title3: "세 번째",
       title4: "네 번째",
       title5: "다섯 번째",
+      title6: "여섯 번째",
 
       summary1: `"Finger Print"`,
-
       summary2: `"빛 가운데 살자” - 요한복음 8:12\n“나는 세상의 빛이다. 나를 따르는 사람은 어둠 속을 걷지 않고 생명의 빛을 얻게 될 것이다.”`,
-
-      summary3: `"믿음으로 걷자” - 고린도후서 5:7\n우리는 보이는 것으로가 아니라 믿음으로 행합니다.`,
-
-      summary4: `"CONNECT” - 디모데후서 2:22\n젊은 시절의 욕망을 피하고 의와 믿음과 사랑과 화평을 추구하십시오.`,
-
-      summary5: `"You are worthy” - 이사야 43:4\n너는 내 눈에 보배롭고 존귀하며 내가 너를 사랑한다.`,
-
-      pillsChurches1: "참여 교회: 10+",
-      pillsChurches2: "참여 교회: 10+",
-      pillsChurches3: "참여 교회: 10+",
-      pillsChurches4: "참여 교회: 10+",
-      pillsChurches5: "참여 교회: 10+",
+      summary3: `"주님께 소망을 두자” - 마태복음 19:26\n사람으로서는 할 수 없으나 하나님으로서는 다 하실 수 있느니라.`,
+      summary4: `"믿음으로 걷자" - 우리는 보이는 것으로가 아니라 믿음으로 행합니다. 고린도후서 5:7`,
+      summary5: `"CONNECT” - 디모데후서 2:22\n젊은 시절의 욕망을 피하고 의와 믿음과 사랑과 화평을 추구하십시오.`,
+      summary6: `"You are worthy” - 이사야 43:4\n너는 내 눈에 보배롭고 존귀하며 내가 너를 사랑한다.`,
 
       pillsAttendees1: "참석자: 200+",
-      pillsVolunteers1: "자원봉사자: 미확인",
-      pillsServants1: "섬기는 이: 30+",
+      pillsVolunteers1: "봉사자: 30+",
 
       pillsAttendees2: "참석자: 300+",
-      pillsVolunteers2: "자원봉사자: 25+",
-      pillsServants2: "섬기는 이: 25+",
+      pillsVolunteers2: "봉사자: 25+",
 
       pillsAttendees3: "참석자: 300+",
-      pillsVolunteers3: "자원봉사자: 30+",
-      pillsServants3: "섬기는 이: 30+",
+      pillsVolunteers3: "봉사자: 30+",
 
-      pillsAttendees4: "참석자: 350+",
-      pillsVolunteers4: "자원봉사자: 35+",
-      pillsServants4: "섬기는 이: 35+",
+      pillsAttendees4: "참석자: 160+",
+      pillsVolunteers4: "봉사자: 30+",
 
-      pillsAttendees5: "참석자: 280+",
-      pillsVolunteers5: "자원봉사자: 30+",
-      pillsServants5: "섬기는 이: 30+",
+      pillsAttendees5: "참석자: 350+",
+      pillsVolunteers5: "봉사자: 35+",
+
+      pillsAttendees6: "참석자: 280+",
+      pillsVolunteers6: "봉사자: 30+",
+
+      pillsChurches1: "참여 교회: 8+",
+      pillsChurches2: "참여 교회: 14+",
+      pillsChurches3: "참여 교회: 10+",
+      pillsChurches4: "참여 교회: 33+",
+      pillsChurches5: "참여 교회: 10+",
+      pillsChurches6: "참여 교회: 10+",
     },
 
     slides: {

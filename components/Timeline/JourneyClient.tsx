@@ -10,8 +10,8 @@ import JourneyHeader from "./JourneyHeader";
 import type { JourneyCardItem } from "./JourneyItem";
 import JourneyTimeline from "./JourneyTimeline";
 
-const JOURNEY_IMAGES = {
-  early: [
+const images = {
+  sixteen: [
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498420/DSCN6504_w0cgkd.jpg",
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498420/DSCN6472_gszj1a.jpg",
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498421/DSCN6451_lwm5bh.jpg",
@@ -29,10 +29,10 @@ const JOURNEY_IMAGES = {
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498440/DSCN6843_sjyoii.jpg",
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498441/DSCN6844_npmo4w.jpg",
   ],
-  growth: [
+  seventeen: [
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498634/2017_b2jtf7.jpg",
   ],
-  peak: [
+  eighteen: [
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498692/4_xhiopl.jpg",
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498693/6_ybh96w.jpg",
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498693/7_n156ub.jpg",
@@ -41,11 +41,14 @@ const JOURNEY_IMAGES = {
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498694/38712079_2111501569064322_3345417801438330880_n_emtdmb.jpg",
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778498902/fp-2019_yucqlx.jpg",
   ],
-  recent: [
+  nineteen: [
+    "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778635869/2019_dmwmvo.jpg",
+  ],
+  twentyFour: [
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778499132/fp-61_kas0xu.jpg",
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778499134/fp-62_du7rv8.jpg",
   ],
-  latest: [
+  twentyFive: [
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778499015/fp-4_icoj0w.jpg",
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778499025/fp-7_npftd7.jpg",
     "https://res.cloudinary.com/doxmbmqjm/image/upload/v1778499094/fp-35_mmfaxg.jpg",
@@ -74,7 +77,7 @@ export default function JourneyClient({ className }: { className?: string }) {
         tr.journey.pillsAttendees1,
         tr.journey.pillsServants1 ?? tr.journey.pillsVolunteers1,
       ],
-      images: [...JOURNEY_IMAGES.early],
+      images: [...images.sixteen],
     },
     {
       year: "2017",
@@ -84,37 +87,48 @@ export default function JourneyClient({ className }: { className?: string }) {
         tr.journey.pillsAttendees2,
         tr.journey.pillsServants2 ?? tr.journey.pillsVolunteers2,
       ],
-      images: [...JOURNEY_IMAGES.growth],
+      images: [...images.seventeen],
     },
     {
-      year: "2019",
+      year: "2018",
       title: tr.journey.title3,
       summary: tr.journey.summary3,
       pills: [
         tr.journey.pillsAttendees3,
         tr.journey.pillsServants3 ?? tr.journey.pillsVolunteers3,
       ],
-      images: [...JOURNEY_IMAGES.peak],
+      images: [...images.eighteen],
     },
     {
-      year: "2024",
+      year: "2019",
       title: tr.journey.title4,
       summary: tr.journey.summary4,
       pills: [
         tr.journey.pillsAttendees4,
         tr.journey.pillsServants4 ?? tr.journey.pillsVolunteers4,
       ],
-      images: [...JOURNEY_IMAGES.recent],
+      images: [...images.nineteen],
     },
     {
-      year: "2025",
+      year: "2024",
       title: tr.journey.title5,
       summary: tr.journey.summary5,
       pills: [
         tr.journey.pillsAttendees5,
-        tr.journey.pillsServants5 ?? tr.journey.pillsVolunteers5,
+        tr.journey.pillsServants4 ?? tr.journey.pillsVolunteers5,
       ],
-      images: [...JOURNEY_IMAGES.latest],
+      images: [...images.twentyFour],
+    },
+    {
+      year: "2025",
+      title: tr.journey.title6,
+      summary: tr.journey.summary6,
+      pills: [
+        tr.journey.pillsAttendees6,
+        tr.journey.pillsServants6 ?? tr.journey.pillsVolunteers6,
+        // tr.journey.pillsChurches6,
+      ],
+      images: [...images.twentyFive],
     },
   ];
 
