@@ -6,6 +6,9 @@ import Navbar from "@/components/Navbar";
 export const metadata: Metadata = {
   title: "Finger Print",
   description: "Mongolian Christian Youth Event",
+  icons: {
+    icon: "/logo.png",
+  },
   openGraph: {
     title: "Finger Print",
     description: "Mongolian Christian Youth Event",
