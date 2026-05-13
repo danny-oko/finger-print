@@ -381,27 +381,27 @@ export const translations: Record<string, Translations> = {
 
       pillsAttendees1: "Хамрагдсан хүүхдүүд: 200+",
       pillsVolunteers1: "Үйлчилсэн багш: 30+",
-      pillsServants1: "",
+      pillsServants1: "Үйлчилсэн багш: 30+",
 
       pillsAttendees2: "Хамрагдсан хүүхдүүд: 300+",
       pillsVolunteers2: "Үйлчилсэн багш: 25+",
-      pillsServants2: "",
+      pillsServants2: "Үйлчилсэн багш: 25+",
 
       pillsAttendees3: "Хамрагдсан хүүхдүүд: 300+",
       pillsVolunteers3: "Үйлчилсэн багш: 30+",
-      pillsServants3: "",
+      pillsServants3: "Үйлчилсэн багш: 30+",
 
       pillsAttendees4: "Хамрагдсан хүүхдүүд: 160+",
       pillsVolunteers4: "Үйлчилсэн багш: 30+",
-      pillsServants4: "",
+      pillsServants4: "Үйлчилсэн багш: 30+",
 
       pillsAttendees5: "Хамрагдсан хүүхэд: 350+",
       pillsVolunteers5: "Үйлчилсэн багш: 35+",
-      pillsServants5: "",
+      pillsServants5: "Үйлчилсэн багш: 35+",
 
       pillsAttendees6: "Хамрагдсан хүүхэд: 280+",
       pillsVolunteers6: "Үйлчилсэн багш: 30+",
-      pillsServants6: "",
+      pillsServants6: "Үйлчилсэн багш: 30+",
 
       pillsChurches1: "Оролцогч чуулганууд: 8+",
       pillsChurches2: "Оролцогч чуулганууд: 14+",
@@ -575,12 +575,12 @@ export const translations: Record<string, Translations> = {
       pillsChurches5: "참여 교회: 10+",
       pillsChurches6: "참여 교회: 10+",
 
-      pillsServants1: "",
-      pillsServants2: "",
-      pillsServants3: "",
-      pillsServants4: "",
-      pillsServants5: "",
-      pillsServants6: "",
+      pillsServants1: "봉사자: 30+",
+      pillsServants2: "봉사자: 25+",
+      pillsServants3: "봉사자: 30+",
+      pillsServants4: "봉사자: 30+",
+      pillsServants5: "봉사자: 35+",
+      pillsServants6: "봉사자: 30+",
     },
 
     slides: {
