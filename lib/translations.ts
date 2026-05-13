@@ -242,6 +242,21 @@ export const translations: Record<string, Translations> = {
       pillsServants6: "Servants: 30+",
     },
 
+    slides: {
+      slide1Badge: "2025",
+      slide1Title: "Finger Print",
+      slide1Desc: "Youth Conference - My Value",
+
+      slide2Badge: "2024",
+      slide2Title: "Finger Print",
+      slide2Desc: "Youth Conference - Connect",
+
+      slide3Badge: "National Youth Seminar",
+      slide3Title: "United Youth Ministry",
+      slide3Desc:
+        "Finger Print unites churches to guide and support Mongolian teenagers in Christ together.",
+    },
+
     projects: {
       heading: "",
       shortFilm: "Short Film",
@@ -366,21 +381,27 @@ export const translations: Record<string, Translations> = {
 
       pillsAttendees1: "Хамрагдсан хүүхдүүд: 200+",
       pillsVolunteers1: "Үйлчилсэн багш: 30+",
+      pillsServants1: "",
 
       pillsAttendees2: "Хамрагдсан хүүхдүүд: 300+",
       pillsVolunteers2: "Үйлчилсэн багш: 25+",
+      pillsServants2: "",
 
       pillsAttendees3: "Хамрагдсан хүүхдүүд: 300+",
       pillsVolunteers3: "Үйлчилсэн багш: 30+",
+      pillsServants3: "",
 
       pillsAttendees4: "Хамрагдсан хүүхдүүд: 160+",
       pillsVolunteers4: "Үйлчилсэн багш: 30+",
+      pillsServants4: "",
 
       pillsAttendees5: "Хамрагдсан хүүхэд: 350+",
       pillsVolunteers5: "Үйлчилсэн багш: 35+",
+      pillsServants5: "",
 
       pillsAttendees6: "Хамрагдсан хүүхэд: 280+",
       pillsVolunteers6: "Үйлчилсэн багш: 30+",
+      pillsServants6: "",
 
       pillsChurches1: "Оролцогч чуулганууд: 8+",
       pillsChurches2: "Оролцогч чуулганууд: 14+",
@@ -513,6 +534,7 @@ export const translations: Record<string, Translations> = {
         "소망을 발견함",
         "그리스도로 구원받음",
       ],
+
       edition: "회",
       title1: "첫 번째",
       title2: "두 번째",
@@ -528,36 +550,52 @@ export const translations: Record<string, Translations> = {
       summary5: `"CONNECT” - 디모데후서 2:22\n젊은 시절의 욕망을 피하고 의와 믿음과 사랑과 화평을 추구하십시오.`,
       summary6: `"You are worthy” - 이사야 43:4\n너는 내 눈에 보배롭고 존귀하며 내가 너를 사랑한다.`,
 
+      pillsAttendees1: "참석자: 200+",
+      pillsVolunteers1: "봉사자: 30+",
+
+      pillsAttendees2: "참석자: 300+",
+      pillsVolunteers2: "봉사자: 25+",
+
+      pillsAttendees3: "참석자: 300+",
+      pillsVolunteers3: "봉사자: 30+",
+
+      pillsAttendees4: "참석자: 160+",
+      pillsVolunteers4: "봉사자: 30+",
+
+      pillsAttendees5: "참석자: 350+",
+      pillsVolunteers5: "봉사자: 35+",
+
+      pillsAttendees6: "참석자: 280+",
+      pillsVolunteers6: "봉사자: 30+",
+
       pillsChurches1: "참여 교회: 8+",
       pillsChurches2: "참여 교회: 14+",
       pillsChurches3: "참여 교회: 10+",
-      pillsChurches4: "참여 교회: 33",
+      pillsChurches4: "참여 교회: 33+",
       pillsChurches5: "참여 교회: 10+",
       pillsChurches6: "참여 교회: 10+",
 
-      pillsAttendees1: "참석자: 200+",
-      pillsVolunteers1: "자원봉사자: 30+",
-      pillsServants1: "섬기는 이: 30+",
+      pillsServants1: "",
+      pillsServants2: "",
+      pillsServants3: "",
+      pillsServants4: "",
+      pillsServants5: "",
+      pillsServants6: "",
+    },
 
-      pillsAttendees2: "참석자: 300+",
-      pillsVolunteers2: "자원봉사자: 25+",
-      pillsServants2: "섬기는 이: 25+",
+    slides: {
+      slide1Badge: "2025년",
+      slide1Title: "Finger Print",
+      slide1Desc: "청소년 컨퍼런스 - 나의 가치",
 
-      pillsAttendees3: "참석자: 300+",
-      pillsVolunteers3: "자원봉사자: 30+",
-      pillsServants3: "섬기는 이: 30+",
+      slide2Badge: "2024년",
+      slide2Title: "Finger Print",
+      slide2Desc: "청소년 컨퍼런스 - Connect",
 
-      pillsAttendees4: "참석자: 160",
-      pillsVolunteers4: "자원봉사자: 30+",
-      pillsServants4: "섬기는 이: 30+",
-
-      pillsAttendees5: "참석자: 350+",
-      pillsVolunteers5: "자원봉사자: 35+",
-      pillsServants5: "섬기는 이: 35+",
-
-      pillsAttendees6: "참석자: 280+",
-      pillsVolunteers6: "자원봉사자: 30+",
-      pillsServants6: "섬기는 이: 30+",
+      slide3Badge: "전국 청소년 세미나",
+      slide3Title: "연합 청소년 사역",
+      slide3Desc:
+        "Finger Print는 몽골의 교회들이 함께 청소년들을 그리스도 안에서 인도하고 지원하도록 돕습니다.",
     },
 
     projects: {
