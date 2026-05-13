@@ -195,7 +195,6 @@ export const translations: Record<string, Translations> = {
         "Found hope",
         "Saved by Christ",
       ],
-
       edition: "edition",
       title1: "First",
       title2: "Second",
@@ -211,45 +210,36 @@ export const translations: Record<string, Translations> = {
       summary5: `"CONNECT” - 2 Timothy 2:22\nFlee the evil desires of youth and pursue righteousness, faith, love and peace.`,
       summary6: `"You are worthy” - Isaiah 43:4\nYou are precious in my eyes, honored, and I love you.`,
 
+      pillsChurches1: "Churches: 8+",
+      pillsChurches2: "Churches: 14+",
+      pillsChurches3: "Churches: 10+",
+      pillsChurches4: "Churches: 33",
+      pillsChurches5: "Churches: 10+",
+      pillsChurches6: "Churches: 10+",
+
       pillsAttendees1: "Attendees: 200+",
       pillsVolunteers1: "Volunteers: 30+",
+      pillsServants1: "Servants: 30+",
 
       pillsAttendees2: "Attendees: 300+",
       pillsVolunteers2: "Volunteers: 25+",
+      pillsServants2: "Servants: 25+",
 
       pillsAttendees3: "Attendees: 300+",
       pillsVolunteers3: "Volunteers: 30+",
+      pillsServants3: "Servants: 30+",
 
-      pillsAttendees4: "Attendees: 160+",
+      pillsAttendees4: "Attendees: 160",
       pillsVolunteers4: "Volunteers: 30+",
+      pillsServants4: "Servants: 30+",
 
       pillsAttendees5: "Attendees: 350+",
       pillsVolunteers5: "Volunteers: 35+",
+      pillsServants5: "Servants: 35+",
 
       pillsAttendees6: "Attendees: 280+",
       pillsVolunteers6: "Volunteers: 30+",
-
-      pillsChurches1: "Participating Churches: 8+",
-      pillsChurches2: "Participating Churches: 14+",
-      pillsChurches3: "Participating Churches: 10+",
-      pillsChurches4: "Participating Churches: 33+",
-      pillsChurches5: "Participating Churches: 10+",
-      pillsChurches6: "Participating Churches: 10+",
-    },
-
-    slides: {
-      slide1Badge: "2025",
-      slide1Title: "Finger Print",
-      slide1Desc: "Youth Conference - My Value",
-
-      slide2Badge: "2024",
-      slide2Title: "Finger Print",
-      slide2Desc: "Youth Conference - Connect",
-
-      slide3Badge: "National Youth Seminar",
-      slide3Title: "United Youth Ministry",
-      slide3Desc:
-        "Finger Print unites churches to guide and support Mongolian teenagers in Christ together.",
+      pillsServants6: "Servants: 30+",
     },
 
     projects: {
@@ -523,7 +513,6 @@ export const translations: Record<string, Translations> = {
         "소망을 발견함",
         "그리스도로 구원받음",
       ],
-
       edition: "회",
       title1: "첫 번째",
       title2: "두 번째",
@@ -539,45 +528,36 @@ export const translations: Record<string, Translations> = {
       summary5: `"CONNECT” - 디모데후서 2:22\n젊은 시절의 욕망을 피하고 의와 믿음과 사랑과 화평을 추구하십시오.`,
       summary6: `"You are worthy” - 이사야 43:4\n너는 내 눈에 보배롭고 존귀하며 내가 너를 사랑한다.`,
 
-      pillsAttendees1: "참석자: 200+",
-      pillsVolunteers1: "봉사자: 30+",
-
-      pillsAttendees2: "참석자: 300+",
-      pillsVolunteers2: "봉사자: 25+",
-
-      pillsAttendees3: "참석자: 300+",
-      pillsVolunteers3: "봉사자: 30+",
-
-      pillsAttendees4: "참석자: 160+",
-      pillsVolunteers4: "봉사자: 30+",
-
-      pillsAttendees5: "참석자: 350+",
-      pillsVolunteers5: "봉사자: 35+",
-
-      pillsAttendees6: "참석자: 280+",
-      pillsVolunteers6: "봉사자: 30+",
-
       pillsChurches1: "참여 교회: 8+",
       pillsChurches2: "참여 교회: 14+",
       pillsChurches3: "참여 교회: 10+",
-      pillsChurches4: "참여 교회: 33+",
+      pillsChurches4: "참여 교회: 33",
       pillsChurches5: "참여 교회: 10+",
       pillsChurches6: "참여 교회: 10+",
-    },
 
-    slides: {
-      slide1Badge: "2025년",
-      slide1Title: "Finger Print",
-      slide1Desc: "청소년 컨퍼런스 - 나의 가치",
+      pillsAttendees1: "참석자: 200+",
+      pillsVolunteers1: "자원봉사자: 30+",
+      pillsServants1: "섬기는 이: 30+",
 
-      slide2Badge: "2024년",
-      slide2Title: "Finger Print",
-      slide2Desc: "청소년 컨퍼런스 - Connect",
+      pillsAttendees2: "참석자: 300+",
+      pillsVolunteers2: "자원봉사자: 25+",
+      pillsServants2: "섬기는 이: 25+",
 
-      slide3Badge: "전국 청소년 세미나",
-      slide3Title: "연합 청소년 사역",
-      slide3Desc:
-        "Finger Print는 몽골의 교회들이 함께 청소년들을 그리스도 안에서 인도하고 지원하도록 돕습니다.",
+      pillsAttendees3: "참석자: 300+",
+      pillsVolunteers3: "자원봉사자: 30+",
+      pillsServants3: "섬기는 이: 30+",
+
+      pillsAttendees4: "참석자: 160",
+      pillsVolunteers4: "자원봉사자: 30+",
+      pillsServants4: "섬기는 이: 30+",
+
+      pillsAttendees5: "참석자: 350+",
+      pillsVolunteers5: "자원봉사자: 35+",
+      pillsServants5: "섬기는 이: 35+",
+
+      pillsAttendees6: "참석자: 280+",
+      pillsVolunteers6: "자원봉사자: 30+",
+      pillsServants6: "섬기는 이: 30+",
     },
 
     projects: {
