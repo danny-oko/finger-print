@@ -149,7 +149,7 @@ export const translations: Record<string, Translations> = {
       title: "Finger Print",
       subtitle: "Youth Conference",
       description:
-        "A conference that supports youth ministries and helps teenagers discover their God-given identity and value in Christ.",
+        "How precious are Your thoughts concerning me, O God! How vast is the sum of them! — Psalm 139:17",
       ctaPrimary: "Watch short film",
       ctaSecondary: "Contact us",
     },
@@ -317,7 +317,7 @@ export const translations: Record<string, Translations> = {
       title: "Хурууны Хээ",
       subtitle: "Өсвөрийн Конференц",
       description:
-        "Чуулгануудын өсвөрийн үйлчлэлийг дэмжиж, өсвөр насны хүүхэд бүр Христ дотор Бурханаас өгсөн өвөрмөц үнэ цэнэ, мөн чанарыг нь харуулах зорилготой.",
+        "Аяа Бурхан, надад хандсан бодлууд тань хичнээн нандин бэ! Нийлбэр нь хичнээн их вэ! Дуулал 139:17",
       ctaPrimary: "Богино хэмжээний кино үзэх",
       ctaSecondary: "Холбоо барих",
     },
@@ -488,7 +488,7 @@ export const translations: Record<string, Translations> = {
       title: "Finger Print",
       subtitle: "청소년 컨퍼런스",
       description:
-        "교회의 청소년 사역을 지원하고, 청소년들이 그리스도 안에서 하나님이 주신 자신의 정체성과 가치를 발견하도록 돕는 컨퍼런스입니다.",
+        "하나님이여, 주께서 나를 향해 가지신 생각이 어찌 그리 귀하신지요! 그 수가 얼마나 많은지요! — 시편 139:17",
       ctaPrimary: "단편 영화 보기",
       ctaSecondary: "문의하기",
     },
