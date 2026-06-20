@@ -493,7 +493,6 @@ export const translations: Record<string, Translations> = {
       ctaSecondary: "문의하기",
     },
 
-
     nav: {
       home: "홈",
       about: "Finger Print",
