@@ -229,7 +229,7 @@ export const translations: Record<string, Translations> = {
       pillsVolunteers3: "Volunteers: 30+",
       pillsServants3: "Servants: 30+",
 
-      pillsAttendees4: "Attendees: 160",
+      pillsAttendees4: "Attendees: 160+",
       pillsVolunteers4: "Volunteers: 30+",
       pillsServants4: "Servants: 30+",
 
