@@ -22,7 +22,7 @@ export default function HeroSlide({
     <div
       className={cn(
         "relative isolate overflow-hidden  sm:rounded-none",
-        "h-[90vh] min-h-[400px] sm:min-h-[500px] md:min-h-[560px] w-full",
+        "h-[100vh] min-h-[400px] sm:min-h-[500px] md:min-h-[560px] w-full",
       )}
     >
       <HeroMedia slide={slide} priority={index === 0} muted={muted} />

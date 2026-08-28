@@ -51,7 +51,7 @@ export default async function Page({
   return (
     <>
       <main>
-        <Suspense fallback={<SectionFallback className="min-h-[90vh]" />}>
+        <Suspense fallback={<SectionFallback className="min-h-[100vh]" />}>
           <HeroCarousel slides={HERO_SLIDES} lang={lang} />
         </Suspense>
         <Suspense fallback={<SectionFallback />}>

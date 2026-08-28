@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Finger Print",
@@ -26,6 +27,7 @@ export default function RootLayout({
           <Navbar />
         </Suspense>
         {children}
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

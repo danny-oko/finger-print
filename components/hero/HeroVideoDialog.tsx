@@ -35,7 +35,7 @@ export default function HeroVideoDialog({
         className={cn(
           "p-0 border-0 shadow-none rounded-xl",
           "flex items-center justify-center",
-          "w-[min(98vw,1400px)] max-h-[90vh]",
+          "w-[min(98vw,1400px)] max-h-[100vh]",
           "bg-transparent",
         )}
       >

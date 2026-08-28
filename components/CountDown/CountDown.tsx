@@ -35,7 +35,7 @@ export default function CountDown() {
   });
 
   React.useEffect(() => {
-    setMounted(true);
+    // setMounted(true);
 
     const target = new Date(TARGET_ISO);
     const tick = () => setTime(getTimeLeft(target));
