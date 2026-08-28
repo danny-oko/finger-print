@@ -3,6 +3,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Finger Print",
@@ -28,6 +29,7 @@ export default function RootLayout({
         </Suspense>
         {children}
         <Toaster position="top-center" richColors />
+        <Analytics />
       </body>
     </html>
   );
