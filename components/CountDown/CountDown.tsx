@@ -1,11 +1,14 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import Link from "next/link";
 import * as React from "react";
+
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/useTranslation";
+import { cn } from "@/lib/utils";
 import CountDownHeader from "./CountDownHeader";
 import CountDownUnit from "./CountDownUnit";
 import { TARGET_ISO, getTimeLeft, pad2, type TimeLeft } from "./utils";
-import { useTranslation } from "@/lib/useTranslation";
 
 const CONTAINER = "mx-auto w-full md:w-[min(calc(100%-2rem),80vw,1200px)]";
 
@@ -25,7 +28,9 @@ function useIsMdUp() {
 
 export default function CountDown() {
   const { t } = useTranslation();
-  const [mounted, setMounted] = React.useState(false);
+  // Starts at all-zeros so server and client render identically before
+  // hydration; the effect below (client-only) then starts ticking real
+  // values in, no separate "mounted" flag needed.
   const [time, setTime] = React.useState<TimeLeft>({
     totalMs: 0,
     days: 0,
@@ -35,8 +40,6 @@ export default function CountDown() {
   });
 
   React.useEffect(() => {
-    // setMounted(true);
-
     const target = new Date(TARGET_ISO);
     const tick = () => setTime(getTimeLeft(target));
     tick();
@@ -45,12 +48,12 @@ export default function CountDown() {
     return () => window.clearInterval(id);
   }, []);
 
-  const fullDays = mounted ? String(time.days) : "0";
+  const fullDays = String(time.days);
   const daysMinDigits = Math.max(3, fullDays.length);
 
-  const hours = mounted ? pad2(time.hours) : "00";
-  const minutes = mounted ? pad2(time.minutes) : "00";
-  const seconds = mounted ? pad2(time.seconds) : "00";
+  const hours = pad2(time.hours);
+  const minutes = pad2(time.minutes);
+  const seconds = pad2(time.seconds);
 
   return (
     <section className="w-full bg-black md:bg-white">
@@ -114,6 +117,13 @@ export default function CountDown() {
               value={seconds}
               minDigits={2}
             />
+          </div>
+
+          <div className="mx-auto mt-12 flex max-w-md flex-col items-center gap-3 text-center">
+            <p className="text-sm text-white/60">{t("register.bannerSubtitle")}</p>
+            <Button className="h-11 rounded-full px-8 text-black" asChild>
+              <Link href="/event/registration">{t("register.button")}</Link>
+            </Button>
           </div>
         </div>
       </div>

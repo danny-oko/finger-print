@@ -27,11 +27,13 @@ import {
   type CreateRegistrationInput,
   type RegistrationFormValues,
 } from "@/lib/registration/schema";
+import { useRouter } from "next/navigation";
 
 const BLANK_ATTENDEE: RegistrationFormValues["attendees"][number] = {
   fullName: "",
   age: undefined,
   phone: "",
+  email: "",
   parentPhone: "",
   churchName: "",
   grade: undefined,
@@ -105,7 +107,11 @@ function PayerStep() {
           <FormItem className="sm:col-span-2">
             <FormLabel>Таны бүтэн нэр</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Бат-Эрдэнэ Ганбаяр" autoComplete="name" />
+              <Input
+                {...field}
+                placeholder="Бат-Эрдэнэ Ганбаяр"
+                autoComplete="name"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -122,9 +128,31 @@ function PayerStep() {
                 inputMode="tel"
                 maxLength={8}
                 placeholder="99112233"
-                onChange={(e) => field.onChange(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                onChange={(e) =>
+                  field.onChange(e.target.value.replace(/\D/g, "").slice(0, 8))
+                }
               />
             </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        name="payerEmail"
+        render={({ field }) => (
+          <FormItem className="sm:col-span-2">
+            <FormLabel>Таны имэйл хаяг</FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                type="email"
+                placeholder="name@example.com"
+                autoComplete="email"
+              />
+            </FormControl>
+            <p className="text-xs text-muted-foreground">
+              Бүх хамрагчдын QR тасалбарыг энэ имэйлээр илгээнэ.
+            </p>
             <FormMessage />
           </FormItem>
         )}
@@ -134,13 +162,18 @@ function PayerStep() {
 }
 
 export function RegistrationForm() {
-  const form = useForm<RegistrationFormValues, unknown, CreateRegistrationInput>({
+  const form = useForm<
+    RegistrationFormValues,
+    unknown,
+    CreateRegistrationInput
+  >({
     resolver: zodResolver(createRegistrationSchema),
     mode: "onChange",
     defaultValues: {
       registrantType: undefined,
       payerName: "",
       payerPhone: "",
+      payerEmail: "",
       attendees: [BLANK_ATTENDEE],
     },
   });
@@ -149,6 +182,7 @@ export function RegistrationForm() {
   const [churches, setChurches] = React.useState<string[]>([]);
   const [pricing, setPricing] = React.useState<PricingSettings | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
+  const router = useRouter();
 
   React.useEffect(() => {
     fetch("/api/registration/churches")
@@ -164,7 +198,8 @@ export function RegistrationForm() {
   const registrantType = form.watch("registrantType");
 
   const steps: StepId[] = React.useMemo(() => {
-    if (registrantType === "church_leader") return ["type", "payer", "attendees", "summary"];
+    if (registrantType === "church_leader")
+      return ["type", "payer", "attendees", "summary"];
     return ["type", "attendee", "summary"];
   }, [registrantType]);
 
@@ -175,7 +210,9 @@ export function RegistrationForm() {
 
     if (currentStep === "type") {
       if (!registrantType) {
-        form.setError("registrantType", { message: "Бүртгүүлэх төрлөө сонгоно уу" });
+        form.setError("registrantType", {
+          message: "Бүртгүүлэх төрлөө сонгоно уу",
+        });
         return;
       }
       if (registrantType === "individual") {
@@ -183,12 +220,14 @@ export function RegistrationForm() {
         form.setValue("attendees", [first]);
       }
     }
-    if (currentStep === "payer") fieldsToValidate = ["payerName", "payerPhone"];
+    if (currentStep === "payer")
+      fieldsToValidate = ["payerName", "payerPhone", "payerEmail"];
     if (currentStep === "attendee") {
       fieldsToValidate = [
         "attendees.0.fullName",
         "attendees.0.age",
         "attendees.0.phone",
+        "attendees.0.email",
         "attendees.0.parentPhone",
         "attendees.0.churchName",
         "attendees.0.grade",
@@ -196,7 +235,9 @@ export function RegistrationForm() {
     }
     if (currentStep === "attendees") fieldsToValidate = ["attendees"];
 
-    const valid = fieldsToValidate.length ? await form.trigger(fieldsToValidate) : true;
+    const valid = fieldsToValidate.length
+      ? await form.trigger(fieldsToValidate)
+      : true;
     if (!valid) return;
 
     // The "individual" flow has no separate payer step — the one attendee's
@@ -206,12 +247,17 @@ export function RegistrationForm() {
       const attendee = form.getValues("attendees.0");
       form.setValue("payerName", attendee.fullName);
       form.setValue("payerPhone", attendee.phone ?? "");
+      form.setValue("payerEmail", attendee.email ?? "");
     }
 
     setStepIndex((i) => Math.min(i + 1, steps.length - 1));
   }
 
   function goBack() {
+    if (stepIndex === 0) {
+      router.push("/");
+      return;
+    }
     setStepIndex((i) => Math.max(i - 1, 0));
   }
 
@@ -224,6 +270,7 @@ export function RegistrationForm() {
             ...values,
             payerName: values.attendees[0].fullName,
             payerPhone: values.attendees[0].phone ?? "",
+            payerEmail: values.attendees[0].email ?? "",
           }
         : values;
 
@@ -259,34 +306,49 @@ export function RegistrationForm() {
             goNext();
           }
         }}
-        className="grid gap-6"
+        className="grid gap-4"
       >
-        <Stepper labels={steps.map((s) => STEP_LABELS[s])} currentIndex={stepIndex} />
+        <Stepper
+          labels={steps.map((s) => STEP_LABELS[s])}
+          currentIndex={stepIndex}
+        />
 
         <Card className="border-neutral-200 shadow-sm">
-          <CardContent className="pt-6">
+          <CardContent className="py-5">
             {currentStep === "type" && <TypeStep />}
             {currentStep === "payer" && <PayerStep />}
             {currentStep === "attendee" && (
-              <AttendeeFields namePrefix="attendees.0" churches={churches} phoneRequired />
+              <AttendeeFields
+                namePrefix="attendees.0"
+                churches={churches}
+                phoneRequired
+                emailRequired
+              />
             )}
-            {currentStep === "attendees" && <AttendeesStep churches={churches} />}
+            {currentStep === "attendees" && (
+              <AttendeesStep churches={churches} />
+            )}
             {currentStep === "summary" && <SummaryStep pricing={pricing} />}
           </CardContent>
         </Card>
 
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-center gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={goBack}
-            disabled={stepIndex === 0 || submitting}
+            disabled={submitting}
           >
             Буцах
           </Button>
 
           {isLastStep ? (
-            <Button type="submit" size="lg" disabled={submitting} className="min-w-40">
+            <Button
+              type="submit"
+              size="lg"
+              disabled={submitting}
+              className="min-w-40"
+            >
               {submitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" /> Түр хүлээнэ үү...

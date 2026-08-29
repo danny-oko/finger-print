@@ -31,15 +31,18 @@ export function AttendeeFields({
   namePrefix,
   churches,
   phoneRequired,
+  emailRequired = false,
 }: {
   namePrefix: `attendees.${number}`;
   churches: string[];
   phoneRequired: boolean;
+  emailRequired?: boolean;
 }) {
   const { control, setValue } = useFormContext<RegistrationFormValues>();
 
   const ageRef = React.useRef<HTMLInputElement>(null);
   const phoneRef = React.useRef<HTMLInputElement>(null);
+  const emailRef = React.useRef<HTMLInputElement>(null);
   const parentPhoneRef = React.useRef<HTMLInputElement>(null);
   const churchRef = React.useRef<HTMLButtonElement>(null);
   const gradeRef = React.useRef<HTMLButtonElement>(null);
@@ -115,7 +118,9 @@ export function AttendeeFields({
                 onChange={(e) => {
                   const digits = onlyDigits(e.target.value).slice(0, 8);
                   field.onChange(digits);
-                  if (digits.length === 8) parentPhoneRef.current?.focus();
+                  if (digits.length === 8) {
+                    (emailRequired ? emailRef : parentPhoneRef).current?.focus();
+                  }
                 }}
               />
             </FormControl>
@@ -123,6 +128,36 @@ export function AttendeeFields({
           </FormItem>
         )}
       />
+
+      {emailRequired && (
+        <FormField
+          control={control}
+          name={`${namePrefix}.email`}
+          render={({ field }) => (
+            <FormItem className="sm:col-span-2">
+              <FormLabel>Имэйл хаяг</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  ref={emailRef}
+                  value={(field.value as string | undefined) ?? ""}
+                  type="email"
+                  placeholder="name@example.com"
+                  autoComplete="email"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      parentPhoneRef.current?.focus();
+                    }
+                  }}
+                />
+              </FormControl>
+              <p className="text-xs text-muted-foreground">Таны QR тасалбарыг энд илгээнэ.</p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
 
       <FormField
         control={control}

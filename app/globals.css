@@ -147,3 +147,30 @@ body {
 #hero-section-root[data-hydrated] .hero-first-static {
   display: none;
 }
+
+/* Brand-colored scrollbar */
+html {
+  scrollbar-color: #f98c01 transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #f98c01;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #e67f00;
+  background-clip: padding-box;
+}

@@ -6,7 +6,7 @@ export type TimeLeft = {
   seconds: number;
 };
 
-export const TARGET_ISO = "2026-10-03T00:00:00+08:00";
+export const TARGET_ISO = "2026-10-10T00:00:00+08:00";
 
 export function getTimeLeft(target: Date): TimeLeft {
   const now = new Date();

@@ -9,19 +9,19 @@ export const metadata: Metadata = {
 
 export default function EventStatusPage() {
   return (
-    <main className="min-h-screen bg-neutral-50">
-      <div className="bg-neutral-900 px-4 pt-28 pb-16 text-white sm:pt-32">
-        <div className="mx-auto w-full max-w-2xl">
-          <h1 className="text-3xl font-black sm:text-4xl">Бүртгэлээ шалгах</h1>
-          <p className="mt-3 text-neutral-400">
-            Бүртгүүлэхдээ ашигласан утасны дугаараа оруулж, бүртгэл болон төлбөрийн
-            төлөвөө шалгана уу.
-          </p>
-        </div>
+    <main className="flex h-dvh flex-col overflow-hidden bg-neutral-50">
+      <div className="mx-auto w-full max-w-2xl shrink-0 px-4 pt-6 pb-3 text-center">
+        <h1 className="text-xl font-black text-neutral-900 sm:text-2xl">Бүртгэлээ шалгах</h1>
+        <p className="mx-auto mt-1 max-w-lg text-sm text-neutral-500 sm:text-base">
+          Бүртгүүлэхдээ ашигласан утасны дугаараа оруулж, бүртгэл болон төлбөрийн
+          төлөвөө шалгана уу.
+        </p>
       </div>
 
-      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-12">
-        <StatusLookup />
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-2xl px-4 pb-8">
+          <StatusLookup />
+        </div>
       </div>
     </main>
   );

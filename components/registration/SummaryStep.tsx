@@ -12,6 +12,7 @@ export function SummaryStep({ pricing }: { pricing: PricingSettings | null }) {
   const attendees = watch("attendees");
   const payerName = watch("payerName");
   const payerPhone = watch("payerPhone");
+  const payerEmail = watch("payerEmail");
 
   const names = attendees
     .map((a) => a.fullName)
@@ -43,6 +44,10 @@ export function SummaryStep({ pricing }: { pricing: PricingSettings | null }) {
           <div className="flex items-start justify-between gap-4">
             <span className="text-muted-foreground shrink-0">Бүртгүүлж буй хүмүүс</span>
             <span className="text-right font-medium">{names || "—"}</span>
+          </div>
+          <div className="flex items-center justify-between gap-4 border-t border-neutral-200 pt-3">
+            <span className="text-muted-foreground shrink-0">Тасалбар очих имэйл</span>
+            <span className="text-right font-medium">{payerEmail || "—"}</span>
           </div>
         </CardContent>
       </Card>

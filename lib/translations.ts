@@ -140,12 +140,19 @@ export type Translations = {
     mn: string;
     ko: string;
   };
+
+  register: {
+    badge: string;
+    button: string;
+    bannerTitle: string;
+    bannerSubtitle: string;
+  };
 };
 
 export const translations: Record<string, Translations> = {
   en: {
     hero: {
-      badge: "Since 2016 • 6 times",
+      badge: "Since 2016 • 6th edition",
       title: "Finger Print",
       subtitle: "Youth Conference",
       description:
@@ -204,16 +211,16 @@ export const translations: Record<string, Translations> = {
       title6: "Sixth",
 
       summary1: `"Finger Print"`,
-      summary2: `"Let us live in the light” - John 8:12\n“I am the light of the world. Whoever follows me will never walk in darkness, but will have the light of life.”`,
-      summary3: `"Let us hope in the Lord” - Matthew 19:26\nWith man this is impossible, but with God all things are possible.`,
+      summary2: `“Let us live in the light” - John 8:12\n“I am the light of the world. Whoever follows me will never walk in darkness, but will have the light of life.”`,
+      summary3: `“Let us hope in the Lord” - Matthew 19:26\nWith man this is impossible, but with God all things are possible.`,
       summary4: `"Let us walk by faith" - For we walk by faith, not by sight. 2 Corinthians 5:7`,
-      summary5: `"CONNECT” - 2 Timothy 2:22\nFlee the evil desires of youth and pursue righteousness, faith, love and peace.`,
+      summary5: `“CONNECT” - 2 Timothy 2:22\nFlee the evil desires of youth and pursue righteousness, faith, love and peace.`,
       summary6: `"You are worthy” - Isaiah 43:4\nYou are precious in my eyes, honored, and I love you.`,
 
       pillsChurches1: "Churches: 8+",
       pillsChurches2: "Churches: 14+",
       pillsChurches3: "Churches: 10+",
-      pillsChurches4: "Churches: 33",
+      pillsChurches4: "Churches: 33+",
       pillsChurches5: "Churches: 10+",
       pillsChurches6: "Churches: 10+",
 
@@ -254,7 +261,7 @@ export const translations: Record<string, Translations> = {
       slide3Badge: "National Youth Seminar",
       slide3Title: "United Youth Ministry",
       slide3Desc:
-        "Finger Print unites churches to guide and support Mongolian teenagers in Christ together.",
+        "Finger Print brings churches together to guide and support Mongolian teenagers in Christ.",
     },
 
     projects: {
@@ -280,7 +287,7 @@ export const translations: Record<string, Translations> = {
     },
 
     countdown: {
-      dateLabel: "October 3, 2026",
+      dateLabel: "October 10, 2026",
       title: "Finger Print 2026",
       happeningIn: "Starts in",
       days: "Days",
@@ -298,16 +305,23 @@ export const translations: Record<string, Translations> = {
 
       serveTitle: "Serve",
       serveDescription:
-        "Join the worship team, welcoming team, or organizing team.",
+        "Join the worship, welcoming, or organizing team.",
 
       supportTitle: "Financial support",
-      supportDescription: "You can also support the event financially.",
+      supportDescription: "You can also support the conference financially.",
     },
 
     langName: {
       en: "English",
       mn: "Монгол",
       ko: "한국어",
+    },
+
+    register: {
+      badge: "Registration is open",
+      button: "Register now",
+      bannerTitle: "Ready for the conference?",
+      bannerSubtitle: "Register now and get your ticket by email.",
     },
   },
 
@@ -449,7 +463,7 @@ export const translations: Record<string, Translations> = {
     },
 
     countdown: {
-      dateLabel: "2026 оны 10-р сарын 3",
+      dateLabel: "2026 оны 10-р сарын 10",
       title: "Хурууны хээ 2026",
       happeningIn: "болох хүртэл",
       days: "Өдөр",
@@ -479,6 +493,13 @@ export const translations: Record<string, Translations> = {
       en: "English",
       mn: "Монгол",
       ko: "한국어",
+    },
+
+    register: {
+      badge: "Бүртгэл нээлттэй",
+      button: "Бүртгүүлэх",
+      bannerTitle: "Конференцдоо бэлэн үү?",
+      bannerSubtitle: "Яг одоо бүртгэлээ хийлгээрэй!",
     },
   },
 
@@ -544,10 +565,10 @@ export const translations: Record<string, Translations> = {
       title6: "여섯 번째",
 
       summary1: `"Finger Print"`,
-      summary2: `"빛 가운데 살자” - 요한복음 8:12\n“나는 세상의 빛이다. 나를 따르는 사람은 어둠 속을 걷지 않고 생명의 빛을 얻게 될 것이다.”`,
-      summary3: `"주님께 소망을 두자” - 마태복음 19:26\n사람으로서는 할 수 없으나 하나님으로서는 다 하실 수 있느니라.`,
+      summary2: `“빛 가운데 살자” - 요한복음 8:12\n“나는 세상의 빛이다. 나를 따르는 사람은 어둠 속을 걷지 않고 생명의 빛을 얻게 될 것이다.”`,
+      summary3: `“주님께 소망을 두자” - 마태복음 19:26\n사람으로서는 할 수 없으나 하나님으로서는 다 하실 수 있느니라.`,
       summary4: `"믿음으로 걷자" - 우리는 보이는 것으로가 아니라 믿음으로 행합니다. 고린도후서 5:7`,
-      summary5: `"CONNECT” - 디모데후서 2:22\n젊은 시절의 욕망을 피하고 의와 믿음과 사랑과 화평을 추구하십시오.`,
+      summary5: `“CONNECT” - 디모데후서 2:22\n젊은 시절의 욕망을 피하고 의와 믿음과 사랑과 화평을 추구하십시오.`,
       summary6: `"You are worthy” - 이사야 43:4\n너는 내 눈에 보배롭고 존귀하며 내가 너를 사랑한다.`,
 
       pillsAttendees1: "참석자: 200+",
@@ -621,7 +642,7 @@ export const translations: Record<string, Translations> = {
     },
 
     countdown: {
-      dateLabel: "2026년 10월 3일",
+      dateLabel: "2026년 10월 10일",
       title: "Finger Print 2026",
       happeningIn: "시작까지",
       days: "일",
@@ -638,16 +659,23 @@ export const translations: Record<string, Translations> = {
       attendDescription: "청소년은 혼자 또는 친구와 함께 참석할 수 있습니다.",
 
       serveTitle: "섬기기",
-      serveDescription: "찬양팀, 환영팀 또는 행사 준비팀에 참여할 수 있습니다.",
+      serveDescription: "찬양팀, 환영팀 또는 컨퍼런스 준비팀에 참여할 수 있습니다.",
 
       supportTitle: "재정 후원",
-      supportDescription: "행사를 재정적으로 후원할 수도 있습니다.",
+      supportDescription: "컨퍼런스를 재정적으로 후원할 수도 있습니다.",
     },
 
     langName: {
       en: "English",
       mn: "Монгол",
       ko: "한국어",
+    },
+
+    register: {
+      badge: "등록 접수 중",
+      button: "지금 등록하기",
+      bannerTitle: "컨퍼런스 참여 준비되셨나요?",
+      bannerSubtitle: "지금 등록하고 이메일로 티켓을 받아보세요.",
     },
   },
 };

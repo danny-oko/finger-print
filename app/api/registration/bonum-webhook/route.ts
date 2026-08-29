@@ -3,6 +3,7 @@ import { v4 as uuid } from "uuid";
 
 import { verifyWebhookChecksum, type BonumWebhookPayload } from "@/lib/bonum";
 import { d1Query } from "@/lib/d1";
+import { issueTicketsAndSendEmail } from "@/lib/registration/issueTickets";
 
 export const runtime = "nodejs";
 
@@ -75,6 +76,16 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Failed to update registration from Bonum webhook", error);
     return NextResponse.json({ error: "update_failed" }, { status: 500 });
+  }
+
+  if (newStatus === "paid") {
+    // Best-effort — the payment itself is already recorded above, so a
+    // ticket/email failure here must not turn into a Bonum retry loop.
+    try {
+      await issueTicketsAndSendEmail(registrationId);
+    } catch (error) {
+      console.error("Failed to issue tickets / send ticket email", error);
+    }
   }
 
   return NextResponse.json({ ok: true });

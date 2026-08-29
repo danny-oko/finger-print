@@ -27,15 +27,16 @@ export async function POST(request: Request) {
   try {
     await d1Query(
       `INSERT INTO registrations (
-        id, registrant_type, payer_name, payer_phone, attendee_count,
+        id, registrant_type, payer_name, payer_phone, payer_email, attendee_count,
         price_per_attendee_mnt, tax_rate_percent, subtotal_mnt, tax_mnt, total_mnt,
         currency, status, bonum_transaction_id, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
       [
         registrationId,
         input.registrantType,
         input.payerName,
         input.payerPhone,
+        input.payerEmail,
         input.attendees.length,
         pricing.pricePerAttendeeMnt,
         pricing.taxRatePercent,

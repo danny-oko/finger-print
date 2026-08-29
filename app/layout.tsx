@@ -7,13 +7,13 @@ import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Finger Print",
-  description: "Mongolian Christian Youth Event",
+  description: "Mongolian Christian Youth Conference",
   icons: {
     icon: "/logo.png",
   },
   openGraph: {
     title: "Finger Print",
-    description: "Mongolian Christian Youth Event",
+    description: "Mongolian Christian Youth Conference",
     type: "website",
   },
 };

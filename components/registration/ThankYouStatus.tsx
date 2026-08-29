@@ -17,11 +17,17 @@ type Registration = {
   status: "pending" | "paid" | "failed" | "expired" | "cancelled";
 };
 
+type Ticket = {
+  full_name: string;
+  ticket_code: string;
+};
+
 const POLL_INTERVAL_MS = 2500;
 const MAX_POLLS = 12;
 
 export function ThankYouStatus({ registrationId }: { registrationId: string }) {
   const [registration, setRegistration] = React.useState<Registration | null>(null);
+  const [tickets, setTickets] = React.useState<Ticket[]>([]);
   const [error, setError] = React.useState(false);
   const pollsRef = React.useRef(0);
 
@@ -36,6 +42,7 @@ export function ThankYouStatus({ registrationId }: { registrationId: string }) {
         if (cancelled) return;
 
         setRegistration(data.registration);
+        setTickets(data.tickets ?? []);
 
         pollsRef.current += 1;
         if (data.registration.status === "pending" && pollsRef.current < MAX_POLLS) {
@@ -77,20 +84,52 @@ export function ThankYouStatus({ registrationId }: { registrationId: string }) {
 
   if (registration.status === "paid") {
     return (
-      <Card className="border-neutral-200">
-        <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
-          <CheckCircle2 className="size-12 text-green-600" />
-          <p className="text-xl font-black">Төлбөр амжилттай!</p>
-          <p className="text-muted-foreground">
-            {registration.payer_name}, таны {registration.attendee_count} хүний бүртгэл
-            баталгаажлаа.
-          </p>
-          <p className="font-bold text-[#F98C01]">{formatMnt(registration.total_mnt)}</p>
-          <Button asChild className="mt-4">
-            <a href="/event/status">Бүртгэлээ шалгах</a>
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="grid gap-4">
+        <Card className="border-neutral-200">
+          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
+            <CheckCircle2 className="size-12 text-green-600" />
+            <p className="text-xl font-black">Төлбөр амжилттай!</p>
+            <p className="text-muted-foreground">
+              {registration.payer_name}, таны {registration.attendee_count} хүний бүртгэл
+              баталгаажлаа.
+            </p>
+            <p className="font-bold text-[#F98C01]">{formatMnt(registration.total_mnt)}</p>
+          </CardContent>
+        </Card>
+
+        {tickets.length > 0 && (
+          <div className="grid gap-3">
+            <p className="text-center text-sm font-medium text-muted-foreground">
+              Тасалбар{tickets.length > 1 ? "ууд" : ""} имэйлээр илгээгдлээ — хаалган дээр эндээс
+              харуулна уу
+            </p>
+            {tickets.map((ticket) => (
+              <Card key={ticket.ticket_code} className="overflow-hidden border-neutral-900 bg-neutral-900">
+                <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
+                  <p className="text-base font-bold text-white">{ticket.full_name}</p>
+                  <img
+                    src={`/api/registration/tickets/${ticket.ticket_code}/qr`}
+                    alt={`QR тасалбар ${ticket.ticket_code}`}
+                    width={176}
+                    height={176}
+                    className="rounded-xl bg-white p-3"
+                  />
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
+                    Тасалбарын код
+                  </p>
+                  <p className="font-mono text-lg font-bold tracking-wider text-[#F98C01]">
+                    {ticket.ticket_code}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        <Button asChild variant="outline" className="mt-1">
+          <a href="/event/status">Бүртгэлээ шалгах</a>
+        </Button>
+      </div>
     );
   }
 

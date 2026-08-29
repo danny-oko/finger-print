@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS registrations (
   registrant_type TEXT NOT NULL CHECK (registrant_type IN ('individual', 'church_leader')),
   payer_name TEXT NOT NULL,
   payer_phone TEXT NOT NULL,
+  payer_email TEXT,
   attendee_count INTEGER NOT NULL,
   price_per_attendee_mnt INTEGER NOT NULL,
   tax_rate_percent INTEGER NOT NULL,
@@ -35,6 +36,7 @@ CREATE TABLE IF NOT EXISTS registrations (
   bonum_transaction_id TEXT UNIQUE,
   bonum_follow_up_link TEXT,
   paid_at TEXT,
+  tickets_issued_at TEXT,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
@@ -51,12 +53,15 @@ CREATE TABLE IF NOT EXISTS attendees (
   parent_phone TEXT NOT NULL,
   church_name TEXT NOT NULL,
   grade INTEGER NOT NULL,
+  ticket_code TEXT,
+  checked_in_at TEXT,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_attendees_registration_id ON attendees (registration_id);
 CREATE INDEX IF NOT EXISTS idx_attendees_phone ON attendees (phone);
 CREATE INDEX IF NOT EXISTS idx_attendees_parent_phone ON attendees (parent_phone);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_attendees_ticket_code ON attendees (ticket_code);
 
 CREATE TABLE IF NOT EXISTS payment_events (
   id TEXT PRIMARY KEY,

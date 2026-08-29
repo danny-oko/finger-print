@@ -30,8 +30,22 @@ export default function HeroContent({
   return (
     <>
       <div className="w-full pt-6">
-        <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white ring-1 ring-white/15">
-          {t("hero.badge")}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white ring-1 ring-white/15">
+            {t("hero.badge")}
+          </div>
+
+          <Link
+            href="/event/registration"
+            className="group inline-flex items-center gap-2 rounded-full bg-[#F98C01]/15 px-4 py-2 text-xs font-semibold text-[#F98C01] ring-1 ring-[#F98C01]/40 transition hover:bg-[#F98C01]/25"
+          >
+            <span className="relative flex size-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#F98C01] opacity-75" />
+              <span className="relative inline-flex size-1.5 rounded-full bg-[#F98C01]" />
+            </span>
+            {t("register.badge")}
+            <span className="transition-transform group-hover:translate-x-0.5">→</span>
+          </Link>
         </div>
 
         <h1 className="mt-5 text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl md:text-7xl">
@@ -47,11 +61,16 @@ export default function HeroContent({
         </p>
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
+          <Button className="h-11 rounded-full px-8 cursor-pointer text-black" asChild>
+            <Link href="/event/registration">{t("register.button")}</Link>
+          </Button>
+
           <Button
+            variant="secondary"
             className="h-11 gap-3 rounded-full px-8 cursor-pointer"
             onClick={() => setOpen(true)}
           >
-            <Play className="h-4 w-4 fill-transparent stroke-[2.2] text-black cursor-pointer hover:bg-black hover:text-white" />
+            <Play className="h-4 w-4 fill-transparent stroke-[2.2]" />
             {t("hero.ctaPrimary")}
           </Button>
 

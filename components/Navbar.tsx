@@ -108,6 +108,12 @@ export default function Navbar({ className }: { className?: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // The registration/status flow is a dedicated, standalone page — it
+  // shouldn't carry the marketing site's navbar.
+  if (pathname?.startsWith("/event")) {
+    return null;
+  }
+
   return (
     <>
       {/* Desktop navbar */}
@@ -132,8 +138,8 @@ export default function Navbar({ className }: { className?: string }) {
               <img src="/logo6.png" alt="Finger Print" className="h-8 w-auto" />
             </Link>
 
-            <div className="absolute left-1/2 -translate-x-1/2 max-w-[55%]">
-              <div className="hidden lg:flex items-center gap-8 justify-center">
+            <div className="absolute left-1/2 -translate-x-1/2 max-w-[60%]">
+              <div className="hidden lg:flex items-center gap-6 justify-center whitespace-nowrap">
                 {navConfig.map((item) => (
                   <a
                     key={item.href}
@@ -144,6 +150,13 @@ export default function Navbar({ className }: { className?: string }) {
                     {t(`nav.${item.key}`)}
                   </a>
                 ))}
+                <a
+                  href={withLang("#footer", lang)}
+                  onClick={(e) => handleNavigate(e, "#footer")}
+                  className="text-sm font-medium text-foreground/80 hover:text-foreground transition"
+                >
+                  {t("nav.getInTouch")}
+                </a>
               </div>
             </div>
 
@@ -165,12 +178,7 @@ export default function Navbar({ className }: { className?: string }) {
               </DropdownMenu>
 
               <Button className="rounded-full px-6 text-black" asChild>
-                <Link
-                  href={withLang("#footer", lang)}
-                  onClick={(e) => handleNavigate(e, "#footer")}
-                >
-                  {t("nav.getInTouch")}
-                </Link>
+                <Link href="/event/registration">{t("register.button")}</Link>
               </Button>
             </div>
           </nav>
@@ -316,8 +324,13 @@ export default function Navbar({ className }: { className?: string }) {
               </div>
             </div>
 
-            <div className="border-t border-border px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <div className="grid gap-2.5 border-t border-border px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <Button className="w-full rounded-2xl py-6 text-black" asChild>
+                <Link href="/event/registration" onClick={() => setIsMobileOpen(false)}>
+                  {t("register.button")}
+                </Link>
+              </Button>
+              <Button variant="outline" className="w-full rounded-2xl py-6" asChild>
                 <Link
                   href={withLang("#footer", lang)}
                   onClick={() => setIsMobileOpen(false)}

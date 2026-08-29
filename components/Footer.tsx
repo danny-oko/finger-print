@@ -4,9 +4,11 @@ import type { FooterProps, SocialItem } from "@/lib/types";
 import { useTranslation } from "@/lib/useTranslation";
 import { cn } from "@/lib/utils";
 import { Facebook, Instagram, Mail, Phone, Youtube } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
+import { Button } from "@/components/ui/button";
 import FancyWords from "./FancyWords";
 import SocialPill from "./SocialPill";
 
@@ -83,6 +85,18 @@ export default function Footer({
       <div className={cn(CONTAINER, "py-16 md:py-20")}>
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-black px-6 py-10 md:px-10 md:py-14">
           <div className="relative">
+            <div className="mb-10 flex flex-col items-start justify-between gap-5 border-b border-white/10 pb-10 sm:flex-row sm:items-center">
+              <div>
+                <p className="text-lg font-bold text-white sm:text-xl">
+                  {t("register.bannerTitle")}
+                </p>
+                <p className="mt-1.5 text-sm text-white/60">{t("register.bannerSubtitle")}</p>
+              </div>
+              <Button className="h-11 shrink-0 rounded-full px-8 text-black" asChild>
+                <Link href="/event/registration">{t("register.button")}</Link>
+              </Button>
+            </div>
+
             <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] lg:gap-14">
               <div>
                 <FancyWords text={bigWord} />

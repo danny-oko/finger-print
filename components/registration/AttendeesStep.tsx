@@ -12,6 +12,7 @@ const BLANK_ATTENDEE: RegistrationFormValues["attendees"][number] = {
   fullName: "",
   age: undefined,
   phone: "",
+  email: "",
   parentPhone: "",
   churchName: "",
   grade: undefined,

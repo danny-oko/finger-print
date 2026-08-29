@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { d1QueryOne } from "@/lib/d1";
+import { d1Query, d1QueryOne } from "@/lib/d1";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -23,5 +23,17 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  return NextResponse.json({ registration });
+  if (registration.status !== "paid") {
+    return NextResponse.json({ registration });
+  }
+
+  const tickets = await d1Query<{ full_name: string; ticket_code: string | null }>(
+    `SELECT full_name, ticket_code FROM attendees WHERE registration_id = ? ORDER BY created_at ASC`,
+    [id],
+  );
+
+  return NextResponse.json({
+    registration,
+    tickets: tickets.filter((t) => t.ticket_code),
+  });
 }

@@ -6,6 +6,12 @@ export const phoneSchema = z
   .trim()
   .regex(/^[5-9]\d{7}$/, "8 оронтой утасны дугаар оруулна уу");
 
+export const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email("Имэйл хаягаа зөв оруулна уу");
+
 export const attendeeSchema = z.object({
   fullName: z.string().trim().min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
   age: z.coerce
@@ -15,6 +21,10 @@ export const attendeeSchema = z.object({
     .max(19, "Насаа зөв оруулна уу"),
   phone: z
     .union([phoneSchema, z.literal("")])
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  email: z
+    .union([emailSchema, z.literal("")])
     .optional()
     .transform((v) => (v ? v : undefined)),
   parentPhone: phoneSchema,
@@ -29,6 +39,7 @@ export const createRegistrationSchema = z
     registrantType: z.enum(["individual", "church_leader"]),
     payerName: z.string().trim().min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
     payerPhone: phoneSchema,
+    payerEmail: emailSchema,
     attendees: z.array(attendeeSchema).min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ").max(50),
   })
   .superRefine((data, ctx) => {
@@ -45,6 +56,13 @@ export const createRegistrationSchema = z
           code: "custom",
           path: ["attendees", 0, "phone"],
           message: "Утасны дугаараа оруулна уу",
+        });
+      }
+      if (!data.attendees[0]?.email) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["attendees", 0, "email"],
+          message: "Имэйл хаягаа оруулна уу — тасалбараа энд илгээнэ",
         });
       }
     }

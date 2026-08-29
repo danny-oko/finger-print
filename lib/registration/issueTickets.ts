@@ -1,0 +1,71 @@
+import { eq } from "drizzle-orm";
+
+import { db } from "@/lib/db/client";
+import { attendees, registrations } from "@/lib/db/schema";
+import { sendTicketEmail } from "@/lib/email/sendTicketEmail";
+import { generateTicketCode } from "@/lib/registration/ticketCode";
+
+const MAX_CODE_ATTEMPTS = 5;
+
+async function assignTicketCode(attendeeId: string): Promise<string> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt++) {
+    const code = generateTicketCode();
+    try {
+      // The unique index on attendees.ticket_code turns a (practically
+      // impossible) collision into a query error, which we just retry.
+      await db.update(attendees).set({ ticketCode: code }).where(eq(attendees.id, attendeeId)).run();
+      return code;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError ?? new Error("Failed to assign a unique ticket code");
+}
+
+/**
+ * Called once a Bonum webhook marks a registration "paid". Generates a QR
+ * ticket code per attendee (idempotently — safe to call again on a retried
+ * webhook) and emails all of them to the payer in one message.
+ */
+export async function issueTicketsAndSendEmail(registrationId: string): Promise<void> {
+  const registration = await db
+    .select()
+    .from(registrations)
+    .where(eq(registrations.id, registrationId))
+    .get();
+
+  if (!registration) return;
+  if (registration.ticketsIssuedAt) return; // already emailed — webhook retry
+
+  if (!registration.payerEmail) {
+    console.error(`Registration ${registrationId} paid but has no payer_email; skipping tickets`);
+    return;
+  }
+
+  const attendeeRows = await db
+    .select()
+    .from(attendees)
+    .where(eq(attendees.registrationId, registrationId))
+    .all();
+
+  const tickets = [];
+  for (const attendee of attendeeRows) {
+    const code = attendee.ticketCode ?? (await assignTicketCode(attendee.id));
+    tickets.push({ name: attendee.fullName, code });
+  }
+
+  await sendTicketEmail({
+    to: registration.payerEmail,
+    payerName: registration.payerName,
+    tickets,
+  });
+
+  await db
+    .update(registrations)
+    .set({ ticketsIssuedAt: new Date().toISOString() })
+    .where(eq(registrations.id, registrationId))
+    .run();
+}
