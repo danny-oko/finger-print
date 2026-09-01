@@ -80,8 +80,8 @@ export async function POST(request: Request) {
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
-  const successUrl = `${siteUrl}/event/registration/thank-you?rid=${registrationId}`;
-  const cancelUrl = `${siteUrl}/event/registration/thank-you?rid=${registrationId}&cancelled=1`;
+  const successUrl = `${siteUrl}/event/registration/${registrationId}`;
+  const cancelUrl = `${siteUrl}/event/registration/${registrationId}?cancelled=1`;
 
   const items: BylCheckoutItem[] = input.attendees.map((a) => ({
     price_data: {

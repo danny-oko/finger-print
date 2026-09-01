@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Search } from "lucide-react";
+import { ChevronRight, Loader2, Search } from "lucide-react";
 import * as React from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -99,7 +99,13 @@ export function StatusLookup() {
 
       <div className="grid gap-4">
         {registrations.map((reg) => (
-          <Card key={reg.id} className="border-neutral-200">
+          <Card
+            key={reg.id}
+            className="border-neutral-200 transition-colors hover:border-[#F98C01]"
+          >
+            {/* The whole card is the tap target — on a phone a small
+                "details" link is a needlessly precise thing to hit. */}
+            <a href={`/event/registration/${reg.id}`} className="block">
             <CardContent className="grid gap-3">
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -127,7 +133,11 @@ export function StatusLookup() {
                 <span className="text-sm text-muted-foreground">{reg.attendee_count} хүн</span>
                 <span className="font-bold text-[#F98C01]">{formatMnt(reg.total_mnt)}</span>
               </div>
+              <span className="flex items-center justify-center gap-1 text-xs font-medium text-[#F98C01]">
+                Дэлгэрэнгүй харах <ChevronRight className="size-3" />
+              </span>
             </CardContent>
+            </a>
           </Card>
         ))}
       </div>

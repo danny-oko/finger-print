@@ -1,29 +1,15 @@
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { ThankYouStatus } from "@/components/registration/ThankYouStatus";
-
-export const metadata: Metadata = {
-  title: "Баярлалаа | Finger Print",
-};
-
-export default async function ThankYouPage({
+// The registration page at /event/registration/<id> is now the canonical
+// post-payment view. This route only exists for links already in the wild —
+// Byl checkouts created before the success_url changed, and any thank-you
+// URL a registrant bookmarked.
+export default async function ThankYouRedirectPage({
   searchParams,
 }: {
   searchParams: Promise<{ rid?: string }>;
 }) {
   const { rid } = await searchParams;
 
-  return (
-    <main className="flex h-dvh flex-col overflow-hidden bg-neutral-50">
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-10">
-        <div className="mx-auto w-full max-w-md">
-          {rid ? (
-            <ThankYouStatus registrationId={rid} />
-          ) : (
-            <p className="text-center text-muted-foreground">Бүртгэлийн дугаар олдсонгүй.</p>
-          )}
-        </div>
-      </div>
-    </main>
-  );
+  redirect(rid ? `/event/registration/${rid}` : "/event/status");
 }
