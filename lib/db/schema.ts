@@ -3,6 +3,12 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 // Mirrors db/schema.sql (+ db/migrations/0001_add_ticketing.sql). Only the
 // tables the ticketing feature touches are modeled here — the rest of the
 // app still reads/writes D1 through lib/d1.ts's raw client.
+export const churches = sqliteTable("churches", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  createdAt: text("created_at").notNull(),
+});
+
 export const registrations = sqliteTable("registrations", {
   id: text("id").primaryKey(),
   registrantType: text("registrant_type").notNull(),

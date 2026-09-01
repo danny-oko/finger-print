@@ -18,7 +18,13 @@ const BLANK_ATTENDEE: RegistrationFormValues["attendees"][number] = {
   grade: undefined,
 };
 
-export function AttendeesStep({ churches }: { churches: string[] }) {
+export function AttendeesStep({
+  churches,
+  onCreateChurch,
+}: {
+  churches: string[];
+  onCreateChurch?: (name: string) => void;
+}) {
   const { control } = useFormContext<RegistrationFormValues>();
   const { fields, append, remove } = useFieldArray({ control, name: "attendees" });
 
@@ -44,6 +50,7 @@ export function AttendeesStep({ churches }: { churches: string[] }) {
             <AttendeeFields
               namePrefix={`attendees.${index}`}
               churches={churches}
+              onCreateChurch={onCreateChurch}
               phoneRequired={false}
             />
           </CardContent>

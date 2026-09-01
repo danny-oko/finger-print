@@ -30,11 +30,13 @@ function onlyDigits(value: string) {
 export function AttendeeFields({
   namePrefix,
   churches,
+  onCreateChurch,
   phoneRequired,
   emailRequired = false,
 }: {
   namePrefix: `attendees.${number}`;
   churches: string[];
+  onCreateChurch?: (name: string) => void;
   phoneRequired: boolean;
   emailRequired?: boolean;
 }) {
@@ -199,6 +201,7 @@ export function AttendeeFields({
                 onChange={(v) =>
                   setValue(`${namePrefix}.churchName`, v, { shouldValidate: true })
                 }
+                onCreate={onCreateChurch}
                 onSelected={() => gradeRef.current?.focus()}
               />
             </FormControl>

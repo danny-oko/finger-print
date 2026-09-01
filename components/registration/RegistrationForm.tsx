@@ -195,6 +195,20 @@ export function RegistrationForm() {
       .catch(() => {});
   }, []);
 
+  const handleCreateChurch = React.useCallback((name: string) => {
+    setChurches((prev) =>
+      prev.some((c) => c.toLowerCase() === name.toLowerCase())
+        ? prev
+        : [...prev, name].sort((a, b) => a.localeCompare(b, "mn")),
+    );
+
+    fetch("/api/registration/churches", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    }).catch(() => {});
+  }, []);
+
   const registrantType = form.watch("registrantType");
 
   const steps: StepId[] = React.useMemo(() => {
@@ -321,12 +335,13 @@ export function RegistrationForm() {
               <AttendeeFields
                 namePrefix="attendees.0"
                 churches={churches}
+                onCreateChurch={handleCreateChurch}
                 phoneRequired
                 emailRequired
               />
             )}
             {currentStep === "attendees" && (
-              <AttendeesStep churches={churches} />
+              <AttendeesStep churches={churches} onCreateChurch={handleCreateChurch} />
             )}
             {currentStep === "summary" && <SummaryStep pricing={pricing} />}
           </CardContent>

@@ -3,6 +3,16 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -12,7 +22,16 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  findCloseChurchNames,
+  isSameChurchName,
+  normalizeChurchName,
+} from "@/lib/registration/churchName";
 import { cn } from "@/lib/utils";
 
 export const ChurchCombobox = React.forwardRef<
@@ -21,81 +40,202 @@ export const ChurchCombobox = React.forwardRef<
     value: string;
     onChange: (value: string) => void;
     onSelected?: () => void;
+    onCreate?: (name: string) => void;
     churches: string[];
   }
->(({ value, onChange, onSelected, churches }, ref) => {
+>(({ value, onChange, onSelected, onCreate, churches }, ref) => {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
+  const [pendingCreate, setPendingCreate] = React.useState<string | null>(null);
 
   const trimmed = search.trim();
-  const showCreateOption =
-    trimmed.length > 1 && !churches.some((c) => c.toLowerCase() === trimmed.toLowerCase());
+  const normalizedTrimmed = normalizeChurchName(trimmed);
+
+  const exactMatch = React.useMemo(
+    () =>
+      trimmed.length > 0
+        ? churches.find((c) => isSameChurchName(c, trimmed))
+        : undefined,
+    [churches, trimmed],
+  );
+
+  const results = React.useMemo(() => {
+    const filtered = churches.filter(
+      (c) =>
+        !trimmed ||
+        c.toLowerCase().includes(trimmed.toLowerCase()) ||
+        (normalizedTrimmed.length > 0 &&
+          normalizeChurchName(c).includes(normalizedTrimmed)),
+    );
+
+    return exactMatch && !filtered.includes(exactMatch)
+      ? [exactMatch, ...filtered]
+      : filtered;
+  }, [churches, trimmed, normalizedTrimmed, exactMatch]);
+
+  const closeMatches = React.useMemo(() => {
+    if (exactMatch || trimmed.length < 2) return [];
+    return findCloseChurchNames(trimmed, churches, 5).filter(
+      (c) => !results.includes(c),
+    );
+  }, [churches, trimmed, exactMatch, results]);
+
+  const showCreateOption = trimmed.length > 1 && !exactMatch;
+
+  function selectChurch(church: string) {
+    onChange(church);
+    setOpen(false);
+    setSearch("");
+    onSelected?.();
+  }
+
+  function createChurch(name: string) {
+    onChange(name);
+    onCreate?.(name);
+    setOpen(false);
+    setSearch("");
+    onSelected?.();
+  }
+
+  function handleCreateRequest() {
+    if (closeMatches.length > 0) {
+      setPendingCreate(trimmed);
+      setOpen(false);
+    } else {
+      createChurch(trimmed);
+    }
+  }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          ref={ref}
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between font-normal"
+    <>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            ref={ref}
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between font-normal"
+          >
+            <span className={cn("truncate", !value && "text-muted-foreground")}>
+              {value || "Цуглааныхаа нэр хайх эсвэл сонгох"}
+            </span>
+            <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-[--radix-popover-trigger-width] p-0"
+          align="start"
         >
-          <span className={cn("truncate", !value && "text-muted-foreground")}>
-            {value || "Сүмээ хайх эсвэл сонгох"}
-          </span>
-          <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-        <Command shouldFilter={false}>
-          <CommandInput
-            placeholder="Сүмийн нэрээр хайх..."
-            value={search}
-            onValueChange={setSearch}
-          />
-          <CommandList>
-            <CommandEmpty>Олдсонгүй</CommandEmpty>
-            <CommandGroup>
-              {churches
-                .filter((c) => c.toLowerCase().includes(trimmed.toLowerCase()))
-                .slice(0, 30)
-                .map((church) => (
+          <Command shouldFilter={false}>
+            <CommandInput
+              placeholder="Сүмийн нэрээр хайх..."
+              value={search}
+              onValueChange={setSearch}
+            />
+            <CommandList>
+              <CommandEmpty>Олдсонгүй</CommandEmpty>
+              <CommandGroup>
+                {results.slice(0, 30).map((church) => (
                   <CommandItem
                     key={church}
                     value={church}
-                    onSelect={() => {
-                      onChange(church);
-                      setOpen(false);
-                      setSearch("");
-                      onSelected?.();
-                    }}
+                    onSelect={() => selectChurch(church)}
                   >
                     <Check
-                      className={cn("size-4", value === church ? "opacity-100" : "opacity-0")}
+                      className={cn(
+                        "size-4",
+                        value === church ? "opacity-100" : "opacity-0",
+                      )}
                     />
                     {church}
                   </CommandItem>
                 ))}
-              {showCreateOption && (
-                <CommandItem
-                  value={trimmed}
-                  onSelect={() => {
-                    onChange(trimmed);
-                    setOpen(false);
-                    setSearch("");
-                    onSelected?.();
-                  }}
-                >
-                  <span className="text-[#F98C01]">+ &quot;{trimmed}&quot; нэмэх</span>
-                </CommandItem>
+              </CommandGroup>
+
+              {closeMatches.length > 0 && (
+                <CommandGroup heading="Санал болгож буй ижил төстэй сүмүүд">
+                  {closeMatches.map((church) => (
+                    <CommandItem
+                      key={church}
+                      value={`suggestion-${church}`}
+                      onSelect={() => selectChurch(church)}
+                    >
+                      <Check
+                        className={cn(
+                          "size-4",
+                          value === church ? "opacity-100" : "opacity-0",
+                        )}
+                      />
+                      {church}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
               )}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+
+              {showCreateOption && (
+                <CommandGroup>
+                  <CommandItem
+                    value={`create-${trimmed}`}
+                    onSelect={handleCreateRequest}
+                  >
+                    <span className="text-[#F98C01]">
+                      + &quot;{trimmed}&quot; нэмэх
+                    </span>
+                  </CommandItem>
+                </CommandGroup>
+              )}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      <AlertDialog
+        open={pendingCreate !== null}
+        onOpenChange={(next) => !next && setPendingCreate(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ижил төстэй сүм олдлоо</AlertDialogTitle>
+            <AlertDialogDescription>
+              Та &quot;{pendingCreate}&quot; гэж бичлээ. Жагсаалтад ойролцоо
+              нэртэй дараах сүмүүд бүртгэлтэй байна — эдгээрийн аль нэг мөн үү,
+              эсвэл үнэхээр өөр шинэ сүм үү?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="flex flex-col gap-1.5">
+            {closeMatches.map((church) => (
+              <Button
+                key={church}
+                type="button"
+                variant="outline"
+                className="justify-start font-normal"
+                onClick={() => {
+                  selectChurch(church);
+                  setPendingCreate(null);
+                }}
+              >
+                <Check className="size-4 opacity-0" />
+                {church}
+              </Button>
+            ))}
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Цуцлах</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingCreate) createChurch(pendingCreate);
+              }}
+            >
+              Үгүй, шинэ сүм үүсгэх
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 });
 
