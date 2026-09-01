@@ -140,7 +140,7 @@ export function ThankYouStatus({ registrationId }: { registrationId: string }) {
           <Clock className="size-10 animate-pulse text-[#F98C01]" />
           <p className="font-bold">Төлбөрийг баталгаажуулж байна...</p>
           <p className="text-sm text-muted-foreground">
-            Хэдхэн секунд хүлээнэ үү. Bonum-оос төлбөр амжилттай хийсэн бол автоматаар
+            Хэдхэн секунд хүлээнэ үү. Byl-ээс төлбөр амжилттай хийсэн бол автоматаар
             шинэчлэгдэнэ.
           </p>
         </CardContent>

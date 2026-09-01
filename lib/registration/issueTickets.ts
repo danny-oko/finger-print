@@ -26,7 +26,7 @@ async function assignTicketCode(attendeeId: string): Promise<string> {
 }
 
 /**
- * Called once a Bonum webhook marks a registration "paid". Generates a QR
+ * Called once a Byl webhook marks a registration "paid". Generates a QR
  * ticket code per attendee (idempotently — safe to call again on a retried
  * webhook) and emails all of them to the payer in one message.
  */

@@ -3,7 +3,7 @@
 -- includes these columns.
 --
 -- Run with:
---   bunx wrangler d1 execute finger-print-registration --remote --file=./db/migrations/0001_add_ticketing.sql
+--   bunx wrangler d1 execute finger-print-2026 --remote --file=./db/migrations/0001_add_ticketing.sql
 
 ALTER TABLE registrations ADD COLUMN payer_email TEXT;
 ALTER TABLE registrations ADD COLUMN tickets_issued_at TEXT;

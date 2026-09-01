@@ -8,7 +8,7 @@ API routes, UI) is already implemented.
 
 ```bash
 bunx wrangler login
-bunx wrangler d1 create finger-print-registration
+bunx wrangler d1 create finger-print-2026
 ```
 
 This prints a `database_id` — save it for step 3.
@@ -16,7 +16,7 @@ This prints a `database_id` — save it for step 3.
 Apply the schema:
 
 ```bash
-bunx wrangler d1 execute finger-print-registration --remote --file=./db/schema.sql
+bunx wrangler d1 execute finger-print-2026 --remote --file=./db/schema.sql
 ```
 
 ## 2. Create a Cloudflare API token
@@ -34,19 +34,53 @@ CLOUDFLARE_D1_DATABASE_ID=<database_id from step 1>
 CLOUDFLARE_API_TOKEN=<token from step 2>
 ```
 
-## 4. Get production Bonum credentials
+## 4. Set up Byl (payments)
 
-`.env.example` ships Bonum's public **sandbox** credentials so local dev
-and testing work immediately against `https://testapi.bonum.mn`. Before
-going live:
+Registration checkout runs on [Byl](https://byl.mn) (`byl.mn`), which
+covers QPay, Golomt Bank merchant, SocialPay and Pocket behind one hosted
+payment page.
 
-1. Contact Bonum (support@bonum.mn / +976 7200-5000, or via
-   https://merchant.bonum.mn/) to get your production `APP_SECRET`,
-   `TERMINAL_ID` and `MERCHANT_CHECKSUM_KEY`.
-2. Register your production webhook URL with them:
-   `https://finger-print.org/api/registration/bonum-webhook`
-3. Set `BONUM_BASE_URL=https://apis.bonum.mn` and swap in the real
-   `BONUM_APP_SECRET` / `BONUM_TERMINAL_ID` / `BONUM_MERCHANT_CHECKSUM_KEY`.
+1. Create a project in the Byl dashboard, then open
+   **Settings → API Token** and create a token (e.g. "finger-print
+   production"). **The token is shown only once** — copy it straight into
+   your env vars.
+2. Your project id is the number in the dashboard URL for that project.
+3. Register the webhook endpoint under **Webhooks**:
+   `https://finger-print.org/api/registration/byl-webhook`
+   The URL must be `https://` and publicly reachable — Byl can't call
+   `localhost`. For local testing, expose your dev server with ngrok and
+   register that temporary URL instead.
+4. Open the webhook endpoint's detail page and copy its **signing secret**.
+   Every delivery is signed with it as HMAC-SHA256 in the `Byl-Signature`
+   header, and `lib/byl.ts` rejects anything that doesn't verify.
+5. Fill in:
+   ```
+   BYL_API_BASE_URL=https://byl.mn/api/v1
+   BYL_PROJECT_ID=<your project id>
+   BYL_API_TOKEN=<token from step 1>
+   BYL_WEBHOOK_SECRET=<signing secret from step 4>
+   ```
+
+The app subscribes to two events:
+
+| Event | Effect |
+| --- | --- |
+| `checkout.completed` | Registration → `paid`, QR tickets issued and emailed |
+| `payment.awaiting_verification` | Stays `pending`, flagged in the admin monitor as a bank transfer a human still needs to confirm |
+
+Byl expects a `2xx` within 5 seconds and retries with exponential backoff
+otherwise, so the webhook route logs and acknowledges rather than letting a
+slow email turn into a retry loop.
+
+### Migrating an existing database from Bonum
+
+If your D1 database was created before this switch, rename the old payment
+columns once:
+
+```bash
+bunx wrangler d1 execute finger-print-2026 --remote \
+  --file=./db/migrations/0002_bonum_to_byl.sql
+```
 
 ## 5. Add QR-ticket support to an existing database
 
@@ -86,14 +120,30 @@ The price and tax rate are stored in D1, not hardcoded, so they can be
 updated anytime without a redeploy:
 
 ```bash
-bunx wrangler d1 execute finger-print-registration --remote --command \
+bunx wrangler d1 execute finger-print-2026 --remote --command \
   "UPDATE settings SET value = '20000' WHERE key = 'price_per_attendee_mnt'"
 
-bunx wrangler d1 execute finger-print-registration --remote --command \
+bunx wrangler d1 execute finger-print-2026 --remote --command \
   "UPDATE settings SET value = '10' WHERE key = 'tax_rate_percent'"
 ```
 
-## 8. Set env vars in Vercel
+## 8. Set up the admin monitor
+
+`/admin/registration-monitor` is the staff dashboard for watching
+registrations come in. It's behind a single shared password — there are no
+per-user admin accounts, since the dashboard is read-only and the team is
+small.
+
+```
+ADMIN_PASSWORD=<what staff type to sign in>
+ADMIN_SESSION_SECRET=<long random string, e.g. `openssl rand -hex 32`>
+```
+
+`ADMIN_SESSION_SECRET` signs the session cookie (httpOnly, 12-hour expiry),
+so changing it signs everyone out. Without both variables set, the page just
+shows its login screen and refuses every password.
+
+## 9. Set env vars in Vercel
 
 Add everything from `.env.example` (with real values) to the Vercel
 project's Environment Variables, plus:
@@ -106,14 +156,14 @@ NEXT_PUBLIC_SITE_URL=https://finger-print.org
 
 ```bash
 # See all registrations
-bunx wrangler d1 execute finger-print-registration --remote --command \
+bunx wrangler d1 execute finger-print-2026 --remote --command \
   "SELECT id, registrant_type, payer_name, payer_phone, status, total_mnt FROM registrations ORDER BY created_at DESC"
 
 # See attendees for a registration
-bunx wrangler d1 execute finger-print-registration --remote --command \
+bunx wrangler d1 execute finger-print-2026 --remote --command \
   "SELECT * FROM attendees WHERE registration_id = '<id>'"
 
-# See raw webhook events (useful for debugging Bonum callbacks)
-bunx wrangler d1 execute finger-print-registration --remote --command \
+# See raw webhook events (useful for debugging Byl callbacks)
+bunx wrangler d1 execute finger-print-2026 --remote --command \
   "SELECT * FROM payment_events ORDER BY created_at DESC LIMIT 20"
 ```
