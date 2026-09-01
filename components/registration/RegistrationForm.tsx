@@ -151,7 +151,7 @@ function PayerStep() {
               />
             </FormControl>
             <p className="text-xs text-muted-foreground">
-              Бүх хамрагчдын QR тасалбарыг энэ имэйлээр илгээнэ.
+              Бүртгэлээ баталгаажуулах, шаардлагатай үед тантай холбогдоход ашиглана.
             </p>
             <FormMessage />
           </FormItem>

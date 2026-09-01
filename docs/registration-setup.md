@@ -93,11 +93,15 @@ bunx wrangler d1 execute finger-print-2026 --remote \
   --file=./db/migrations/0001_add_ticketing.sql
 ```
 
-## 6. Create a Gmail App Password (for sending ticket emails)
+## 6. Create a Gmail App Password (optional — for emailing tickets)
 
-Once a registration is paid, the app emails a QR ticket per attendee via
-Gmail SMTP (`lib/email/sendTicketEmail.ts`). This needs an **App Password**,
-not the account's normal login password:
+This step is optional. Without it, a paid registration still issues every
+attendee's QR ticket — registrants get them from the success page at
+`/event/registration/<id>` (and each attendee's own `/event/ticket/<code>`)
+instead of by email.
+
+To also email them, the app uses Gmail SMTP (`lib/email/sendTicketEmail.ts`),
+which needs an **App Password**, not the account's normal login password:
 
 1. Turn on 2-Step Verification on the sending Gmail account, if it isn't
    already: https://myaccount.google.com/security
@@ -130,9 +134,16 @@ bunx wrangler d1 execute finger-print-2026 --remote --command \
 ## 8. Set up the admin monitor
 
 `/admin/registration-monitor` is the staff dashboard for watching
-registrations come in. It's behind a single shared password — there are no
-per-user admin accounts, since the dashboard is read-only and the team is
-small.
+registrations come in.
+
+The login is **opt-in**. With `ADMIN_PASSWORD` unset the dashboard is open to
+anyone who knows the URL, and shows a warning banner saying so. Setting the
+variable turns the login on — no code change, no redeploy of anything but the
+env. There are no per-user admin accounts; the dashboard is read-only and the
+team is small, so one shared password is the right amount of machinery.
+
+Leaving it open publishes every attendee's name, age, school year and phone
+number, so it's worth setting before the registration link goes out widely.
 
 ```
 ADMIN_PASSWORD=<what staff type to sign in>

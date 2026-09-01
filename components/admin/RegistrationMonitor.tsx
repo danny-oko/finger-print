@@ -41,7 +41,7 @@ function toOptions<K extends string>(labels: Record<K, string>): SortOption<K>[]
   return (Object.keys(labels) as K[]).map((value) => ({ value, label: labels[value] }));
 }
 
-export function RegistrationMonitor() {
+export function RegistrationMonitor({ unprotected = false }: { unprotected?: boolean }) {
   const router = useRouter();
 
   const [rows, setRows] = React.useState<MonitorRow[]>([]);
@@ -292,20 +292,33 @@ export function RegistrationMonitor() {
             <Download className="size-4" />
           </Button>
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            aria-label="Гарах"
-            title="Гарах"
-          >
-            <LogOut className="size-4" />
-          </Button>
+          {!unprotected && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleSignOut}
+              aria-label="Гарах"
+              title="Гарах"
+            >
+              <LogOut className="size-4" />
+            </Button>
+          )}
         </div>
       </header>
 
       <div className="mx-auto grid w-full max-w-6xl grid-cols-[minmax(0,1fr)] gap-4 px-4 py-4 pb-16">
+        {unprotected && (
+          <p className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+            <span>
+              Энэ хуудас <strong>нууц үггүй</strong> байна — холбоосыг мэдэж байгаа хэн ч
+              оролцогчдын нэр, нас, утасны дугаарыг харах боломжтой. Хамгаалахын тулд{" "}
+              <code className="font-mono">ADMIN_PASSWORD</code> тохируулна уу.
+            </span>
+          </p>
+        )}
+
         {error && (
           <p className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             <TriangleAlert className="size-4 shrink-0" />

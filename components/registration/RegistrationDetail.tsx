@@ -38,7 +38,10 @@ function StatusHero({ detail }: { detail: Detail }) {
         <h1 className="text-2xl font-black text-neutral-900">Төлбөр амжилттай!</h1>
         <p className="max-w-sm text-sm text-muted-foreground">
           {detail.payerName}, таны {detail.attendeeCount} хүний бүртгэл баталгаажлаа.
-          {detail.ticketsIssued ? " Тасалбарыг имэйлээр илгээсэн." : ""}
+        </p>
+        <p className="mt-1 max-w-sm rounded-xl bg-[#FFF7EC] px-3 py-2 text-xs text-[#8a4d00]">
+          Энэ хуудсыг хадгална уу — доорх QR тасалбар нь таны нэвтрэх эрх юм. Дэлгэцийн
+          зураг авах, эсвэл холбоосыг хадгалж болно.
         </p>
       </div>
     );
@@ -51,7 +54,7 @@ function StatusHero({ detail }: { detail: Detail }) {
         <h1 className="text-2xl font-black text-neutral-900">Шилжүүлгийг шалгаж байна</h1>
         <p className="max-w-sm text-sm text-muted-foreground">
           Таны банкны шилжүүлгийг хүлээн авлаа. Зохион байгуулагч баталгаажуулмагц
-          тасалбар имэйлээр очно.
+          тасалбар энэ хуудсанд гарч ирнэ — холбоосоо хадгална уу.
         </p>
       </div>
     );

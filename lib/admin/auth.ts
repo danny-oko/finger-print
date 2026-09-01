@@ -70,7 +70,20 @@ export function isValidSessionToken(
   return Number.isFinite(expiresAt) && expiresAt * 1000 > now;
 }
 
+/**
+ * The login is opt-in: with no ADMIN_PASSWORD set, the dashboard is open.
+ * That makes turning it on later a matter of setting one env var rather than
+ * a code change — but it also means an unset variable silently publishes
+ * every attendee's name, age and phone number, so callers surface it loudly
+ * rather than letting it pass unnoticed.
+ */
+export function isAdminAuthDisabled(): boolean {
+  return !process.env.ADMIN_PASSWORD;
+}
+
 export async function isAdminAuthenticated(): Promise<boolean> {
+  if (isAdminAuthDisabled()) return true;
+
   try {
     const store = await cookies();
     return isValidSessionToken(store.get(ADMIN_COOKIE)?.value);
