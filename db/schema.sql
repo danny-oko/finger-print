@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS payment_events (
   event_type TEXT NOT NULL,
   status TEXT,
   signature_valid INTEGER NOT NULL,
+  received_signature TEXT,
   raw_payload TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );

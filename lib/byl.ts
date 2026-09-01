@@ -118,6 +118,20 @@ export async function createCheckout(input: CreateCheckoutInput): Promise<BylChe
   return json.data;
 }
 
+// Byl's docs name the header `Byl-Signature`, but a rejected delivery is
+// indistinguishable from a wrong secret if the real header is spelled
+// differently, so accept the plausible variants rather than guess.
+const SIGNATURE_HEADERS = ["byl-signature", "x-byl-signature", "byl_signature"];
+
+/** Returns the first signature-bearing header present, or null. */
+export function readSignatureHeader(headers: Headers): string | null {
+  for (const name of SIGNATURE_HEADERS) {
+    const value = headers.get(name);
+    if (value) return value.trim();
+  }
+  return null;
+}
+
 /**
  * Verifies the `Byl-Signature` header Byl sends on every webhook call.
  * `rawBody` must be the exact, unparsed request body string — the signature

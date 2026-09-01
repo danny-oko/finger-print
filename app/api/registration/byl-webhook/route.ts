@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
 
-import { verifyWebhookSignature, type BylWebhookEvent } from "@/lib/byl";
+import { readSignatureHeader, verifyWebhookSignature, type BylWebhookEvent } from "@/lib/byl";
 import { d1Query } from "@/lib/d1";
 import { issueTicketsAndSendEmail } from "@/lib/registration/issueTickets";
 
@@ -15,7 +15,7 @@ export const runtime = "nodejs";
  */
 export async function POST(request: Request) {
   const rawBody = await request.text();
-  const signatureHeader = request.headers.get("byl-signature");
+  const signatureHeader = readSignatureHeader(request.headers);
   const signatureValid = verifyWebhookSignature(rawBody, signatureHeader);
 
   let event: BylWebhookEvent | null = null;
@@ -31,14 +31,15 @@ export async function POST(request: Request) {
   // validation or the status update below.
   try {
     await d1Query(
-      `INSERT INTO payment_events (id, registration_id, event_type, status, signature_valid, raw_payload, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO payment_events (id, registration_id, event_type, status, signature_valid, received_signature, raw_payload, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         uuid(),
         registrationId,
         event?.type ?? "UNKNOWN",
         event?.data?.object?.status ?? null,
         signatureValid ? 1 : 0,
+        signatureHeader,
         rawBody,
         new Date().toISOString(),
       ],
@@ -48,6 +49,16 @@ export async function POST(request: Request) {
   }
 
   if (!signatureValid) {
+    // Logged so a rejection is diagnosable from the Vercel logs alone: the
+    // shape of what arrived (length, encoding) usually says whether it's a
+    // wrong secret or a signature format we aren't parsing.
+    // Header *names* only — enough to spot a differently-spelled signature
+    // header, without putting anyone's credentials in the logs.
+    console.error(
+      `Byl webhook rejected: signature ${
+        signatureHeader ? `"${signatureHeader}" (${signatureHeader.length} chars)` : "MISSING"
+      }; headers seen: ${[...request.headers.keys()].join(", ")}`,
+    );
     return NextResponse.json({ error: "invalid_signature" }, { status: 401 });
   }
 
