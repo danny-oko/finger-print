@@ -50,6 +50,7 @@ export function RegistrationMonitor() {
   const [loading, setLoading] = React.useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = React.useState(false);
 
   const [view, setView] = React.useState<ViewMode>("attendees");
   const [filters, setFilters] = React.useState<Filters>(EMPTY_FILTERS);
@@ -79,11 +80,20 @@ export function RegistrationMonitor() {
       try {
         const res = await fetch("/api/admin/registrations", { cache: "no-store" });
 
+        // The cookie is gone or no longer verifies (expired, or
+        // ADMIN_SESSION_SECRET changed under us). router.refresh() re-renders
+        // the page, which normally swaps in the login form — but if that
+        // render is served from cache the dashboard stays up, and without
+        // this flag it would sit on an empty table looking like a conference
+        // where nobody registered. Say so instead.
         if (res.status === 401) {
+          setSessionExpired(true);
           router.refresh();
           return;
         }
         if (!res.ok) throw new Error("request_failed");
+
+        setSessionExpired(false);
 
         const data = (await res.json()) as MonitorResponse;
         setRows(data.rows);
@@ -220,6 +230,23 @@ export function RegistrationMonitor() {
   async function handleSignOut() {
     await fetch("/api/admin/session", { method: "DELETE" }).catch(() => {});
     router.refresh();
+  }
+
+  if (sessionExpired) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
+        <div className="grid max-w-sm justify-items-center gap-3 text-center">
+          <TriangleAlert className="size-10 text-[#F98C01]" />
+          <p className="text-lg font-black text-neutral-900">Нэвтрэх хугацаа дууслаа</p>
+          <p className="text-sm text-muted-foreground">
+            Дахин нэвтэрч орно уу. Бүртгэлийн мэдээлэл алдагдаагүй.
+          </p>
+          <Button type="button" className="mt-1" onClick={() => window.location.reload()}>
+            Дахин нэвтрэх
+          </Button>
+        </div>
+      </main>
+    );
   }
 
   return (
