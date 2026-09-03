@@ -28,7 +28,7 @@ export default function Footer({
   motto = "One movement. One generation. One church family.",
   rightsText = "All rights reserved • FirstChurch",
   navItems,
-  email = "javhaaa.k@gmail.com",
+  email = "huruuniihee2016@gmail.com",
   phone = "+976 8007-0177",
   socials,
 }: FooterProps) {
@@ -90,9 +90,14 @@ export default function Footer({
                 <p className="text-lg font-bold text-white sm:text-xl">
                   {t("register.bannerTitle")}
                 </p>
-                <p className="mt-1.5 text-sm text-white/60">{t("register.bannerSubtitle")}</p>
+                <p className="mt-1.5 text-sm text-white/60">
+                  {t("register.bannerSubtitle")}
+                </p>
               </div>
-              <Button className="h-11 shrink-0 rounded-full px-8 text-black" asChild>
+              <Button
+                className="h-11 shrink-0 rounded-full px-8 text-black"
+                asChild
+              >
                 <Link href="/event/registration">{t("register.button")}</Link>
               </Button>
             </div>
