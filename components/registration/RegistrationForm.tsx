@@ -151,7 +151,7 @@ function PayerStep() {
               />
             </FormControl>
             <p className="text-xs text-muted-foreground">
-              Бүх хамрагчдын QR тасалбарыг энэ имэйлээр илгээнэ.
+              Бүртгэлээ баталгаажуулах, шаардлагатай үед тантай холбогдоход ашиглана.
             </p>
             <FormMessage />
           </FormItem>
@@ -296,11 +296,11 @@ export function RegistrationForm() {
       });
       const data = await res.json();
 
-      if (!res.ok || !data.followUpLink) {
+      if (!res.ok || !data.checkoutUrl) {
         throw new Error(data.error ?? "unknown");
       }
 
-      window.location.href = data.followUpLink;
+      window.location.href = data.checkoutUrl;
     } catch {
       toast.error("Бүртгэл үүсгэхэд алдаа гарлаа. Дахин оролдоно уу.");
       setSubmitting(false);
@@ -341,7 +341,10 @@ export function RegistrationForm() {
               />
             )}
             {currentStep === "attendees" && (
-              <AttendeesStep churches={churches} onCreateChurch={handleCreateChurch} />
+              <AttendeesStep
+                churches={churches}
+                onCreateChurch={handleCreateChurch}
+              />
             )}
             {currentStep === "summary" && <SummaryStep pricing={pricing} />}
           </CardContent>
@@ -369,7 +372,7 @@ export function RegistrationForm() {
                   <Loader2 className="size-4 animate-spin" /> Түр хүлээнэ үү...
                 </>
               ) : (
-                "Bonum-оор төлөх"
+                "Төлбөр төлөх"
               )}
             </Button>
           ) : (

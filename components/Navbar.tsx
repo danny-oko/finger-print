@@ -108,9 +108,9 @@ export default function Navbar({ className }: { className?: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // The registration/status flow is a dedicated, standalone page — it
-  // shouldn't carry the marketing site's navbar.
-  if (pathname?.startsWith("/event")) {
+  // The registration/status flow and the admin dashboard are dedicated,
+  // standalone pages — they shouldn't carry the marketing site's navbar.
+  if (pathname?.startsWith("/event") || pathname?.startsWith("/admin")) {
     return null;
   }
 

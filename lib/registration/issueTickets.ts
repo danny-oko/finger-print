@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
 import { attendees, registrations } from "@/lib/db/schema";
-import { sendTicketEmail } from "@/lib/email/sendTicketEmail";
+import { isTicketEmailConfigured, sendTicketEmail } from "@/lib/email/sendTicketEmail";
 import { generateTicketCode } from "@/lib/registration/ticketCode";
 
 const MAX_CODE_ATTEMPTS = 5;
@@ -26,9 +26,11 @@ async function assignTicketCode(attendeeId: string): Promise<string> {
 }
 
 /**
- * Called once a Bonum webhook marks a registration "paid". Generates a QR
+ * Called once a Byl webhook marks a registration "paid". Generates a QR
  * ticket code per attendee (idempotently — safe to call again on a retried
- * webhook) and emails all of them to the payer in one message.
+ * webhook). If Gmail is configured they're also emailed to the payer in one
+ * message; if it isn't, the codes are still issued and the success page is
+ * how the registrant gets them.
  */
 export async function issueTicketsAndSendEmail(registrationId: string): Promise<void> {
   const registration = await db
@@ -38,12 +40,7 @@ export async function issueTicketsAndSendEmail(registrationId: string): Promise<
     .get();
 
   if (!registration) return;
-  if (registration.ticketsIssuedAt) return; // already emailed — webhook retry
-
-  if (!registration.payerEmail) {
-    console.error(`Registration ${registrationId} paid but has no payer_email; skipping tickets`);
-    return;
-  }
+  if (registration.ticketsIssuedAt) return; // already handled — webhook retry
 
   const attendeeRows = await db
     .select()
@@ -57,11 +54,20 @@ export async function issueTicketsAndSendEmail(registrationId: string): Promise<
     tickets.push({ name: attendee.fullName, code });
   }
 
-  await sendTicketEmail({
-    to: registration.payerEmail,
-    payerName: registration.payerName,
-    tickets,
-  });
+  // Codes are assigned above no matter what, so a missing email address or
+  // absent SMTP config costs the registrant nothing — it only means the
+  // tickets arrive on screen rather than in their inbox.
+  if (!isTicketEmailConfigured()) {
+    console.info(`Registration ${registrationId}: tickets issued, email skipped (no SMTP config)`);
+  } else if (!registration.payerEmail) {
+    console.warn(`Registration ${registrationId}: tickets issued, but no payer_email to send to`);
+  } else {
+    await sendTicketEmail({
+      to: registration.payerEmail,
+      payerName: registration.payerName,
+      tickets,
+    });
+  }
 
   await db
     .update(registrations)

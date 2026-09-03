@@ -16,6 +16,15 @@ function getTransporter() {
   return { transporter: nodemailer.createTransport({ service: "gmail", auth: { user, pass } }), user };
 }
 
+/**
+ * Email delivery is optional. With no Gmail credentials configured the
+ * registration still completes and tickets are still issued — the registrant
+ * gets their QR from the success page instead.
+ */
+export function isTicketEmailConfigured(): boolean {
+  return Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
+}
+
 export type TicketInput = { name: string; code: string };
 
 /**

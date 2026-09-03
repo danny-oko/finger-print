@@ -46,7 +46,7 @@ export function SummaryStep({ pricing }: { pricing: PricingSettings | null }) {
             <span className="text-right font-medium">{names || "—"}</span>
           </div>
           <div className="flex items-center justify-between gap-4 border-t border-neutral-200 pt-3">
-            <span className="text-muted-foreground shrink-0">Тасалбар очих имэйл</span>
+            <span className="text-muted-foreground shrink-0">Имэйл хаяг</span>
             <span className="text-right font-medium">{payerEmail || "—"}</span>
           </div>
         </CardContent>
