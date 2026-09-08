@@ -68,10 +68,17 @@ export async function issueTicketsAndSendEmail(registrationId: string): Promise<
   } else if (!registration.payerEmail) {
     console.warn("Tickets issued, but the registration has no payer_email to send to");
   } else {
+    // Absent in local development, where there's no public origin to link
+     // to — the email still sends, just without the button.
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
     await sendTicketEmail({
       to: registration.payerEmail,
       payerName: registration.payerName,
       tickets,
+      registrationUrl: siteUrl
+        ? `${siteUrl}/event/registration/${registrationId}`
+        : null,
     });
   }
 

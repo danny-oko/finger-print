@@ -30,7 +30,17 @@ function ticketCardHtml(ticket: TicketForEmail): string {
     </table>`;
 }
 
-export function renderTicketEmailHtml(payerName: string, tickets: TicketForEmail[]): string {
+/**
+ * `registrationUrl` is the whole recovery story. The QR images below are
+ * attachments, so once someone closes the browser tab the email is the only
+ * thing they still have — and without a link out of it there was no way back
+ * to the registration page.
+ */
+export function renderTicketEmailHtml(
+  payerName: string,
+  tickets: TicketForEmail[],
+  registrationUrl: string | null,
+): string {
   const multiple = tickets.length > 1;
 
   return `
@@ -62,6 +72,26 @@ export function renderTicketEmailHtml(payerName: string, tickets: TicketForEmail
           <p style="margin:24px 0 0;color:#8a8a8a;font-size:12px;line-height:1.6;text-align:center;">
             Утсандаа хадгалах эсвэл хэвлэж авчрахыг зөвлөж байна.
           </p>
+${
+  registrationUrl
+    ? `
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;">
+            <tr>
+              <td align="center">
+                <a
+                  href="${registrationUrl}"
+                  style="display:inline-block;background:${ACCENT};color:#000000;font-size:14px;font-weight:700;text-decoration:none;padding:13px 26px;border-radius:999px;"
+                >
+                  Бүртгэлээ онлайнаар харах
+                </a>
+                <p style="margin:12px 0 0;color:#8a8a8a;font-size:12px;line-height:1.6;">
+                  Энэ имэйлээ алдвал утасны дугаараараа мөн хайж болно.
+                </p>
+              </td>
+            </tr>
+          </table>`
+    : ""
+}
         </td>
       </tr>
       <tr>

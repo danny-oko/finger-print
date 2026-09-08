@@ -36,6 +36,7 @@ export async function sendTicketEmail(input: {
   to: string;
   payerName: string;
   tickets: TicketInput[];
+  registrationUrl: string | null;
 }): Promise<void> {
   const { transporter, user } = getTransporter();
 
@@ -58,7 +59,7 @@ export async function sendTicketEmail(input: {
     to: input.to,
     subject:
       tickets.length > 1 ? "Таны Finger Print 2026 тасалбарууд" : "Таны Finger Print 2026 тасалбар",
-    html: renderTicketEmailHtml(input.payerName, tickets),
+    html: renderTicketEmailHtml(input.payerName, tickets, input.registrationUrl),
     attachments,
   });
 }

@@ -332,6 +332,14 @@ export default function Navbar({ className }: { className?: string }) {
               </Button>
               <Button variant="outline" className="w-full rounded-2xl py-6" asChild>
                 <Link
+                  href="/event/status"
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  {t("register.checkStatus")}
+                </Link>
+              </Button>
+              <Button variant="ghost" className="w-full rounded-2xl py-6" asChild>
+                <Link
                   href={withLang("#footer", lang)}
                   onClick={() => setIsMobileOpen(false)}
                 >

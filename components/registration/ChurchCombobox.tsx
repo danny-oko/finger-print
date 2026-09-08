@@ -125,16 +125,26 @@ export const ChurchCombobox = React.forwardRef<
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[--radix-popover-trigger-width] p-0"
+          // Church lists run long and this is the slowest control on the
+          // form, so the list gets as much height as the viewport allows and
+          // rows get a real touch target. The input wrapper is a fixed h-9 in
+          // the shared primitive, so it's raised from here rather than by
+          // changing it for every other Command in the app.
+          //
+          // The width needs var(): Tailwind v3 read a bare `w-[--foo]` as a
+          // variable, v4 does not, so this had been silently falling back to
+          // the popover's own width instead of matching the trigger.
+          className="w-[var(--radix-popover-trigger-width)] p-0 [&_[data-slot=command-input-wrapper]]:h-12"
           align="start"
         >
           <Command shouldFilter={false}>
             <CommandInput
-              placeholder="Сүмийн нэрээр хайх..."
+              placeholder="Цуглааны нэрээр хайх..."
+              className="text-base"
               value={search}
               onValueChange={setSearch}
             />
-            <CommandList>
+            <CommandList className="max-h-[min(60vh,26rem)]">
               <CommandEmpty>Олдсонгүй</CommandEmpty>
               <CommandGroup>
                 {results.slice(0, 30).map((church) => (
@@ -142,6 +152,7 @@ export const ChurchCombobox = React.forwardRef<
                     key={church}
                     value={church}
                     onSelect={() => selectChurch(church)}
+                    className="py-3 text-base"
                   >
                     <Check
                       className={cn(
@@ -161,6 +172,7 @@ export const ChurchCombobox = React.forwardRef<
                       key={church}
                       value={`suggestion-${church}`}
                       onSelect={() => selectChurch(church)}
+                      className="py-3 text-base"
                     >
                       <Check
                         className={cn(
