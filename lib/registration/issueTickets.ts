@@ -57,10 +57,16 @@ export async function issueTicketsAndSendEmail(registrationId: string): Promise<
   // Codes are assigned above no matter what, so a missing email address or
   // absent SMTP config costs the registrant nothing — it only means the
   // tickets arrive on screen rather than in their inbox.
+  //
+  // Neither message names the registration. Its id is the only thing
+  // guarding /event/registration/<id>, which lists every attendee's name and
+  // ticket code, so logging one hands that page to anyone reading logs — and
+  // both conditions here are global or near-impossible, so an id would add
+  // nothing to diagnosing them.
   if (!isTicketEmailConfigured()) {
-    console.info(`Registration ${registrationId}: tickets issued, email skipped (no SMTP config)`);
+    console.info("Tickets issued; email skipped (no SMTP config)");
   } else if (!registration.payerEmail) {
-    console.warn(`Registration ${registrationId}: tickets issued, but no payer_email to send to`);
+    console.warn("Tickets issued, but the registration has no payer_email to send to");
   } else {
     await sendTicketEmail({
       to: registration.payerEmail,

@@ -56,15 +56,14 @@ export async function POST(request: Request) {
   }
 
   if (!signatureValid) {
-    // Logged so a rejection is diagnosable from the Vercel logs alone: the
-    // shape of what arrived (length, encoding) usually says whether it's a
-    // wrong secret or a signature format we aren't parsing.
-    // Header *names* only — enough to spot a differently-spelled signature
-    // header, without putting anyone's credentials in the logs.
+    // Presence and length only. That's still enough to tell a missing
+    // header from a wrong secret or an unparsed signature format, without
+    // writing a value derived from our webhook secret — or the request's
+    // header names — into logs that outlive the request.
     console.error(
       `Byl webhook rejected: signature ${
-        signatureHeader ? `"${signatureHeader}" (${signatureHeader.length} chars)` : "MISSING"
-      }; headers seen: ${[...request.headers.keys()].join(", ")}`,
+        signatureHeader ? `present (${signatureHeader.length} chars)` : "MISSING"
+      }`,
     );
     return NextResponse.json({ error: "invalid_signature" }, { status: 401 });
   }

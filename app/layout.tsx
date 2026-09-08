@@ -29,7 +29,7 @@ export default function RootLayout({
         </Suspense>
         {children}
         <Toaster position="top-center" richColors />
-        <Analytics />
+        <Analytics debug={false} />
       </body>
     </html>
   );
