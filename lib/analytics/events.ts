@@ -8,6 +8,7 @@ export type AnalyticsEvents = {
   registration_draft_restored: { attendees: number };
 
   registration_invalid: { field: string; attendees: number };
+  registration_review_opened: { attendees: number };
   registration_submitted: { attendees: number; registrantType: RegistrantType };
 
   registration_created: {

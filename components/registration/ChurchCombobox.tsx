@@ -125,21 +125,12 @@ export const ChurchCombobox = React.forwardRef<
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          // Church lists run long and this is the slowest control on the
-          // form, so the list gets as much height as the viewport allows and
-          // rows get a real touch target. The input wrapper is a fixed h-9 in
-          // the shared primitive, so it's raised from here rather than by
-          // changing it for every other Command in the app.
-          //
-          // The width needs var(): Tailwind v3 read a bare `w-[--foo]` as a
-          // variable, v4 does not, so this had been silently falling back to
-          // the popover's own width instead of matching the trigger.
           className="w-[var(--radix-popover-trigger-width)] p-0 [&_[data-slot=command-input-wrapper]]:h-12"
           align="start"
         >
           <Command shouldFilter={false}>
             <CommandInput
-              placeholder="Цуглааны нэрээр хайх..."
+              placeholder="Хайх эсвэл шинээр үүсгэх"
               className="text-base"
               value={search}
               onValueChange={setSearch}
@@ -166,7 +157,7 @@ export const ChurchCombobox = React.forwardRef<
               </CommandGroup>
 
               {closeMatches.length > 0 && (
-                <CommandGroup heading="Санал болгож буй ижил төстэй сүмүүд">
+                <CommandGroup heading="Ойролцоо нэртэй чуулганууд">
                   {closeMatches.map((church) => (
                     <CommandItem
                       key={church}

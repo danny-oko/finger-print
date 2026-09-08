@@ -52,7 +52,7 @@ export function PriceBar({
               <Loader2 className="size-4 animate-spin" /> Түр хүлээнэ үү...
             </>
           ) : (
-            "Төлбөр төлөх"
+            "Үргэлжлүүлэх"
           )}
         </Button>
       </div>

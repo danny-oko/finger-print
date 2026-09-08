@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { AttendeeRow } from "@/components/registration/AttendeeRow";
 import { ChurchCombobox } from "@/components/registration/ChurchCombobox";
 import { PriceBar } from "@/components/registration/PriceBar";
+import { ReviewDialog } from "@/components/registration/ReviewDialog";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -104,6 +105,11 @@ export function RegistrationForm() {
   const [pricing, setPricing] = React.useState<PricingSettings | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
   const [focusIndex, setFocusIndex] = React.useState<number | null>(null);
+  // Set only once the form validates, so the review can never show values
+  // the schema would reject.
+  const [review, setReview] = React.useState<RegistrationFormOutput | null>(
+    null,
+  );
 
   React.useEffect(() => {
     fetch("/api/registration/churches")
@@ -148,10 +154,18 @@ export function RegistrationForm() {
     trackEvent("registration_person_added", { attendees: fields.length + 1 });
   }
 
-  async function onSubmit(values: RegistrationFormOutput) {
+  function openReview(values: RegistrationFormOutput) {
+    trackEvent("registration_review_opened", {
+      attendees: values.attendees.length,
+    });
+    setReview(values);
+  }
+
+  async function confirmAndPay() {
+    if (!review) return;
     setSubmitting(true);
 
-    const payload = toCreateRegistrationInput(values);
+    const payload = toCreateRegistrationInput(review);
     trackEvent("registration_submitted", {
       attendees: payload.attendees.length,
       registrantType: payload.registrantType,
@@ -192,7 +206,7 @@ export function RegistrationForm() {
   return (
     <FormProvider {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, onInvalid)}
+        onSubmit={form.handleSubmit(openReview, onInvalid)}
         // 44px controls are the smallest comfortable touch target, and this
         // form is filled on a phone far more often than not. Both the select
         // and the church combobox render as role="combobox", so one rule
@@ -333,6 +347,14 @@ export function RegistrationForm() {
           submitting={submitting}
         />
       </form>
+
+      <ReviewDialog
+        values={review}
+        pricing={pricing}
+        submitting={submitting}
+        onEdit={() => setReview(null)}
+        onConfirm={confirmAndPay}
+      />
     </FormProvider>
   );
 }
