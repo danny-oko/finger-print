@@ -13,7 +13,7 @@ type Row = {
   attendee_id: string;
   full_name: string;
   phone: string | null;
-  parent_phone: string;
+  parent_phone: string | null;
   church_name: string;
   grade: number;
   ticket_code: string | null;

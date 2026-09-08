@@ -124,13 +124,15 @@ export function AttendeeView({
                     {row.phone}
                   </a>
                 )}
-                <a
-                  href={`tel:${row.parentPhone}`}
-                  className="inline-flex items-center gap-1 text-neutral-500"
-                >
-                  <Phone className="size-3" />
-                  Эцэг эх: {row.parentPhone}
-                </a>
+                {row.parentPhone && (
+                  <a
+                    href={`tel:${row.parentPhone}`}
+                    className="inline-flex items-center gap-1 text-neutral-500"
+                  >
+                    <Phone className="size-3" />
+                    Эцэг эх: {row.parentPhone}
+                  </a>
+                )}
                 <span>{formatDate(row.registrationCreatedAt)}</span>
               </div>
             </div>
@@ -181,7 +183,9 @@ export function AttendeeView({
                 <td className="px-3 py-2">
                   <p className="font-semibold text-neutral-900">{row.fullName}</p>
                   <p className="text-xs text-neutral-500">
-                    {row.phone ? `${row.phone} · ` : ""}эцэг эх {row.parentPhone}
+                    {[row.phone, row.parentPhone && `эцэг эх ${row.parentPhone}`]
+                      .filter(Boolean)
+                      .join(" · ") || "—"}
                   </p>
                 </td>
                 <td className="px-3 py-2 text-neutral-700">{row.churchName}</td>

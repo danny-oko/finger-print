@@ -31,7 +31,7 @@ function onlyDigits(value: string) {
 /**
  * One attendee's fields. Church is asked once for the whole registration and
  * the ticket email once on the payer, so a person is just name + grade +
- * phones — cheap enough that a leader can add ten of them without despair.
+ * phone — cheap enough that a leader can add ten of them without despair.
  *
  * `phoneRequired` is true only for a lone registrant, whose own number
  * doubles as the payer phone the status lookup keys on.
@@ -52,7 +52,6 @@ export function AttendeeRow({
 
   const nameRef = React.useRef<HTMLInputElement>(null);
   const phoneRef = React.useRef<HTMLInputElement>(null);
-  const parentPhoneRef = React.useRef<HTMLInputElement>(null);
   const gradeRef = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
@@ -76,12 +75,12 @@ export function AttendeeRow({
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-6">
+      <div className="grid gap-3 sm:grid-cols-7">
         <FormField
           control={control}
           name={`${namePrefix}.fullName`}
           render={({ field }) => (
-            <FormItem className="sm:col-span-4">
+            <FormItem className="sm:col-span-3">
               <FormLabel>Бүтэн нэр</FormLabel>
               <FormControl>
                 <Input
@@ -137,7 +136,7 @@ export function AttendeeRow({
           control={control}
           name={`${namePrefix}.phone`}
           render={({ field }) => (
-            <FormItem className="sm:col-span-3">
+            <FormItem className="sm:col-span-2">
               <FormLabel>
                 Утас{" "}
                 {!phoneRequired && (
@@ -150,32 +149,6 @@ export function AttendeeRow({
                 <Input
                   {...field}
                   ref={phoneRef}
-                  value={(field.value as string | undefined) ?? ""}
-                  inputMode="tel"
-                  maxLength={8}
-                  placeholder="99112233"
-                  onChange={(e) => {
-                    const digits = onlyDigits(e.target.value).slice(0, 8);
-                    field.onChange(digits);
-                    if (digits.length === 8) parentPhoneRef.current?.focus();
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name={`${namePrefix}.parentPhone`}
-          render={({ field }) => (
-            <FormItem className="sm:col-span-3">
-              <FormLabel>Эцэг эхийн утас</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  ref={parentPhoneRef}
                   value={(field.value as string | undefined) ?? ""}
                   inputMode="tel"
                   maxLength={8}

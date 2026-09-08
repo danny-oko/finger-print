@@ -1,7 +1,11 @@
--- Retires attendees.age. Grade (7-12) already carries the same signal, so
--- the form stopped asking for it and nothing reads it any more — but the
--- column is kept, nullable, so the ages collected before this change aren't
--- thrown away. New rows simply leave it NULL.
+-- Retires attendees.age and attendees.parent_phone. Grade (7-12) already
+-- carried what age told us, and the form no longer asks for either one — but
+-- both columns are kept, nullable, so what was collected before this change
+-- isn't thrown away. New rows simply leave them NULL.
+--
+-- parent_phone keeps its index: the status lookup still matches on it, which
+-- is how a parent who registered someone before this change can still find
+-- that registration by their own number.
 --
 -- SQLite can't relax a NOT NULL in place, so the table is rebuilt. Nothing
 -- references attendees, so no foreign key needs deferring; dropping the old
@@ -9,7 +13,7 @@
 --
 -- Run with:
 --   bunx wrangler d1 execute finger-print-2026 --remote \
---     --file=./db/migrations/0004_retire_attendee_age.sql
+--     --file=./db/migrations/0004_retire_attendee_age_and_parent_phone.sql
 
 CREATE TABLE attendees_new (
   id TEXT PRIMARY KEY,
@@ -17,7 +21,7 @@ CREATE TABLE attendees_new (
   full_name TEXT NOT NULL,
   age INTEGER,
   phone TEXT,
-  parent_phone TEXT NOT NULL,
+  parent_phone TEXT,
   church_name TEXT NOT NULL,
   grade INTEGER NOT NULL,
   ticket_code TEXT,

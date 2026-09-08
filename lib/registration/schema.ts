@@ -22,7 +22,6 @@ export const attendeeSchema = z.object({
     .union([phoneSchema, z.literal("")])
     .optional()
     .transform((v) => (v ? v : undefined)),
-  parentPhone: phoneSchema,
   // Rendered as a select, so any failure here means "nothing chosen" —
   // including the NaN a coerced empty value produces.
   grade: z.coerce

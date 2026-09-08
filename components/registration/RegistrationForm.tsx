@@ -30,7 +30,6 @@ import {
 const BLANK_ATTENDEE: RegistrationFormValues["attendees"][number] = {
   fullName: "",
   phone: "",
-  parentPhone: "",
   grade: undefined,
 };
 

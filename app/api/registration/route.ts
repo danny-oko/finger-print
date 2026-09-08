@@ -56,14 +56,13 @@ export async function POST(request: Request) {
     for (const attendee of input.attendees) {
       await d1Query(
         `INSERT INTO attendees (
-          id, registration_id, full_name, phone, parent_phone, church_name, grade, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          id, registration_id, full_name, phone, church_name, grade, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
           uuid(),
           registrationId,
           attendee.fullName,
           attendee.phone ?? null,
-          attendee.parentPhone,
           input.churchName,
           attendee.grade,
           now,
