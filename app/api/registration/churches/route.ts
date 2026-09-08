@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { db } from "@/lib/db/client";
 import { churches } from "@/lib/db/schema";
+import { httpErrorFor, logServerError } from "@/lib/errors";
 
 export async function GET() {
   try {
@@ -16,7 +17,9 @@ export async function GET() {
 
     return NextResponse.json({ churches: rows.map((r) => r.name) });
   } catch (error) {
-    console.error("Failed to load churches", error);
+    // The combobox lets people type a church that isn't listed, so an empty
+    // list degrades to "type it yourself" rather than blocking the form.
+    logServerError("churches.list", error, { degraded: "empty_list" });
     return NextResponse.json({ churches: [] }, { status: 200 });
   }
 }
@@ -46,7 +49,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ name: parsed.data.name });
   } catch (error) {
-    console.error("Failed to save church", error);
-    return NextResponse.json({ error: "database_error" }, { status: 500 });
+    const { code, status } = httpErrorFor(error);
+    logServerError("churches.create", error, { name: parsed.data.name });
+    return NextResponse.json({ error: code }, { status });
   }
 }

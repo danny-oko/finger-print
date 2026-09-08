@@ -99,11 +99,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  if (event.type !== "checkout.completed") {
+  // A checkout and an invoice are two ways to be paid for the same
+  // registration, so both settle it the same way.
+  if (event.type !== "checkout.completed" && event.type !== "invoice.paid") {
     // Not a payment outcome we act on (subscription/stock/etc.) —
     // acknowledge so Byl doesn't retry it indefinitely.
     return NextResponse.json({ ok: true, ignored: true });
   }
+
+  // Only a checkout's id belongs in byl_checkout_id; an invoice id would
+  // read as a checkout that never existed.
+  const checkoutId =
+    event.type === "checkout.completed" && event.data.object.id
+      ? String(event.data.object.id)
+      : null;
 
   try {
     await d1Query(
@@ -114,7 +123,7 @@ export async function POST(request: Request) {
            awaiting_verification_at = NULL,
            updated_at = ?
        WHERE id = ?`,
-      [event.data.object.id ? String(event.data.object.id) : null, now, now, registrationId],
+      [checkoutId, now, now, registrationId],
     );
   } catch (error) {
     console.error("Failed to mark registration paid from Byl webhook", error);

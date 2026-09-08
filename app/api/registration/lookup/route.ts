@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { d1Query } from "@/lib/d1";
+import { httpErrorFor, logServerError } from "@/lib/errors";
 import { normalizePhone, phoneSchema } from "@/lib/registration/schema";
 
 type RegistrationRow = {
@@ -35,6 +36,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "invalid_phone" }, { status: 400 });
   }
 
+  let step = "select_registrations";
+
   try {
     const registrations = await d1Query<RegistrationRow>(
       `SELECT DISTINCT r.id, r.registrant_type, r.payer_name, r.payer_phone, r.attendee_count,
@@ -49,6 +52,8 @@ export async function GET(request: Request) {
     if (registrations.length === 0) {
       return NextResponse.json({ registrations: [] });
     }
+
+    step = "select_attendees";
 
     const ids = registrations.map((r) => r.id);
     const placeholders = ids.map(() => "?").join(", ");
@@ -65,7 +70,10 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ registrations: result });
   } catch (error) {
-    console.error("Failed to look up registrations", error);
-    return NextResponse.json({ error: "lookup_error" }, { status: 500 });
+    const { code, status } = httpErrorFor(error);
+    // The phone is the search key, not payload — logging the last two digits
+    // is enough to line a report up with a log line without storing it.
+    logServerError("registration.lookup", error, { step, phone: `••••••${phone.slice(-2)}` });
+    return NextResponse.json({ error: code }, { status });
   }
 }

@@ -1,4 +1,5 @@
 import type { RegistrantType } from "@/lib/admin/types";
+import type { PaymentMethod } from "@/lib/registration/schema";
 
 export type AnalyticsValue = string | number | boolean | null;
 
@@ -9,11 +10,16 @@ export type AnalyticsEvents = {
 
   registration_invalid: { field: string; attendees: number };
   registration_review_opened: { attendees: number };
-  registration_submitted: { attendees: number; registrantType: RegistrantType };
+  registration_submitted: {
+    attendees: number;
+    registrantType: RegistrantType;
+    paymentMethod: PaymentMethod;
+  };
 
   registration_created: {
     attendees: number;
     registrantType: RegistrantType;
+    paymentMethod: PaymentMethod;
     totalMnt: number;
   };
   registration_create_failed: { reason: string };

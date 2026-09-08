@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
 
+import { D1Error, describeSql } from "@/lib/d1";
 import { secureHttp } from "@/lib/http/axios";
 
 // Drizzle's query layer for this table set — see ./client.ts. Kept separate
@@ -22,8 +23,9 @@ function getConfig() {
   const apiToken = process.env.CLOUDFLARE_API_TOKEN;
 
   if (!accountId || !databaseId || !apiToken) {
-    throw new Error(
+    throw new D1Error(
       "Missing Cloudflare D1 env vars (CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_D1_DATABASE_ID, CLOUDFLARE_API_TOKEN). See docs/registration-setup.md.",
+      "config",
     );
   }
 
@@ -39,6 +41,7 @@ export async function d1RestExecute<T = Record<string, unknown>>(
   params: unknown[] = [],
 ): Promise<T[]> {
   const { accountId, databaseId, apiToken } = getConfig();
+  const statement = describeSql(sql);
 
   try {
     const { data } = await secureHttp.post<D1ApiResponse<T>>(
@@ -49,7 +52,7 @@ export async function d1RestExecute<T = Record<string, unknown>>(
 
     if (!data.success) {
       const message = data.errors?.map((e) => e.message).join("; ") || "unknown error";
-      throw new Error(`D1 query failed: ${message}`);
+      throw new D1Error(`${statement} failed: ${message}`, statement);
     }
 
     return data.result[0]?.results ?? [];
@@ -58,7 +61,7 @@ export async function d1RestExecute<T = Record<string, unknown>>(
       const message =
         error.response?.data?.errors?.map((e: { message: string }) => e.message).join("; ") ??
         error.message;
-      throw new Error(`D1 query failed: ${message}`);
+      throw new D1Error(`${statement} failed: ${message}`, statement, { cause: error });
     }
     throw error;
   }
