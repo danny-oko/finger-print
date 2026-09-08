@@ -39,11 +39,6 @@ const BLANK_ATTENDEE: RegistrationFormValues["attendees"][number] = {
   grade: undefined,
 };
 
-/**
- * Walks react-hook-form's nested error object for the path of the first
- * field that failed, e.g. "attendees.0.phone". A path is a field name, never
- * a value, so this is safe to send to analytics.
- */
 function firstErrorField(errors: unknown, path: string[] = []): string | null {
   if (!errors || typeof errors !== "object") return null;
 
