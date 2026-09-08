@@ -40,7 +40,7 @@ export default async function TicketPage({ params }: { params: Promise<{ code: s
           <CardContent className="grid justify-items-center gap-3 py-8 text-center">
             <p className="text-lg font-bold text-white">{ticket.fullName}</p>
             <p className="text-xs text-neutral-400">
-              {ticket.grade}-р анги · {ticket.age} нас · {ticket.churchName}
+              {ticket.grade}-р анги · {ticket.churchName}
             </p>
 
             {/* eslint-disable-next-line @next/next/no-img-element */}

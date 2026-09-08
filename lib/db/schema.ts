@@ -29,7 +29,7 @@ export const attendees = sqliteTable("attendees", {
   id: text("id").primaryKey(),
   registrationId: text("registration_id").notNull(),
   fullName: text("full_name").notNull(),
-  age: integer("age").notNull(),
+  age: integer("age"),
   churchName: text("church_name").notNull(),
   grade: integer("grade").notNull(),
   ticketCode: text("ticket_code"),

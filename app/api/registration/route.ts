@@ -50,29 +50,31 @@ export async function POST(request: Request) {
       ],
     );
 
+    // One church per registration — the form asks for it once — but it's
+    // still denormalised onto every attendee row so the admin monitor can
+    // group and filter attendees without joining back.
     for (const attendee of input.attendees) {
       await d1Query(
         `INSERT INTO attendees (
-          id, registration_id, full_name, age, phone, parent_phone, church_name, grade, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          id, registration_id, full_name, phone, parent_phone, church_name, grade, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           uuid(),
           registrationId,
           attendee.fullName,
-          attendee.age,
           attendee.phone ?? null,
           attendee.parentPhone,
-          attendee.churchName,
+          input.churchName,
           attendee.grade,
           now,
         ],
       );
-
-      await d1Query(
-        "INSERT OR IGNORE INTO churches (id, name, created_at) VALUES (?, ?, ?)",
-        [uuid(), attendee.churchName, now],
-      );
     }
+
+    await d1Query(
+      "INSERT OR IGNORE INTO churches (id, name, created_at) VALUES (?, ?, ?)",
+      [uuid(), input.churchName, now],
+    );
   } catch (error) {
     console.error("Failed to persist registration", error);
     return NextResponse.json({ error: "database_error" }, { status: 500 });
@@ -87,7 +89,7 @@ export async function POST(request: Request) {
     price_data: {
       unit_amount: pricing.pricePerAttendeeMnt,
       product_data: {
-        name: `${a.fullName} — ${a.grade}-р анги, ${a.churchName}`,
+        name: `${a.fullName} — ${a.grade}-р анги, ${input.churchName}`,
       },
     },
     quantity: 1,

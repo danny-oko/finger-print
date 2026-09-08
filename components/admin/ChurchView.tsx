@@ -22,7 +22,7 @@ function AttendeeLine({ row }: { row: MonitorRow }) {
       <div className="min-w-0">
         <p className="truncate text-sm text-neutral-800">{row.fullName}</p>
         <p className="truncate text-[11px] text-neutral-400">
-          {row.grade}-р анги · {row.age} нас
+          {row.grade}-р анги
           {row.ticketCode ? ` · ${row.ticketCode}` : ""}
         </p>
       </div>

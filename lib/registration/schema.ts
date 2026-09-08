@@ -12,69 +12,147 @@ export const emailSchema = z
   .toLowerCase()
   .email("Имэйл хаягаа зөв оруулна уу");
 
+// One person attending. Deliberately small: church is asked once for the
+// whole registration (everyone in one submission comes from one church) and
+// the ticket email is asked once on the payer, so adding a second teen costs
+// three fields, not seven.
 export const attendeeSchema = z.object({
   fullName: z.string().trim().min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
-  age: z.coerce
-    .number()
-    .int()
-    .min(10, "Насаа зөв оруулна уу")
-    .max(19, "Насаа зөв оруулна уу"),
   phone: z
     .union([phoneSchema, z.literal("")])
     .optional()
     .transform((v) => (v ? v : undefined)),
-  email: z
-    .union([emailSchema, z.literal("")])
-    .optional()
-    .transform((v) => (v ? v : undefined)),
   parentPhone: phoneSchema,
-  churchName: z.string().trim().min(2, "Хамаарах сүмээ сонгоно уу").max(160),
-  grade: z.coerce.number().int().min(7).max(12),
+  // Rendered as a select, so any failure here means "nothing chosen" —
+  // including the NaN a coerced empty value produces.
+  grade: z.coerce
+    .number({ error: "Ангиа сонгоно уу" })
+    .int("Ангиа сонгоно уу")
+    .min(7, "Ангиа сонгоно уу")
+    .max(12, "Ангиа сонгоно уу"),
 });
 
 export type Attendee = z.infer<typeof attendeeSchema>;
 
 export const createRegistrationSchema = z
   .object({
+    // Derived from the attendee count rather than picked by the user: one
+    // person means they're registering themselves, more than one means
+    // someone is registering on their behalf.
     registrantType: z.enum(["individual", "church_leader"]),
+    churchName: z.string().trim().min(2, "Хамаарах сүмээ сонгоно уу").max(160),
     payerName: z.string().trim().min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
     payerPhone: phoneSchema,
     payerEmail: emailSchema,
-    attendees: z.array(attendeeSchema).min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ").max(50),
+    attendees: z
+      .array(attendeeSchema)
+      .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
+      .max(50),
   })
   .superRefine((data, ctx) => {
-    if (data.registrantType === "individual") {
-      if (data.attendees.length !== 1) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["attendees"],
-          message: "Хувиараа бүртгүүлэхэд зөвхөн 1 хүн бүртгэнэ",
-        });
-      }
-      if (!data.attendees[0]?.phone) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["attendees", 0, "phone"],
-          message: "Утасны дугаараа оруулна уу",
-        });
-      }
-      if (!data.attendees[0]?.email) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["attendees", 0, "email"],
-          message: "Имэйл хаягаа оруулна уу — тасалбараа энд илгээнэ",
-        });
-      }
+    if (data.registrantType !== "individual") return;
+
+    if (data.attendees.length !== 1) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["attendees"],
+        message: "Хувиараа бүртгүүлэхэд зөвхөн 1 хүн бүртгэнэ",
+      });
+    }
+
+    // A lone registrant is their own payer, so their phone is what the
+    // status lookup and any follow-up call will use — it can't be blank.
+    if (!data.attendees[0]?.phone) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["attendees", 0, "phone"],
+        message: "Утасны дугаараа оруулна уу",
+      });
     }
   });
 
 // Output type (after zod coercion) — what the API route works with.
 export type CreateRegistrationInput = z.infer<typeof createRegistrationSchema>;
 
-// Input type (before coercion) — what react-hook-form's controlled inputs
-// actually hold, e.g. `age`/`grade` are typed loosely because they come from
-// `z.coerce.number()`. The zodResolver validates/coerces on submit.
-export type RegistrationFormValues = z.input<typeof createRegistrationSchema>;
+/**
+ * What the form itself holds. It deliberately differs from the API contract
+ * above: nobody picks a registrant type, and a lone registrant never sees
+ * payer fields — those are derived by `toCreateRegistrationInput` on submit.
+ * Keeping them out of the form means a validation error can never land on a
+ * field that isn't on screen.
+ */
+export const registrationFormSchema = z
+  .object({
+    churchName: z.string().trim().min(2, "Хамаарах сүмээ сонгоно уу").max(160),
+    payerEmail: emailSchema,
+    payerName: z.string().trim().max(120).optional(),
+    payerPhone: z
+      .union([phoneSchema, z.literal("")])
+      .optional()
+      .transform((v) => (v ? v : undefined)),
+    attendees: z
+      .array(attendeeSchema)
+      .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
+      .max(50),
+  })
+  .superRefine((data, ctx) => {
+    if (data.attendees.length > 1) {
+      // Someone is registering on others' behalf, so they have to identify
+      // themselves — none of the attendees is the payer.
+      if (!data.payerName || data.payerName.length < 2) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["payerName"],
+          message: "Нэрээ бүтнээр нь оруулна уу",
+        });
+      }
+      if (!data.payerPhone) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["payerPhone"],
+          message: "8 оронтой утасны дугаар оруулна уу",
+        });
+      }
+      return;
+    }
+
+    // A lone registrant is their own payer, so their phone is what the
+    // status lookup and any follow-up call will use — it can't be blank.
+    if (!data.attendees[0]?.phone) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["attendees", 0, "phone"],
+        message: "Утасны дугаараа оруулна уу",
+      });
+    }
+  });
+
+/** Validated form values (after zod coercion). */
+export type RegistrationFormOutput = z.output<typeof registrationFormSchema>;
+
+/** What react-hook-form's controlled inputs actually hold, before coercion. */
+export type RegistrationFormValues = z.input<typeof registrationFormSchema>;
+
+/**
+ * Fills in the fields the form never asks for. One attendee means they
+ * registered themselves and their own name and phone are the payer's; more
+ * than one means whoever filled the payer block is organising for a church.
+ */
+export function toCreateRegistrationInput(
+  values: RegistrationFormOutput,
+): CreateRegistrationInput {
+  const isGroup = values.attendees.length > 1;
+  const first = values.attendees[0];
+
+  return {
+    registrantType: isGroup ? "church_leader" : "individual",
+    churchName: values.churchName,
+    payerName: isGroup ? (values.payerName ?? "") : first.fullName,
+    payerPhone: isGroup ? (values.payerPhone ?? "") : (first.phone ?? ""),
+    payerEmail: values.payerEmail,
+    attendees: values.attendees,
+  };
+}
 
 export const lookupSchema = z.object({
   phone: phoneSchema,

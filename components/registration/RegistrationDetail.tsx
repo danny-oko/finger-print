@@ -133,7 +133,7 @@ function AttendeeCard({
               paid && attendee.ticketCode ? "text-neutral-400" : "text-muted-foreground",
             )}
           >
-            {attendee.grade}-р анги · {attendee.age} нас · {attendee.churchName}
+            {attendee.grade}-р анги · {attendee.churchName}
           </p>
         </div>
 

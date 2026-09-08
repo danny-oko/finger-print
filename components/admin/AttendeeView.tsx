@@ -92,7 +92,7 @@ export function AttendeeView({
               <div className="min-w-0">
                 <p className="truncate font-bold text-neutral-900">{row.fullName}</p>
                 <p className="truncate text-sm text-neutral-500">
-                  {row.churchName} · {row.grade}-р анги · {row.age} нас
+                  {row.churchName} · {row.grade}-р анги
                 </p>
               </div>
               <StateBadge state={rowState(row)} />
@@ -185,10 +185,7 @@ export function AttendeeView({
                   </p>
                 </td>
                 <td className="px-3 py-2 text-neutral-700">{row.churchName}</td>
-                <td className="px-3 py-2 text-neutral-700">
-                  {row.grade}-р
-                  <span className="block text-xs text-neutral-400">{row.age} нас</span>
-                </td>
+                <td className="px-3 py-2 text-neutral-700">{row.grade}-р</td>
                 <td className="px-3 py-2">
                   <PathChip row={row} />
                 </td>

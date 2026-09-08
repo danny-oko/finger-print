@@ -93,6 +93,20 @@ bunx wrangler d1 execute finger-print-2026 --remote \
   --file=./db/migrations/0001_add_ticketing.sql
 ```
 
+## 5b. Retire the attendee age column on an existing database
+
+Skip this if you just created the database in step 1. The registration form
+no longer asks for age — grade (7-12) already carries it — so `attendees.age`
+has to stop being `NOT NULL` before the app can insert a row without it:
+
+```bash
+bunx wrangler d1 execute finger-print-2026 --remote \
+  --file=./db/migrations/0004_retire_attendee_age.sql
+```
+
+The column is kept rather than dropped, so ages collected before the change
+are still there; new rows just leave it `NULL`.
+
 ## 6. Create a Gmail App Password (optional — for emailing tickets)
 
 This step is optional. Without it, a paid registration still issues every
@@ -142,7 +156,7 @@ variable turns the login on — no code change, no redeploy of anything but the
 env. There are no per-user admin accounts; the dashboard is read-only and the
 team is small, so one shared password is the right amount of machinery.
 
-Leaving it open publishes every attendee's name, age, school year and phone
+Leaving it open publishes every attendee's name, school year and phone
 number, so it's worth setting before the registration link goes out widely.
 
 ```

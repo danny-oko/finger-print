@@ -12,7 +12,6 @@ const ROW_LIMIT = 5000;
 type Row = {
   attendee_id: string;
   full_name: string;
-  age: number;
   phone: string | null;
   parent_phone: string;
   church_name: string;
@@ -46,7 +45,7 @@ export async function GET() {
   try {
     const rows = await d1Query<Row>(
       `SELECT
-         a.id AS attendee_id, a.full_name, a.age, a.phone, a.parent_phone,
+         a.id AS attendee_id, a.full_name, a.phone, a.parent_phone,
          a.church_name, a.grade, a.ticket_code, a.checked_in_at,
          a.created_at AS attendee_created_at,
          r.id AS registration_id, r.registrant_type, r.payer_name, r.payer_phone,
@@ -65,7 +64,6 @@ export async function GET() {
       rows: rows.map((row) => ({
         attendeeId: row.attendee_id,
         fullName: row.full_name,
-        age: row.age,
         phone: row.phone,
         parentPhone: row.parent_phone,
         churchName: row.church_name,

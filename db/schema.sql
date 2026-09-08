@@ -52,7 +52,9 @@ CREATE TABLE IF NOT EXISTS attendees (
   id TEXT PRIMARY KEY,
   registration_id TEXT NOT NULL REFERENCES registrations (id),
   full_name TEXT NOT NULL,
-  age INTEGER NOT NULL,
+  -- Retired: grade already carries this. Kept nullable so previously
+  -- collected ages survive; new rows leave it NULL. See migration 0004.
+  age INTEGER,
   phone TEXT,
   parent_phone TEXT NOT NULL,
   church_name TEXT NOT NULL,
