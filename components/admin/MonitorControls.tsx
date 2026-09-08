@@ -28,6 +28,11 @@ import {
   type SortDirection,
 } from "@/lib/admin/monitor";
 import { cn } from "@/lib/utils";
+import {
+  GRADE_CHOICES,
+  gradeChoiceLabel,
+  YOUTH_LEADER,
+} from "@/lib/registration/grade";
 
 export type ViewMode = "attendees" | "churches" | "registrations";
 
@@ -46,7 +51,7 @@ const STATES: MonitorState[] = [
   "cancelled",
 ];
 
-const GRADES = [7, 8, 9, 10, 11, 12];
+
 
 export type SortOption<K extends string> = { value: K; label: string };
 
@@ -130,16 +135,21 @@ export function MonitorControls<K extends string>({
 
       <Select
         value={filters.grade === "all" ? "all" : String(filters.grade)}
-        onValueChange={(v) => set("grade", v === "all" ? "all" : Number(v))}
+        onValueChange={(v) =>
+          set(
+            "grade",
+            v === "all" || v === YOUTH_LEADER ? (v as Filters["grade"]) : Number(v),
+          )
+        }
       >
         <SelectTrigger className="w-full sm:w-[7.5rem]">
           <SelectValue placeholder="Анги" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Бүх анги</SelectItem>
-          {GRADES.map((grade) => (
-            <SelectItem key={grade} value={String(grade)}>
-              {grade}-р анги
+          {GRADE_CHOICES.map((choice) => (
+            <SelectItem key={choice} value={choice}>
+              {gradeChoiceLabel(choice)}
             </SelectItem>
           ))}
         </SelectContent>

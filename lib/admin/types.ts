@@ -1,3 +1,5 @@
+import type { AttendeeRole } from "@/lib/registration/grade";
+
 export type RegistrationStatus =
   | "pending"
   | "paid"
@@ -6,6 +8,8 @@ export type RegistrationStatus =
   | "cancelled";
 
 export type RegistrantType = "individual" | "church_leader";
+
+export type { AttendeeRole };
 
 /**
  * One attendee, flattened together with the registration that paid for
@@ -20,7 +24,8 @@ export type MonitorRow = {
   phone: string | null;
   parentPhone: string | null;
   churchName: string;
-  grade: number;
+  grade: number | null;
+  role: AttendeeRole;
   ticketCode: string | null;
   checkedInAt: string | null;
   attendeeCreatedAt: string;

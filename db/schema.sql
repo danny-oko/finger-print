@@ -60,7 +60,9 @@ CREATE TABLE IF NOT EXISTS attendees (
   -- previously collected numbers survive. See migration 0004.
   parent_phone TEXT,
   church_name TEXT NOT NULL,
-  grade INTEGER NOT NULL,
+  -- Null for a youth leader, who has no school year. See migration 0005.
+  grade INTEGER,
+  role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'youth_leader')),
   ticket_code TEXT,
   checked_in_at TEXT,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
@@ -70,6 +72,7 @@ CREATE INDEX IF NOT EXISTS idx_attendees_registration_id ON attendees (registrat
 CREATE INDEX IF NOT EXISTS idx_attendees_phone ON attendees (phone);
 CREATE INDEX IF NOT EXISTS idx_attendees_parent_phone ON attendees (parent_phone);
 CREATE INDEX IF NOT EXISTS idx_attendees_church_name ON attendees (church_name);
+CREATE INDEX IF NOT EXISTS idx_attendees_role ON attendees (role);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_attendees_ticket_code ON attendees (ticket_code);
 
 CREATE TABLE IF NOT EXISTS payment_events (

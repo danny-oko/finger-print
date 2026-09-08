@@ -12,6 +12,7 @@ import {
 } from "@/lib/admin/monitor";
 import type { MonitorRow } from "@/lib/admin/types";
 import { cn } from "@/lib/utils";
+import { formatGrade, formatGradeShort } from "@/lib/registration/grade";
 
 function formatDate(iso: string): string {
   const date = new Date(iso);
@@ -92,7 +93,7 @@ export function AttendeeView({
               <div className="min-w-0">
                 <p className="truncate font-bold text-neutral-900">{row.fullName}</p>
                 <p className="truncate text-sm text-neutral-500">
-                  {row.churchName} · {row.grade}-р анги
+                  {row.churchName} · {formatGrade(row)}
                 </p>
               </div>
               <StateBadge state={rowState(row)} />
@@ -189,7 +190,7 @@ export function AttendeeView({
                   </p>
                 </td>
                 <td className="px-3 py-2 text-neutral-700">{row.churchName}</td>
-                <td className="px-3 py-2 text-neutral-700">{row.grade}-р</td>
+                <td className="px-3 py-2 text-neutral-700">{formatGradeShort(row)}</td>
                 <td className="px-3 py-2">
                   <PathChip row={row} />
                 </td>

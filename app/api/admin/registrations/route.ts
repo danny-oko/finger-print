@@ -15,7 +15,8 @@ type Row = {
   phone: string | null;
   parent_phone: string | null;
   church_name: string;
-  grade: number;
+  grade: number | null;
+  role: MonitorRow["role"];
   ticket_code: string | null;
   checked_in_at: string | null;
   attendee_created_at: string;
@@ -46,7 +47,7 @@ export async function GET() {
     const rows = await d1Query<Row>(
       `SELECT
          a.id AS attendee_id, a.full_name, a.phone, a.parent_phone,
-         a.church_name, a.grade, a.ticket_code, a.checked_in_at,
+         a.church_name, a.grade, a.role, a.ticket_code, a.checked_in_at,
          a.created_at AS attendee_created_at,
          r.id AS registration_id, r.registrant_type, r.payer_name, r.payer_phone,
          r.payer_email, r.attendee_count, r.price_per_attendee_mnt, r.total_mnt,
@@ -68,6 +69,7 @@ export async function GET() {
         parentPhone: row.parent_phone,
         churchName: row.church_name,
         grade: row.grade,
+        role: row.role,
         ticketCode: row.ticket_code,
         checkedInAt: row.checked_in_at,
         attendeeCreatedAt: row.attendee_created_at,

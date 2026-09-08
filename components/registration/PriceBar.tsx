@@ -26,17 +26,17 @@ export function PriceBar({
   const breakdown = pricing ? computePricing(pricing, attendeeCount) : null;
 
   return (
-    <div className="sticky bottom-0 -mx-4 border-t border-neutral-200 bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <div className="sticky bottom-0 -mx-4 border-t border-neutral-200 bg-white/95 px-5 py-4 backdrop-blur supports-[backdrop-filter]:bg-white/85">
       <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[13px] text-neutral-500">
             {attendeeCount} хүн ×{" "}
             {breakdown ? formatMnt(breakdown.pricePerAttendeeMnt) : "—"}
             {breakdown && breakdown.taxMnt > 0 && (
               <> · Татвар {formatMnt(breakdown.taxMnt)}</>
             )}
           </p>
-          <p className="text-lg font-black text-[#F98C01]">
+          <p className="text-xl font-black leading-tight text-[#F98C01]">
             {breakdown ? formatMnt(breakdown.totalMnt) : "Тооцоолж байна..."}
           </p>
         </div>
@@ -45,7 +45,7 @@ export function PriceBar({
           type="submit"
           size="lg"
           disabled={submitting}
-          className="min-w-36 shrink-0"
+          className="h-12 min-w-36 shrink-0 text-base"
         >
           {submitting ? (
             <>

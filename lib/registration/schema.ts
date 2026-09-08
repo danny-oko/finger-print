@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { GRADE_CHOICES } from "@/lib/registration/grade";
+
 // Mongolian mobile numbers: 8 digits, commonly starting 5/6/7/8/9.
 export const phoneSchema = z
   .string()
@@ -22,13 +24,10 @@ export const attendeeSchema = z.object({
     .union([phoneSchema, z.literal("")])
     .optional()
     .transform((v) => (v ? v : undefined)),
-  // Rendered as a select, so any failure here means "nothing chosen" —
-  // including the NaN a coerced empty value produces.
-  grade: z.coerce
-    .number({ error: "Ангиа сонгоно уу" })
-    .int("Ангиа сонгоно уу")
-    .min(7, "Ангиа сонгоно уу")
-    .max(12, "Ангиа сонгоно уу"),
+  // Rendered as a select, so any failure here means "nothing chosen".
+  // A school year and "youth leader" answer the same question on the form
+  // and are split into their two columns on the way to the database.
+  grade: z.enum(GRADE_CHOICES, { error: "Ангиа сонгоно уу" }),
 });
 
 export type Attendee = z.infer<typeof attendeeSchema>;

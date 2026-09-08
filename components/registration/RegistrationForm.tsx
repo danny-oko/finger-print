@@ -33,11 +33,15 @@ import {
   type RegistrationFormValues,
 } from "@/lib/registration/schema";
 
-const BLANK_ATTENDEE: RegistrationFormValues["attendees"][number] = {
+// A new row starts with nothing chosen in the grade select. The schema is
+// what rejects that, so the blank value sits deliberately outside the enum —
+// Radix reserves the empty string for "clear", leaving undefined as the only
+// honest way to say "unset".
+const BLANK_ATTENDEE = {
   fullName: "",
   phone: "",
   grade: undefined,
-};
+} as unknown as RegistrationFormValues["attendees"][number];
 
 function firstErrorField(errors: unknown, path: string[] = []): string | null {
   if (!errors || typeof errors !== "object") return null;
@@ -54,6 +58,14 @@ function firstErrorField(errors: unknown, path: string[] = []): string | null {
   return null;
 }
 
+/**
+ * One question-group inside the form's single card. Groups are separated by
+ * a rule rather than split into separate cards, because they're three parts
+ * of one short form — the whole point of collapsing the old wizard.
+ *
+ * The title outsizes the field labels below it on purpose: at the same size
+ * and weight, "which church" read as just another field name.
+ */
 function Section({
   title,
   hint,
@@ -64,10 +76,14 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="grid gap-3">
-      <div>
-        <h2 className="text-sm font-bold text-neutral-900">{title}</h2>
-        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+    <section className="grid gap-4 px-5 py-6 sm:px-6">
+      <div className="grid gap-1">
+        <h2 className="text-base font-bold tracking-tight text-neutral-900">
+          {title}
+        </h2>
+        {hint && (
+          <p className="text-[13px] leading-snug text-neutral-500">{hint}</p>
+        )}
       </div>
       {children}
     </section>
@@ -189,8 +205,15 @@ export function RegistrationForm() {
     <FormProvider {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit, onInvalid)}
-        className="grid gap-6"
+        // 44px controls are the smallest comfortable touch target, and this
+        // form is filled on a phone far more often than not. Both the select
+        // and the church combobox render as role="combobox", so one rule
+        // covers every control in the form. Labels shrink to sit clearly
+        // below the group titles — size only, so an invalid field's label
+        // still turns red.
+        className="grid gap-4 [&_[data-slot=form-label]]:text-[13px] [&_[role=combobox]]:h-11 [&_input]:h-11"
       >
+        <div className="divide-y divide-neutral-200 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
         <Section
           title="Хамрагддаг цуглаан"
           // hint="Нэг цуглааны ахлагч болон найзуудтайгаа хамт бүртгүүлээрэй"
@@ -220,11 +243,16 @@ export function RegistrationForm() {
           title="Бүртгүүлэх хүн"
           hint="Олон хүнийг нэг дор бүртгэж, нэг удаа төлж болно."
         >
-          <div className="grid gap-3">
+          {/* People are separated by space and their own numbered label,
+              which only appears once there's more than one — no rule needed,
+              and a rule faint enough not to shout would be too faint to
+              read on white anyway. */}
+          <div className="grid gap-7">
             {fields.map((field, index) => (
               <AttendeeRow
                 key={field.id}
                 index={index}
+                showIndex={isGroup}
                 phoneRequired={!isGroup}
                 autoFocus={focusIndex === index}
                 onRemove={fields.length > 1 ? () => remove(index) : undefined}
@@ -235,7 +263,7 @@ export function RegistrationForm() {
           <Button
             type="button"
             variant="outline"
-            className="w-full"
+            className="h-11 w-full border-dashed"
             onClick={addAttendee}
           >
             <Plus className="size-4" />
@@ -247,7 +275,7 @@ export function RegistrationForm() {
           title="Тасалбар хүлээн авах"
           hint="Бүх хамрагчийн QR тасалбарыг энэ имэйлээр илгээнэ."
         >
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="payerEmail"
@@ -313,6 +341,7 @@ export function RegistrationForm() {
             )}
           </div>
         </Section>
+        </div>
 
         <PriceBar
           pricing={pricing}

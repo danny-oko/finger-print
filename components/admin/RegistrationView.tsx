@@ -14,6 +14,7 @@ import {
 } from "@/lib/admin/monitor";
 import { formatMnt } from "@/lib/registration/pricing";
 import { cn } from "@/lib/utils";
+import { formatGrade } from "@/lib/registration/grade";
 
 function formatDateTime(iso: string): string {
   const date = new Date(iso);
@@ -105,7 +106,7 @@ function RegistrationCard({ group }: { group: RegistrationGroup }) {
                 <div className="min-w-0">
                   <p className="truncate text-sm text-neutral-800">{row.fullName}</p>
                   <p className="truncate text-[11px] text-neutral-400">
-                    {row.churchName} · {row.grade}-р анги
+                    {row.churchName} · {formatGrade(row)}
                   </p>
                 </div>
                 {row.ticketCode ? (
