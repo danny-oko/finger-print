@@ -51,7 +51,7 @@ export default function Footer({
     instagram: "https://www.instagram.com/huruunii_hee/",
     facebook: "https://www.facebook.com/huruuniihee",
     youtube: "https://www.youtube.com",
-    email: "mailto: javhaaa.k@gmail.com",
+    email: "mailto: huruuniihee2016@gmail.com",
     phone: "tel:+976-8007-0177",
   };
 
