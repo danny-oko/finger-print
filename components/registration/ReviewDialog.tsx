@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Pencil } from "lucide-react";
+import { Landmark, Loader2, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +17,10 @@ import {
   formatMnt,
   type PricingSettings,
 } from "@/lib/registration/pricing";
-import type { RegistrationFormOutput } from "@/lib/registration/schema";
+import type {
+  PaymentMethod,
+  RegistrationFormOutput,
+} from "@/lib/registration/schema";
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -37,9 +40,9 @@ export function ReviewDialog({
 }: {
   values: RegistrationFormOutput | null;
   pricing: PricingSettings | null;
-  submitting: boolean;
+  submitting: PaymentMethod | null;
   onEdit: () => void;
-  onConfirm: () => void;
+  onConfirm: (method: PaymentMethod) => void;
 }) {
   const breakdown =
     pricing && values ? computePricing(pricing, values.attendees.length) : null;
@@ -129,30 +132,52 @@ export function ReviewDialog({
               </div>
             </div>
 
-            <DialogFooter className="gap-2 px-6 pb-6 sm:justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                className="h-12"
-                onClick={onEdit}
-                disabled={submitting}
-              >
-                <Pencil className="size-4" />
-                Засах
-              </Button>
+            {/* Card/QPay leads because it's the one that confirms itself and
+                returns the payer to their tickets. Bank transfer is the
+                deliberate second choice: it's what a church leader collecting
+                cash from a group actually needs. */}
+            <DialogFooter className="flex flex-col gap-2 px-6 pb-6 sm:flex-col">
               <Button
                 type="button"
                 className="h-12 text-base"
-                onClick={onConfirm}
-                disabled={submitting}
+                onClick={() => onConfirm("checkout")}
+                disabled={submitting !== null}
               >
-                {submitting ? (
+                {submitting === "checkout" ? (
                   <>
                     <Loader2 className="size-4 animate-spin" /> Түр хүлээнэ үү...
                   </>
                 ) : (
                   "Төлбөр төлөх"
                 )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-12"
+                onClick={() => onConfirm("invoice")}
+                disabled={submitting !== null}
+              >
+                {submitting === "invoice" ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" /> Түр хүлээнэ үү...
+                  </>
+                ) : (
+                  <>
+                    <Landmark className="size-4" />
+                    Шилжүүлэгээр төлөх
+                  </>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-11"
+                onClick={onEdit}
+                disabled={submitting !== null}
+              >
+                <Pencil className="size-4" />
+                Засах
               </Button>
             </DialogFooter>
           </>

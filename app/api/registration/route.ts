@@ -3,10 +3,16 @@ import { NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
 
 import { trackServerEvent } from "@/lib/analytics/server";
-import { createCheckout, type BylCheckoutItem } from "@/lib/byl";
+import { createCheckout, createInvoice, type BylCheckoutItem } from "@/lib/byl";
 import { d1Query } from "@/lib/d1";
+import { httpErrorFor, logServerError } from "@/lib/errors";
 import { formatGrade, toGradeColumns } from "@/lib/registration/grade";
-import { computePricing, getPricingSettings } from "@/lib/registration/pricing";
+import { invoiceDescription, paymentReference } from "@/lib/registration/invoice";
+import {
+  computePricing,
+  getPricingSettings,
+  type PricingBreakdown,
+} from "@/lib/registration/pricing";
 import { createRegistrationSchema } from "@/lib/registration/schema";
 
 export async function POST(request: Request) {
@@ -24,8 +30,22 @@ export async function POST(request: Request) {
   const registrationId = uuid();
   const now = new Date().toISOString();
 
-  const settings = await getPricingSettings();
-  const pricing = computePricing(settings, input.attendees.length);
+  let pricing: PricingBreakdown;
+  try {
+    const settings = await getPricingSettings();
+    pricing = computePricing(settings, input.attendees.length);
+  } catch (error) {
+    const { code, status } = httpErrorFor(error);
+    logServerError("registration.create", error, {
+      step: "read_pricing",
+      registrationId,
+      attendees: input.attendees.length,
+    });
+    waitUntil(trackServerEvent("registration_create_failed", { reason: code }));
+    return NextResponse.json({ error: code }, { status });
+  }
+
+  let step = "insert_registration";
 
   try {
     await d1Query(
@@ -53,6 +73,8 @@ export async function POST(request: Request) {
       ],
     );
 
+    step = "insert_attendee";
+
     // One church per registration — the form asks for it once — but it's
     // still denormalised onto every attendee row so the admin monitor can
     // group and filter attendees without joining back.
@@ -76,16 +98,22 @@ export async function POST(request: Request) {
       );
     }
 
+    step = "insert_church";
+
     await d1Query(
       "INSERT OR IGNORE INTO churches (id, name, created_at) VALUES (?, ?, ?)",
       [uuid(), input.churchName, now],
     );
   } catch (error) {
-    console.error("Failed to persist registration", error);
-    waitUntil(
-      trackServerEvent("registration_create_failed", { reason: "database_error" }),
-    );
-    return NextResponse.json({ error: "database_error" }, { status: 500 });
+    const { code, status } = httpErrorFor(error);
+    logServerError("registration.create", error, {
+      step,
+      registrationId,
+      attendees: input.attendees.length,
+      registrantType: input.registrantType,
+    });
+    waitUntil(trackServerEvent("registration_create_failed", { reason: code }));
+    return NextResponse.json({ error: code }, { status });
   }
 
   const siteUrl =
@@ -114,48 +142,83 @@ export async function POST(request: Request) {
   }
 
   try {
-    const checkout = await createCheckout({
-      items,
-      clientReferenceId: registrationId,
-      successUrl,
-      cancelUrl,
-      customerEmail: input.payerEmail,
-    });
+    let paymentUrl: string;
+    let bylCheckoutId: string | null = null;
 
+    if (input.paymentMethod === "invoice") {
+      // An invoice has no line items and no success_url — what it has is a
+      // description, which is the only text we control on the payer's bank
+      // statement. Byl voids it at the due date, one day by default.
+      const invoice = await createInvoice({
+        amount: pricing.totalMnt,
+        description: invoiceDescription(
+          paymentReference(registrationId),
+          input.attendees.length,
+        ),
+        clientReferenceId: registrationId,
+      });
+
+      paymentUrl = invoice.url;
+    } else {
+      const checkout = await createCheckout({
+        items,
+        clientReferenceId: registrationId,
+        successUrl,
+        cancelUrl,
+        customerEmail: input.payerEmail,
+      });
+
+      paymentUrl = checkout.url;
+      bylCheckoutId = String(checkout.id);
+    }
+
+    // byl_checkout_url holds whichever payment page this registration got —
+    // the admin monitor uses it as "the link to chase an unpaid one with".
+    // byl_checkout_id stays null for an invoice, since an invoice id there
+    // would read as a checkout that never existed.
     await d1Query(
-      `UPDATE registrations SET byl_checkout_id = ?, byl_checkout_url = ?, updated_at = ? WHERE id = ?`,
-      [
-        String(checkout.id),
-        checkout.url,
-        new Date().toISOString(),
-        registrationId,
-      ],
+      `UPDATE registrations SET byl_checkout_id = COALESCE(?, byl_checkout_id), byl_checkout_url = ?, updated_at = ? WHERE id = ?`,
+      [bylCheckoutId, paymentUrl, new Date().toISOString(), registrationId],
     );
 
     // The client's own "submitted" event fires before this request and can
-    // be lost to the checkout redirect, so this is the reliable top of the
-    // funnel: a row exists and Byl has a checkout for it.
+    // be lost to the payment redirect, so this is the reliable top of the
+    // funnel: a row exists and Byl has something to pay against it.
     waitUntil(
       trackServerEvent("registration_created", {
         attendees: input.attendees.length,
         registrantType: input.registrantType,
+        paymentMethod: input.paymentMethod,
         totalMnt: pricing.totalMnt,
       }),
     );
 
     return NextResponse.json({
       registrationId,
-      checkoutUrl: checkout.url,
+      paymentUrl,
     });
   } catch (error) {
-    console.error("Failed to create Byl checkout", error);
+    logServerError("registration.checkout", error, {
+      step: input.paymentMethod === "invoice" ? "create_byl_invoice" : "create_byl_checkout",
+      registrationId,
+      attendees: input.attendees.length,
+      totalMnt: pricing.totalMnt,
+    });
     waitUntil(
       trackServerEvent("registration_create_failed", { reason: "payment_error" }),
     );
 
+    // The registration row is real and paid-for later, so mark it rather
+    // than leaving it pending forever. If even this write fails the row
+    // stays pending, which is the safer of the two wrong states.
     await d1Query(
       `UPDATE registrations SET status = 'failed', updated_at = ? WHERE id = ?`,
       [new Date().toISOString(), registrationId],
+    ).catch((markError) =>
+      logServerError("registration.checkout", markError, {
+        step: "mark_failed",
+        registrationId,
+      }),
     );
 
     return NextResponse.json(

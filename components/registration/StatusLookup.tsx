@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { errorCodeFrom, userMessage, type AppErrorCode } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { formatGrade } from "@/lib/registration/grade";
 import { formatMnt } from "@/lib/registration/pricing";
@@ -152,7 +153,7 @@ export function StatusLookup() {
   const [loading, setLoading] = React.useState(false);
   const [searchedPhone, setSearchedPhone] = React.useState<string | null>(null);
   const [results, setResults] = React.useState<Result[]>([]);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<AppErrorCode | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -160,14 +161,32 @@ export function StatusLookup() {
 
     setLoading(true);
     setError(null);
+    // Clear the previous search so stale cards can't sit under an error.
+    setResults([]);
+    setSearchedPhone(null);
+
+    let res: Response;
     try {
-      const res = await fetch(`/api/registration/lookup?phone=${phone}`);
+      res = await fetch(`/api/registration/lookup?phone=${phone}`);
+    } catch {
+      // Only a request that never completed lands here, so this really is
+      // the connection and not us.
+      setError("network_error");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (!res.ok) {
+        setError(await errorCodeFrom(res));
+        return;
+      }
+
       const data = await res.json();
-      if (!res.ok) throw new Error();
       setResults(data.registrations ?? []);
       setSearchedPhone(phone);
     } catch {
-      setError("Хайлт хийхэд алдаа гарлаа. Дахин оролдоно уу.");
+      setError("unknown");
     } finally {
       setLoading(false);
     }
@@ -218,9 +237,17 @@ export function StatusLookup() {
       </form>
 
       {error && (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
-          {error}
-        </p>
+        // A failed search is not a failed registration, and that's the thing
+        // people jump to — so the hint says which one this is.
+        <div
+          role="alert"
+          className="grid gap-0.5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800"
+        >
+          <p className="font-semibold">{userMessage(error).title}</p>
+          {userMessage(error).hint && (
+            <p className="text-[13px] text-red-700">{userMessage(error).hint}</p>
+          )}
+        </div>
       )}
 
       {loading && (

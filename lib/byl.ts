@@ -1,13 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-// Client for the Byl payment gateway (https://byl.mn/docs).
-//
-// Byl's hosted "checkout" is the closest match to what registration needs:
-// one POST creates a payment page with a line item per attendee, and the
-// registrant is redirected to `url` to pay via QPay / Golomt / SocialPay /
-// Pocket. We tag every checkout with `client_reference_id = registrationId`
-// so the webhook can map a completed payment back to its registration.
-
 const DEFAULT_BASE_URL = "https://byl.mn/api/v1";
 
 function getConfig() {
@@ -36,9 +28,6 @@ function getWebhookSecret(): string {
   return secret;
 }
 
-// Byl caps `client_reference_id` at 48 characters. A registration id is a
-// 36-character UUID, so it fits as-is — this just keeps a longer id from
-// being silently rejected by the API if that ever changes.
 export const CLIENT_REFERENCE_ID_MAX_LENGTH = 48;
 
 export type BylCheckoutItem = {
@@ -73,12 +62,9 @@ export type BylCheckout = {
   updated_at: string;
 };
 
-/**
- * Creates a hosted Byl checkout page and returns it. The caller redirects
- * the registrant to `url`; payment confirmation arrives asynchronously as a
- * `checkout.completed` webhook, never from this response.
- */
-export async function createCheckout(input: CreateCheckoutInput): Promise<BylCheckout> {
+export async function createCheckout(
+  input: CreateCheckoutInput,
+): Promise<BylCheckout> {
   const { baseUrl, projectId, token } = getConfig();
 
   if (input.clientReferenceId.length > CLIENT_REFERENCE_ID_MAX_LENGTH) {
@@ -106,7 +92,9 @@ export async function createCheckout(input: CreateCheckoutInput): Promise<BylChe
   });
 
   if (!res.ok) {
-    throw new Error(`Byl checkout creation failed: ${res.status} ${await res.text()}`);
+    throw new Error(
+      `Byl checkout creation failed: ${res.status} ${await res.text()}`,
+    );
   }
 
   const json = (await res.json()) as { data: BylCheckout };
@@ -118,12 +106,72 @@ export async function createCheckout(input: CreateCheckoutInput): Promise<BylChe
   return json.data;
 }
 
-// Byl's docs name the header `Byl-Signature`, but a rejected delivery is
-// indistinguishable from a wrong secret if the real header is spelled
-// differently, so accept the plausible variants rather than guess.
+export const INVOICE_DESCRIPTION_MAX_LENGTH = 255;
+
+export type BylInvoice = {
+  id: number;
+  status: "draft" | "open" | "paid" | "void";
+  amount: string | number;
+  description: string | null;
+  number: string;
+  url: string;
+  due_date: string;
+  created_at: string;
+};
+
+export type CreateInvoiceInput = {
+  amount: number;
+  description: string;
+  clientReferenceId: string;
+  /** ISO date. Byl defaults to 1 day from creation if this is omitted. */
+  dueDate?: string;
+  autoAdvance?: boolean;
+};
+
+export async function createInvoice(
+  input: CreateInvoiceInput,
+): Promise<BylInvoice> {
+  const { baseUrl, projectId, token } = getConfig();
+
+  if (input.clientReferenceId.length > CLIENT_REFERENCE_ID_MAX_LENGTH) {
+    throw new Error(
+      `Byl client_reference_id must be at most ${CLIENT_REFERENCE_ID_MAX_LENGTH} characters`,
+    );
+  }
+
+  const res = await fetch(`${baseUrl}/projects/${projectId}/invoices`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      amount: input.amount,
+      description: input.description.slice(0, INVOICE_DESCRIPTION_MAX_LENGTH),
+      client_reference_id: input.clientReferenceId,
+      due_date: input.dueDate,
+      auto_advance: input.autoAdvance ?? true,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      `Byl invoice creation failed: ${res.status} ${await res.text()}`,
+    );
+  }
+
+  const json = (await res.json()) as { data: BylInvoice };
+
+  if (!json.data?.url) {
+    throw new Error("Byl invoice creation returned no invoice url");
+  }
+
+  return json.data;
+}
+
 const SIGNATURE_HEADERS = ["byl-signature", "x-byl-signature", "byl_signature"];
 
-/** Returns the first signature-bearing header present, or null. */
 export function readSignatureHeader(headers: Headers): string | null {
   for (const name of SIGNATURE_HEADERS) {
     const value = headers.get(name);
@@ -132,16 +180,15 @@ export function readSignatureHeader(headers: Headers): string | null {
   return null;
 }
 
-/**
- * Verifies the `Byl-Signature` header Byl sends on every webhook call.
- * `rawBody` must be the exact, unparsed request body string — the signature
- * is computed over the raw bytes, and re-serializing the JSON reorders keys
- * and breaks it.
- */
-export function verifyWebhookSignature(rawBody: string, signatureHeader: string | null): boolean {
+export function verifyWebhookSignature(
+  rawBody: string,
+  signatureHeader: string | null,
+): boolean {
   if (!signatureHeader) return false;
 
-  const expected = createHmac("sha256", getWebhookSecret()).update(rawBody, "utf8").digest("hex");
+  const expected = createHmac("sha256", getWebhookSecret())
+    .update(rawBody, "utf8")
+    .digest("hex");
 
   const expectedBuf = Buffer.from(expected, "utf8");
   const receivedBuf = Buffer.from(signatureHeader, "utf8");
@@ -183,7 +230,9 @@ export type BylWebhookEvent = {
  * Byl returns money amounts as either a number or a fixed-point string
  * (e.g. "27000.000000000000"), depending on the endpoint.
  */
-export function parseBylAmount(amount: string | number | undefined): number | null {
+export function parseBylAmount(
+  amount: string | number | undefined,
+): number | null {
   if (amount === undefined || amount === null) return null;
   const value = typeof amount === "number" ? amount : Number.parseFloat(amount);
   return Number.isFinite(value) ? Math.round(value) : null;

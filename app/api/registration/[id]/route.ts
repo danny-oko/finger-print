@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { httpErrorFor, logServerError } from "@/lib/errors";
 import { getRegistrationDetail } from "@/lib/registration/detail";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
     return NextResponse.json({ registration });
   } catch (error) {
-    console.error("Failed to load registration", error);
-    return NextResponse.json({ error: "database_error" }, { status: 500 });
+    const { code, status } = httpErrorFor(error);
+    logServerError("registration.detail", error, { registrationId: id });
+    return NextResponse.json({ error: code }, { status });
   }
 }

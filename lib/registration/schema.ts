@@ -32,8 +32,15 @@ export const attendeeSchema = z.object({
 
 export type Attendee = z.infer<typeof attendeeSchema>;
 
+// Two ways to be paid for the same registration: Byl's hosted checkout
+// (card / QPay, with a redirect back to the ticket page) or a Byl invoice,
+// which carries a description we choose onto the payer's bank statement.
+export const PAYMENT_METHODS = ["checkout", "invoice"] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
 export const createRegistrationSchema = z
   .object({
+    paymentMethod: z.enum(PAYMENT_METHODS).default("checkout"),
     // Derived from the attendee count rather than picked by the user: one
     // person means they're registering themselves, more than one means
     // someone is registering on their behalf.
@@ -142,11 +149,13 @@ export type RegistrationFormValues = z.input<typeof registrationFormSchema>;
  */
 export function toCreateRegistrationInput(
   values: RegistrationFormOutput,
+  paymentMethod: PaymentMethod = "checkout",
 ): CreateRegistrationInput {
   const isGroup = values.attendees.length > 1;
   const first = values.attendees[0];
 
   return {
+    paymentMethod,
     registrantType: isGroup ? "church_leader" : "individual",
     churchName: values.churchName,
     payerName: isGroup ? (values.payerName ?? "") : first.fullName,

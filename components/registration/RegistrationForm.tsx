@@ -26,10 +26,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRegistrationDraft } from "@/hooks/use-registration-draft";
 import { trackEvent } from "@/lib/analytics/client";
+import { errorCodeFrom, userMessage } from "@/lib/errors";
 import type { PricingSettings } from "@/lib/registration/pricing";
 import {
   registrationFormSchema,
   toCreateRegistrationInput,
+  type PaymentMethod,
   type RegistrationFormOutput,
   type RegistrationFormValues,
 } from "@/lib/registration/schema";
@@ -103,7 +105,8 @@ export function RegistrationForm() {
 
   const [churches, setChurches] = React.useState<string[]>([]);
   const [pricing, setPricing] = React.useState<PricingSettings | null>(null);
-  const [submitting, setSubmitting] = React.useState(false);
+  // Which payment button is mid-flight, so only that one shows a spinner.
+  const [submitting, setSubmitting] = React.useState<PaymentMethod | null>(null);
   const [focusIndex, setFocusIndex] = React.useState<number | null>(null);
   // Set only once the form validates, so the review can never show values
   // the schema would reject.
@@ -161,34 +164,77 @@ export function RegistrationForm() {
     setReview(values);
   }
 
-  async function confirmAndPay() {
+  async function confirmAndPay(method: PaymentMethod) {
     if (!review) return;
-    setSubmitting(true);
+    setSubmitting(method);
 
-    const payload = toCreateRegistrationInput(review);
+    const payload = toCreateRegistrationInput(review, method);
     trackEvent("registration_submitted", {
       attendees: payload.attendees.length,
       registrantType: payload.registrantType,
+      paymentMethod: method,
     });
 
+    let res: Response;
     try {
-      const res = await fetch("/api/registration", {
+      res = await fetch("/api/registration", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
+    } catch {
+      // The request never left — nothing was saved, so retrying is safe and
+      // saying so stops people submitting again from a different tab.
+      const { title, hint } = userMessage("network_error");
+      toast.error(title, { description: hint });
+      setSubmitting(null);
+      return;
+    }
 
-      if (!res.ok || !data.checkoutUrl) {
-        throw new Error(data.error ?? "unknown");
+    if (!res.ok) {
+      const code = await errorCodeFrom(res.clone());
+      const { title, hint } = userMessage(code);
+
+      // A payment failure is the one case where the registration did save.
+      // Repeating "try again" here would earn a duplicate row, so it points
+      // at the saved one instead.
+      if (code === "payment_error") {
+        const { registrationId } = (await res.json().catch(() => ({}))) as {
+          registrationId?: string;
+        };
+
+        toast.error(title, {
+          description: hint,
+          duration: 10000,
+          action: registrationId
+            ? {
+                label: "Бүртгэлээ харах",
+                onClick: () => {
+                  clearDraft();
+                  window.location.href = `/event/registration/${registrationId}`;
+                },
+              }
+            : undefined,
+        });
+      } else {
+        toast.error(title, { description: hint });
       }
 
-      clearDraft();
-      window.location.href = data.checkoutUrl;
-    } catch {
-      toast.error("Бүртгэл үүсгэхэд алдаа гарлаа. Дахин оролдоно уу.");
-      setSubmitting(false);
+      setSubmitting(null);
+      return;
     }
+
+    const data = await res.json().catch(() => null);
+
+    if (!data?.paymentUrl) {
+      const { title, hint } = userMessage("payment_error");
+      toast.error(title, { description: hint });
+      setSubmitting(null);
+      return;
+    }
+
+    clearDraft();
+    window.location.href = data.paymentUrl;
   }
 
   function onInvalid(errors: FieldErrors<RegistrationFormValues>) {
@@ -344,7 +390,7 @@ export function RegistrationForm() {
         <PriceBar
           pricing={pricing}
           attendeeCount={fields.length}
-          submitting={submitting}
+          submitting={submitting !== null}
         />
       </form>
 
