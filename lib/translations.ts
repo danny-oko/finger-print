@@ -144,6 +144,7 @@ export type Translations = {
   register: {
     badge: string;
     button: string;
+    checkStatus: string;
     bannerTitle: string;
     bannerSubtitle: string;
   };
@@ -320,6 +321,7 @@ export const translations: Record<string, Translations> = {
     register: {
       badge: "Registration is open",
       button: "Register now",
+      checkStatus: "Check my registration",
       bannerTitle: "Ready for the conference?",
       bannerSubtitle: "Register now and get your ticket by email.",
     },
@@ -498,6 +500,7 @@ export const translations: Record<string, Translations> = {
     register: {
       badge: "Бүртгэл нээлттэй",
       button: "Бүртгүүлэх",
+      checkStatus: "Бүртгэлээ шалгах",
       bannerTitle: "Конференцдоо бэлэн үү?",
       bannerSubtitle: "Яг одоо бүртгэлээ хийлгээрэй!",
     },
@@ -674,6 +677,7 @@ export const translations: Record<string, Translations> = {
     register: {
       badge: "등록 접수 중",
       button: "지금 등록하기",
+      checkStatus: "등록 확인하기",
       bannerTitle: "컨퍼런스 참여 준비되셨나요?",
       bannerSubtitle: "지금 등록하고 이메일로 티켓을 받아보세요.",
     },

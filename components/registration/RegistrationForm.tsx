@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { AttendeeRow } from "@/components/registration/AttendeeRow";
 import { ChurchCombobox } from "@/components/registration/ChurchCombobox";
 import { PriceBar } from "@/components/registration/PriceBar";
+import { ReviewDialog } from "@/components/registration/ReviewDialog";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -33,10 +34,6 @@ import {
   type RegistrationFormValues,
 } from "@/lib/registration/schema";
 
-// A new row starts with nothing chosen in the grade select. The schema is
-// what rejects that, so the blank value sits deliberately outside the enum —
-// Radix reserves the empty string for "clear", leaving undefined as the only
-// honest way to say "unset".
 const BLANK_ATTENDEE = {
   fullName: "",
   phone: "",
@@ -58,14 +55,6 @@ function firstErrorField(errors: unknown, path: string[] = []): string | null {
   return null;
 }
 
-/**
- * One question-group inside the form's single card. Groups are separated by
- * a rule rather than split into separate cards, because they're three parts
- * of one short form — the whole point of collapsing the old wizard.
- *
- * The title outsizes the field labels below it on purpose: at the same size
- * and weight, "which church" read as just another field name.
- */
 function Section({
   title,
   hint,
@@ -116,6 +105,11 @@ export function RegistrationForm() {
   const [pricing, setPricing] = React.useState<PricingSettings | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
   const [focusIndex, setFocusIndex] = React.useState<number | null>(null);
+  // Set only once the form validates, so the review can never show values
+  // the schema would reject.
+  const [review, setReview] = React.useState<RegistrationFormOutput | null>(
+    null,
+  );
 
   React.useEffect(() => {
     fetch("/api/registration/churches")
@@ -160,10 +154,18 @@ export function RegistrationForm() {
     trackEvent("registration_person_added", { attendees: fields.length + 1 });
   }
 
-  async function onSubmit(values: RegistrationFormOutput) {
+  function openReview(values: RegistrationFormOutput) {
+    trackEvent("registration_review_opened", {
+      attendees: values.attendees.length,
+    });
+    setReview(values);
+  }
+
+  async function confirmAndPay() {
+    if (!review) return;
     setSubmitting(true);
 
-    const payload = toCreateRegistrationInput(values);
+    const payload = toCreateRegistrationInput(review);
     trackEvent("registration_submitted", {
       attendees: payload.attendees.length,
       registrantType: payload.registrantType,
@@ -204,7 +206,7 @@ export function RegistrationForm() {
   return (
     <FormProvider {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, onInvalid)}
+        onSubmit={form.handleSubmit(openReview, onInvalid)}
         // 44px controls are the smallest comfortable touch target, and this
         // form is filled on a phone far more often than not. Both the select
         // and the church combobox render as role="combobox", so one rule
@@ -214,133 +216,129 @@ export function RegistrationForm() {
         className="grid gap-4 [&_[data-slot=form-label]]:text-[13px] [&_[role=combobox]]:h-11 [&_input]:h-11"
       >
         <div className="divide-y divide-neutral-200 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-        <Section
-          title="Хамрагддаг цуглаан"
-          // hint="Нэг цуглааны ахлагч болон найзуудтайгаа хамт бүртгүүлээрэй"
-        >
-          <FormField
-            control={form.control}
-            name="churchName"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <ChurchCombobox
-                    value={field.value}
-                    churches={churches}
-                    onChange={(v) =>
-                      form.setValue("churchName", v, { shouldValidate: true })
-                    }
-                    onCreate={handleCreateChurch}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </Section>
-
-        <Section
-          title="Бүртгүүлэх хүн"
-          hint="Олон хүнийг нэг дор бүртгэж, нэг удаа төлж болно."
-        >
-          {/* People are separated by space and their own numbered label,
-              which only appears once there's more than one — no rule needed,
-              and a rule faint enough not to shout would be too faint to
-              read on white anyway. */}
-          <div className="grid gap-7">
-            {fields.map((field, index) => (
-              <AttendeeRow
-                key={field.id}
-                index={index}
-                showIndex={isGroup}
-                phoneRequired={!isGroup}
-                autoFocus={focusIndex === index}
-                onRemove={fields.length > 1 ? () => remove(index) : undefined}
-              />
-            ))}
-          </div>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="h-11 w-full border-dashed"
-            onClick={addAttendee}
+          <Section
+            title="Хамрагддаг цуглаан"
+            // hint="Нэг цуглааны ахлагч болон найзуудтайгаа хамт бүртгүүлээрэй"
           >
-            <Plus className="size-4" />
-            Хүн нэмэх
-          </Button>
-        </Section>
-
-        <Section
-          title="Тасалбар хүлээн авах"
-          hint="Бүх хамрагчийн QR тасалбарыг энэ имэйлээр илгээнэ."
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
-              name="payerEmail"
+              name="churchName"
               render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                  <FormLabel>Имэйл хаяг</FormLabel>
+                <FormItem>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="email"
-                      placeholder="name@example.com"
-                      autoComplete="email"
+                    <ChurchCombobox
+                      value={field.value}
+                      churches={churches}
+                      onChange={(v) =>
+                        form.setValue("churchName", v, { shouldValidate: true })
+                      }
+                      onCreate={handleCreateChurch}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </Section>
 
-            {isGroup && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="payerName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Бүртгэж буй хүний нэр</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Бат-Эрдэнэ Ганбаяр"
-                          autoComplete="name"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+          <Section
+            title="Бүртгүүлэх хүн"
+            hint="Олон хүнийг нэг дор бүртгэж, нэг удаа төлж болно."
+          >
+            <div className="grid gap-7">
+              {fields.map((field, index) => (
+                <AttendeeRow
+                  key={field.id}
+                  index={index}
+                  showIndex={isGroup}
+                  phoneRequired={!isGroup}
+                  autoFocus={focusIndex === index}
+                  onRemove={fields.length > 1 ? () => remove(index) : undefined}
                 />
-                <FormField
-                  control={form.control}
-                  name="payerPhone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Таны утас</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          inputMode="tel"
-                          maxLength={8}
-                          placeholder="99112233"
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value.replace(/\D/g, "").slice(0, 8),
-                            )
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
-          </div>
-        </Section>
+              ))}
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 w-full border-dashed"
+              onClick={addAttendee}
+            >
+              <Plus className="size-4" />
+              Хүн нэмэх
+            </Button>
+          </Section>
+
+          <Section
+            title="Тасалбар хүлээн авах"
+            hint="Бүх хамрагчийн QR тасалбарыг энэ имэйлээр илгээнэ."
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="payerEmail"
+                render={({ field }) => (
+                  <FormItem className="sm:col-span-2">
+                    <FormLabel>Имэйл хаяг</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="name@example.com"
+                        autoComplete="email"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {isGroup && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="payerName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Бүртгэж буй хүний нэр</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Бат-Эрдэнэ Ганбаяр"
+                            autoComplete="name"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="payerPhone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Таны утас</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            inputMode="tel"
+                            maxLength={8}
+                            placeholder="99112233"
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value.replace(/\D/g, "").slice(0, 8),
+                              )
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+            </div>
+          </Section>
         </div>
 
         <PriceBar
@@ -349,6 +347,14 @@ export function RegistrationForm() {
           submitting={submitting}
         />
       </form>
+
+      <ReviewDialog
+        values={review}
+        pricing={pricing}
+        submitting={submitting}
+        onEdit={() => setReview(null)}
+        onConfirm={confirmAndPay}
+      />
     </FormProvider>
   );
 }

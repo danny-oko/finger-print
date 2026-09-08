@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { RegistrationForm } from "@/components/registration/RegistrationForm";
 
@@ -17,6 +18,15 @@ export default function EventRegistrationPage() {
         <h1 className="mt-1 text-xl font-black text-neutral-900 sm:text-2xl">
           Конференцэд бүртгүүлэх
         </h1>
+        <p className="mt-2 text-[13px] text-neutral-500">
+          Аль хэдийн бүртгүүлсэн үү?{" "}
+          <Link
+            href="/event/status"
+            className="font-semibold text-[#F98C01] underline underline-offset-2"
+          >
+            Бүртгэлээ шалгах
+          </Link>
+        </p>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">

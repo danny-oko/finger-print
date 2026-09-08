@@ -13,8 +13,8 @@ export default function EventStatusPage() {
       <div className="mx-auto w-full max-w-2xl shrink-0 px-4 pt-6 pb-3 text-center">
         <h1 className="text-xl font-black text-neutral-900 sm:text-2xl">Бүртгэлээ шалгах</h1>
         <p className="mx-auto mt-1 max-w-lg text-sm text-neutral-500 sm:text-base">
-          Бүртгүүлэхдээ ашигласан утасны дугаараа оруулж, бүртгэл болон төлбөрийн
-          төлөвөө шалгана уу.
+          Утасны дугаараа оруулаад бүртгэл, төлбөрийн төлөв болон QR тасалбараа
+          дахин харна уу.
         </p>
       </div>
 

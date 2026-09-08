@@ -12,6 +12,7 @@ type RegistrationRow = {
   total_mnt: number;
   currency: string;
   status: string;
+  tickets_issued_at: string | null;
   created_at: string;
 };
 
@@ -37,7 +38,7 @@ export async function GET(request: Request) {
   try {
     const registrations = await d1Query<RegistrationRow>(
       `SELECT DISTINCT r.id, r.registrant_type, r.payer_name, r.payer_phone, r.attendee_count,
-              r.total_mnt, r.currency, r.status, r.created_at
+              r.total_mnt, r.currency, r.status, r.tickets_issued_at, r.created_at
        FROM registrations r
        LEFT JOIN attendees a ON a.registration_id = r.id
        WHERE r.payer_phone = ? OR a.phone = ? OR a.parent_phone = ?

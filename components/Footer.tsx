@@ -94,12 +94,17 @@ export default function Footer({
                   {t("register.bannerSubtitle")}
                 </p>
               </div>
-              <Button
-                className="h-11 shrink-0 rounded-full px-8 text-black"
-                asChild
-              >
-                <Link href="/event/registration">{t("register.button")}</Link>
-              </Button>
+              <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+                <Button className="h-11 rounded-full px-8 text-black" asChild>
+                  <Link href="/event/registration">{t("register.button")}</Link>
+                </Button>
+                <Link
+                  href="/event/status"
+                  className="text-center text-sm font-medium text-white/60 underline underline-offset-4 transition hover:text-white sm:px-2"
+                >
+                  {t("register.checkStatus")}
+                </Link>
+              </div>
             </div>
 
             <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] lg:gap-14">
