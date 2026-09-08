@@ -1,5 +1,11 @@
 import type { MonitorRow, RegistrantType } from "@/lib/admin/types";
 import { isCloseChurchName, normalizeChurchName } from "@/lib/registration/churchName";
+import {
+  formatGrade,
+  gradeSortValue,
+  isYouthLeader,
+  YOUTH_LEADER,
+} from "@/lib/registration/grade";
 
 // Pure helpers shared by every view in the registration monitor. Everything
 // here runs on the client against the full row set, which is what lets the
@@ -57,7 +63,7 @@ export type Filters = {
   state: MonitorState | "all";
   path: RegistrantType | "all";
   church: string | "all";
-  grade: number | "all";
+  grade: number | typeof YOUTH_LEADER | "all";
   checkedIn: "all" | "yes" | "no";
 };
 
@@ -100,7 +106,11 @@ export function applyFilters(rows: MonitorRow[], filters: Filters): MonitorRow[]
   return rows.filter((row) => {
     if (filters.state !== "all" && rowState(row) !== filters.state) return false;
     if (filters.path !== "all" && row.registrantType !== filters.path) return false;
-    if (filters.grade !== "all" && row.grade !== filters.grade) return false;
+    if (filters.grade === YOUTH_LEADER) {
+      if (!isYouthLeader(row)) return false;
+    } else if (filters.grade !== "all" && row.grade !== filters.grade) {
+      return false;
+    }
     if (filters.church !== "all" && normalizeChurchName(row.churchName) !== filters.church) {
       return false;
     }
@@ -224,7 +234,7 @@ export function sortAttendees(
       case "churchName":
         return row.churchName;
       case "grade":
-        return row.grade;
+        return gradeSortValue(row);
       case "state":
         return STATE_ORDER[rowState(row)];
       case "path":
@@ -571,7 +581,7 @@ export function computeStats(rows: MonitorRow[]): MonitorStats {
 
 const CSV_COLUMNS: [string, (row: MonitorRow) => string | number | null][] = [
   ["Нэр", (r) => r.fullName],
-  ["Анги", (r) => r.grade],
+  ["Анги", (r) => formatGrade(r)],
   ["Сүм", (r) => r.churchName],
   ["Утас", (r) => r.phone],
   ["Эцэг эхийн утас", (r) => r.parentPhone],

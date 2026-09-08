@@ -5,6 +5,7 @@ import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTicketDetail } from "@/lib/registration/detail";
+import { formatGrade } from "@/lib/registration/grade";
 
 export const metadata: Metadata = {
   title: "Тасалбар | Finger Print",
@@ -40,7 +41,7 @@ export default async function TicketPage({ params }: { params: Promise<{ code: s
           <CardContent className="grid justify-items-center gap-3 py-8 text-center">
             <p className="text-lg font-bold text-white">{ticket.fullName}</p>
             <p className="text-xs text-neutral-400">
-              {ticket.grade}-р анги · {ticket.churchName}
+              {formatGrade(ticket)} · {ticket.churchName}
             </p>
 
             {/* eslint-disable-next-line @next/next/no-img-element */}

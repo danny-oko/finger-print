@@ -109,6 +109,21 @@ Both columns are kept rather than dropped, so what was collected before the
 change is still there and the status lookup still matches on `parent_phone`
 for those older rows; new rows just leave both `NULL`.
 
+## 5c. Add the attendee role column
+
+Skip this if you just created the database in step 1. Someone can now
+register as the youth leader bringing a group ("өсвөрийн ахлагч") instead of
+picking a school year, which needs a `role` column and a nullable `grade`:
+
+```bash
+bunx wrangler d1 execute finger-print-2026 --remote \
+  --file=./db/migrations/0005_add_attendee_role.sql
+```
+
+Existing rows all predate the choice, so they become `student`. This
+migration rebuilds the table with the relaxed columns either way, so it's
+safe to run whether or not 0004 has been applied.
+
 ## 6. Create a Gmail App Password (optional — for emailing tickets)
 
 This step is optional. Without it, a paid registration still issues every

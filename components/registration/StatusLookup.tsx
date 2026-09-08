@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { formatMnt } from "@/lib/registration/pricing";
+import { formatGrade } from "@/lib/registration/grade";
 
 type Attendee = {
   id: string;
   full_name: string;
-  grade: number;
+  grade: number | null;
+  role: string;
   church_name: string;
 };
 
@@ -122,7 +124,7 @@ export function StatusLookup() {
                 {reg.attendees.map((a) => (
                   <li key={a.id} className="flex items-center justify-between text-muted-foreground">
                     <span>
-                      {a.full_name} · {a.grade}-р анги · {a.church_name}
+                      {a.full_name} · {formatGrade(a)} · {a.church_name}
                     </span>
                   </li>
                 ))}

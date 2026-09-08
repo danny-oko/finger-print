@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { RegistrationDetail as Detail } from "@/lib/registration/detail";
 import { formatMnt } from "@/lib/registration/pricing";
 import { cn } from "@/lib/utils";
+import { formatGrade } from "@/lib/registration/grade";
 
 const POLL_INTERVAL_MS = 3000;
 const MAX_POLLS = 20;
@@ -133,7 +134,7 @@ function AttendeeCard({
               paid && attendee.ticketCode ? "text-neutral-400" : "text-muted-foreground",
             )}
           >
-            {attendee.grade}-р анги · {attendee.churchName}
+            {formatGrade(attendee)} · {attendee.churchName}
           </p>
         </div>
 

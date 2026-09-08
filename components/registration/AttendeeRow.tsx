@@ -20,9 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GRADE_CHOICES, gradeChoiceLabel } from "@/lib/registration/grade";
 import type { RegistrationFormValues } from "@/lib/registration/schema";
-
-const GRADES = [7, 8, 9, 10, 11, 12];
 
 function onlyDigits(value: string) {
   return value.replace(/\D/g, "");
@@ -34,16 +33,19 @@ function onlyDigits(value: string) {
  * phone — cheap enough that a leader can add ten of them without despair.
  *
  * `phoneRequired` is true only for a lone registrant, whose own number
- * doubles as the payer phone the status lookup keys on.
+ * doubles as the payer phone the status lookup keys on. `showIndex` is off
+ * for that same lone registrant — "1-р хүн" distinguishes them from nobody.
  */
 export function AttendeeRow({
   index,
   phoneRequired,
+  showIndex,
   onRemove,
   autoFocus = false,
 }: {
   index: number;
   phoneRequired: boolean;
+  showIndex: boolean;
   onRemove?: () => void;
   autoFocus?: boolean;
 }) {
@@ -59,23 +61,27 @@ export function AttendeeRow({
   }, [autoFocus]);
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-3 sm:p-4">
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-xs font-bold text-neutral-500">{index + 1}-р хүн</p>
-        {onRemove && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={onRemove}
-            aria-label={`${index + 1}-р хүнийг хасах`}
-          >
-            <Trash2 className="size-4 text-destructive" />
-          </Button>
-        )}
-      </div>
+    <div className="grid gap-3">
+      {showIndex && (
+        <div className="flex items-center justify-between">
+          <p className="text-[13px] font-bold text-neutral-500">
+            {index + 1}-р хүн
+          </p>
+          {onRemove && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={onRemove}
+              aria-label={`${index + 1}-р хүнийг хасах`}
+            >
+              <Trash2 className="size-4 text-destructive" />
+            </Button>
+          )}
+        </div>
+      )}
 
-      <div className="grid gap-3 sm:grid-cols-7">
+      <div className="grid gap-4 sm:grid-cols-7">
         <FormField
           control={control}
           name={`${namePrefix}.fullName`}
@@ -108,9 +114,9 @@ export function AttendeeRow({
             <FormItem className="sm:col-span-2">
               <FormLabel>Анги</FormLabel>
               <Select
-                value={field.value ? String(field.value) : undefined}
+                value={field.value ?? undefined}
                 onValueChange={(v) => {
-                  field.onChange(Number(v));
+                  field.onChange(v);
                   phoneRef.current?.focus();
                 }}
               >
@@ -120,9 +126,9 @@ export function AttendeeRow({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {GRADES.map((g) => (
-                    <SelectItem key={g} value={String(g)}>
-                      {g}-р анги
+                  {GRADE_CHOICES.map((choice) => (
+                    <SelectItem key={choice} value={choice}>
+                      {gradeChoiceLabel(choice)}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -1,4 +1,5 @@
 import { d1Query, d1QueryOne } from "@/lib/d1";
+import type { AttendeeRole } from "@/lib/registration/grade";
 import type { RegistrationStatus } from "@/lib/admin/types";
 
 // Shared read model for the public registration pages. These URLs are
@@ -10,7 +11,8 @@ import type { RegistrationStatus } from "@/lib/admin/types";
 export type DetailAttendee = {
   id: string;
   fullName: string;
-  grade: number;
+  grade: number | null;
+  role: AttendeeRole;
   churchName: string;
   ticketCode: string | null;
   checkedIn: boolean;
@@ -70,7 +72,8 @@ type RegistrationRow = {
 type AttendeeRow = {
   id: string;
   full_name: string;
-  grade: number;
+  grade: number | null;
+  role: AttendeeRole;
   church_name: string;
   ticket_code: string | null;
   checked_in_at: string | null;
@@ -88,7 +91,7 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
   if (!registration) return null;
 
   const attendees = await d1Query<AttendeeRow>(
-    `SELECT id, full_name, grade, church_name, ticket_code, checked_in_at
+    `SELECT id, full_name, grade, role, church_name, ticket_code, checked_in_at
      FROM attendees WHERE registration_id = ? ORDER BY created_at ASC`,
     [id],
   );
@@ -112,6 +115,7 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
       id: a.id,
       fullName: a.full_name,
       grade: a.grade,
+      role: a.role,
       churchName: a.church_name,
       ticketCode: a.ticket_code,
       checkedIn: Boolean(a.checked_in_at),
@@ -121,7 +125,8 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
 
 export type TicketDetail = {
   fullName: string;
-  grade: number;
+  grade: number | null;
+  role: AttendeeRole;
   churchName: string;
   ticketCode: string;
   checkedIn: boolean;
@@ -138,14 +143,15 @@ export type TicketDetail = {
 export async function getTicketDetail(code: string): Promise<TicketDetail | null> {
   const row = await d1QueryOne<{
     full_name: string;
-    grade: number;
+    grade: number | null;
+    role: AttendeeRole;
     church_name: string;
     ticket_code: string;
     checked_in_at: string | null;
     registration_id: string;
     payer_name: string;
   }>(
-    `SELECT a.full_name, a.grade, a.church_name, a.ticket_code, a.checked_in_at,
+    `SELECT a.full_name, a.grade, a.role, a.church_name, a.ticket_code, a.checked_in_at,
             a.registration_id, r.payer_name
      FROM attendees a
      JOIN registrations r ON r.id = a.registration_id
@@ -158,6 +164,7 @@ export async function getTicketDetail(code: string): Promise<TicketDetail | null
   return {
     fullName: row.full_name,
     grade: row.grade,
+    role: row.role,
     churchName: row.church_name,
     ticketCode: row.ticket_code,
     checkedIn: Boolean(row.checked_in_at),

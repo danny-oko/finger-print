@@ -5,6 +5,7 @@ import { v4 as uuid } from "uuid";
 import { trackServerEvent } from "@/lib/analytics/server";
 import { createCheckout, type BylCheckoutItem } from "@/lib/byl";
 import { d1Query } from "@/lib/d1";
+import { formatGrade, toGradeColumns } from "@/lib/registration/grade";
 import { computePricing, getPricingSettings } from "@/lib/registration/pricing";
 import { createRegistrationSchema } from "@/lib/registration/schema";
 
@@ -56,17 +57,20 @@ export async function POST(request: Request) {
     // still denormalised onto every attendee row so the admin monitor can
     // group and filter attendees without joining back.
     for (const attendee of input.attendees) {
+      const { grade, role } = toGradeColumns(attendee.grade);
+
       await d1Query(
         `INSERT INTO attendees (
-          id, registration_id, full_name, phone, church_name, grade, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          id, registration_id, full_name, phone, church_name, grade, role, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           uuid(),
           registrationId,
           attendee.fullName,
           attendee.phone ?? null,
           input.churchName,
-          attendee.grade,
+          grade,
+          role,
           now,
         ],
       );
@@ -93,7 +97,7 @@ export async function POST(request: Request) {
     price_data: {
       unit_amount: pricing.pricePerAttendeeMnt,
       product_data: {
-        name: `${a.fullName} — ${a.grade}-р анги, ${input.churchName}`,
+        name: `${a.fullName} — ${formatGrade(toGradeColumns(a.grade))}, ${input.churchName}`,
       },
     },
     quantity: 1,
