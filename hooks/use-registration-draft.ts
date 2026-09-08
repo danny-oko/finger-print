@@ -3,6 +3,7 @@
 import * as React from "react";
 import type { UseFormReturn } from "react-hook-form";
 
+import { trackEvent } from "@/lib/analytics/client";
 import type {
   RegistrationFormOutput,
   RegistrationFormValues,
@@ -31,6 +32,9 @@ export function useRegistrationDraft(
         const draft = JSON.parse(raw) as Partial<RegistrationFormValues>;
         if (Array.isArray(draft.attendees) && draft.attendees.length > 0) {
           form.reset({ ...form.getValues(), ...draft });
+          trackEvent("registration_draft_restored", {
+            attendees: draft.attendees.length,
+          });
         }
       }
     } catch {

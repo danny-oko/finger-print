@@ -3,7 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import * as React from "react";
-import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+import {
+  FormProvider,
+  useFieldArray,
+  useForm,
+  type FieldErrors,
+} from "react-hook-form";
 import { toast } from "sonner";
 
 import { AttendeeRow } from "@/components/registration/AttendeeRow";
@@ -19,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRegistrationDraft } from "@/hooks/use-registration-draft";
+import { trackEvent } from "@/lib/analytics/client";
 import type { PricingSettings } from "@/lib/registration/pricing";
 import {
   registrationFormSchema,
@@ -32,6 +38,26 @@ const BLANK_ATTENDEE: RegistrationFormValues["attendees"][number] = {
   phone: "",
   grade: undefined,
 };
+
+/**
+ * Walks react-hook-form's nested error object for the path of the first
+ * field that failed, e.g. "attendees.0.phone". A path is a field name, never
+ * a value, so this is safe to send to analytics.
+ */
+function firstErrorField(errors: unknown, path: string[] = []): string | null {
+  if (!errors || typeof errors !== "object") return null;
+
+  const node = errors as Record<string, unknown>;
+  if ("type" in node && typeof node.message === "string") return path.join(".");
+
+  for (const [key, value] of Object.entries(node)) {
+    if (key === "ref") continue;
+    const found = firstErrorField(value, [...path, key]);
+    if (found) return found;
+  }
+
+  return null;
+}
 
 function Section({
   title,
@@ -54,17 +80,19 @@ function Section({
 }
 
 export function RegistrationForm() {
-  const form = useForm<RegistrationFormValues, unknown, RegistrationFormOutput>({
-    resolver: zodResolver(registrationFormSchema),
-    mode: "onTouched",
-    defaultValues: {
-      churchName: "",
-      payerName: "",
-      payerPhone: "",
-      payerEmail: "",
-      attendees: [BLANK_ATTENDEE],
+  const form = useForm<RegistrationFormValues, unknown, RegistrationFormOutput>(
+    {
+      resolver: zodResolver(registrationFormSchema),
+      mode: "onTouched",
+      defaultValues: {
+        churchName: "",
+        payerName: "",
+        payerPhone: "",
+        payerEmail: "",
+        attendees: [BLANK_ATTENDEE],
+      },
     },
-  });
+  );
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -103,24 +131,38 @@ export function RegistrationForm() {
     }).catch(() => {});
   }, []);
 
-  // Nobody picks "individual" or "church leader" any more — the shape of the
-  // form says it. One person is registering themselves; two or more means
-  // somebody is registering on their behalf and has to say who they are.
   const isGroup = fields.length > 1;
+
+  const startedRef = React.useRef(false);
+  React.useEffect(() => {
+    const subscription = form.watch(() => {
+      if (startedRef.current) return;
+      startedRef.current = true;
+      trackEvent("registration_started", {});
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   function addAttendee() {
     append(BLANK_ATTENDEE);
     setFocusIndex(fields.length);
+    trackEvent("registration_person_added", { attendees: fields.length + 1 });
   }
 
   async function onSubmit(values: RegistrationFormOutput) {
     setSubmitting(true);
 
+    const payload = toCreateRegistrationInput(values);
+    trackEvent("registration_submitted", {
+      attendees: payload.attendees.length,
+      registrantType: payload.registrantType,
+    });
+
     try {
       const res = await fetch("/api/registration", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toCreateRegistrationInput(values)),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
 
@@ -136,9 +178,12 @@ export function RegistrationForm() {
     }
   }
 
-  function onInvalid() {
-    // Every field the schema can fail on is on screen, so this just points
-    // people at the first one rather than explaining anything.
+  function onInvalid(errors: FieldErrors<RegistrationFormValues>) {
+    trackEvent("registration_invalid", {
+      field: firstErrorField(errors) ?? "unknown",
+      attendees: fields.length,
+    });
+
     toast.error("Дутуу бөглөсөн талбар байна.");
     document
       .querySelector("[aria-invalid='true']")
@@ -152,8 +197,8 @@ export function RegistrationForm() {
         className="grid gap-6"
       >
         <Section
-          title="Хамаарах сүм"
-          hint="Энэ бүртгэлээр бүртгүүлж буй бүх хүн нэг сүмээс."
+          title="Хамрагддаг цуглаан"
+          // hint="Нэг цуглааны ахлагч болон найзуудтайгаа хамт бүртгүүлээрэй"
         >
           <FormField
             control={form.control}
@@ -187,9 +232,7 @@ export function RegistrationForm() {
                 index={index}
                 phoneRequired={!isGroup}
                 autoFocus={focusIndex === index}
-                onRemove={
-                  fields.length > 1 ? () => remove(index) : undefined
-                }
+                onRemove={fields.length > 1 ? () => remove(index) : undefined}
               />
             ))}
           </div>

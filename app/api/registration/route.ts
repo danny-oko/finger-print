@@ -1,6 +1,8 @@
+import { waitUntil } from "@vercel/functions";
 import { NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
 
+import { trackServerEvent } from "@/lib/analytics/server";
 import { createCheckout, type BylCheckoutItem } from "@/lib/byl";
 import { d1Query } from "@/lib/d1";
 import { computePricing, getPricingSettings } from "@/lib/registration/pricing";
@@ -76,6 +78,9 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Failed to persist registration", error);
+    waitUntil(
+      trackServerEvent("registration_create_failed", { reason: "database_error" }),
+    );
     return NextResponse.json({ error: "database_error" }, { status: 500 });
   }
 
@@ -123,12 +128,26 @@ export async function POST(request: Request) {
       ],
     );
 
+    // The client's own "submitted" event fires before this request and can
+    // be lost to the checkout redirect, so this is the reliable top of the
+    // funnel: a row exists and Byl has a checkout for it.
+    waitUntil(
+      trackServerEvent("registration_created", {
+        attendees: input.attendees.length,
+        registrantType: input.registrantType,
+        totalMnt: pricing.totalMnt,
+      }),
+    );
+
     return NextResponse.json({
       registrationId,
       checkoutUrl: checkout.url,
     });
   } catch (error) {
     console.error("Failed to create Byl checkout", error);
+    waitUntil(
+      trackServerEvent("registration_create_failed", { reason: "payment_error" }),
+    );
 
     await d1Query(
       `UPDATE registrations SET status = 'failed', updated_at = ? WHERE id = ?`,

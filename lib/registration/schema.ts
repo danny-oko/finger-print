@@ -82,17 +82,21 @@ export type CreateRegistrationInput = z.infer<typeof createRegistrationSchema>;
  */
 export const registrationFormSchema = z
   .object({
+    // Declared in the order the fields appear on screen. Zod reports issues
+    // in key order, so this is what makes "the first field that failed" —
+    // the one the form scrolls to, and the one reported to analytics — mean
+    // the topmost one rather than an arbitrary one.
     churchName: z.string().trim().min(2, "Хамаарах сүмээ сонгоно уу").max(160),
+    attendees: z
+      .array(attendeeSchema)
+      .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
+      .max(50),
     payerEmail: emailSchema,
     payerName: z.string().trim().max(120).optional(),
     payerPhone: z
       .union([phoneSchema, z.literal("")])
       .optional()
       .transform((v) => (v ? v : undefined)),
-    attendees: z
-      .array(attendeeSchema)
-      .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
-      .max(50),
   })
   .superRefine((data, ctx) => {
     if (data.attendees.length > 1) {

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { RegistrationForm } from "@/components/registration/RegistrationForm";
 
 export const metadata: Metadata = {
-  title: "Бүртгэл | Finger Print",
+  title: "Бүртгэл | Хурууны хээ 2026",
   description: "Finger Print конференцын онлайн бүртгэл",
 };
 
@@ -12,7 +12,7 @@ export default function EventRegistrationPage() {
     <main className="flex h-dvh flex-col overflow-hidden bg-neutral-50">
       <div className="mx-auto w-full max-w-2xl shrink-0 px-4 pt-6 pb-3 text-center">
         <p className="text-xs font-semibold text-[#F98C01] sm:text-sm">
-          2026.10.10 · FINGER PRINT
+          2026.10.10 · Хурууны хээ · 43
         </p>
         <h1 className="mt-1 text-xl font-black text-neutral-900 sm:text-2xl">
           Конференцэд бүртгүүлэх

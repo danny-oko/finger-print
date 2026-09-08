@@ -1,7 +1,14 @@
+import { waitUntil } from "@vercel/functions";
 import { NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
 
-import { readSignatureHeader, verifyWebhookSignature, type BylWebhookEvent } from "@/lib/byl";
+import { trackServerEvent } from "@/lib/analytics/server";
+import {
+  parseBylAmount,
+  readSignatureHeader,
+  verifyWebhookSignature,
+  type BylWebhookEvent,
+} from "@/lib/byl";
 import { d1Query } from "@/lib/d1";
 import { issueTicketsAndSendEmail } from "@/lib/registration/issueTickets";
 
@@ -84,6 +91,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "update_failed" }, { status: 500 });
     }
 
+    waitUntil(
+      trackServerEvent("registration_awaiting_verification", {
+        totalMnt: parseBylAmount(event.data.object.amount_total),
+      }),
+    );
+
     return NextResponse.json({ ok: true });
   }
 
@@ -108,6 +121,15 @@ export async function POST(request: Request) {
     console.error("Failed to mark registration paid from Byl webhook", error);
     return NextResponse.json({ error: "update_failed" }, { status: 500 });
   }
+
+  // The amount comes off the webhook payload rather than a fresh SELECT —
+  // Byl expects a 2xx within 5 seconds, and the admin monitor is already the
+  // authoritative place for revenue, read straight from D1.
+  waitUntil(
+    trackServerEvent("registration_paid", {
+      totalMnt: parseBylAmount(event.data.object.amount_total),
+    }),
+  );
 
   // Best-effort — the payment itself is already recorded above, so a
   // ticket/email failure here must not turn into a Byl retry loop.
