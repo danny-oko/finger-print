@@ -1,5 +1,5 @@
 "use client";
-
+  
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 
@@ -157,7 +157,7 @@ export const ChurchCombobox = React.forwardRef<
               </CommandGroup>
 
               {closeMatches.length > 0 && (
-                <CommandGroup heading="Ойролцоо нэртэй чуулганууд">
+                <CommandGroup heading="Ойролцоо нэртэй цуглаанууд">
                   {closeMatches.map((church) => (
                     <CommandItem
                       key={church}
