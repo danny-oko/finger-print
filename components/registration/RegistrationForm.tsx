@@ -1,17 +1,20 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Users, UserRound } from "lucide-react";
+import { Plus } from "lucide-react";
 import * as React from "react";
-import { FormProvider, useForm, type Path } from "react-hook-form";
+import {
+  FormProvider,
+  useFieldArray,
+  useForm,
+  type FieldErrors,
+} from "react-hook-form";
 import { toast } from "sonner";
 
-import { AttendeeFields } from "@/components/registration/AttendeeFields";
-import { AttendeesStep } from "@/components/registration/AttendeesStep";
-import { Stepper } from "@/components/registration/Stepper";
-import { SummaryStep } from "@/components/registration/SummaryStep";
+import { AttendeeRow } from "@/components/registration/AttendeeRow";
+import { ChurchCombobox } from "@/components/registration/ChurchCombobox";
+import { PriceBar } from "@/components/registration/PriceBar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   FormControl,
   FormField,
@@ -20,169 +23,83 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { useRegistrationDraft } from "@/hooks/use-registration-draft";
+import { trackEvent } from "@/lib/analytics/client";
 import type { PricingSettings } from "@/lib/registration/pricing";
 import {
-  createRegistrationSchema,
-  type CreateRegistrationInput,
+  registrationFormSchema,
+  toCreateRegistrationInput,
+  type RegistrationFormOutput,
   type RegistrationFormValues,
 } from "@/lib/registration/schema";
-import { useRouter } from "next/navigation";
 
 const BLANK_ATTENDEE: RegistrationFormValues["attendees"][number] = {
   fullName: "",
-  age: undefined,
   phone: "",
-  email: "",
-  parentPhone: "",
-  churchName: "",
   grade: undefined,
 };
 
-type StepId = "type" | "payer" | "attendee" | "attendees" | "summary";
+function firstErrorField(errors: unknown, path: string[] = []): string | null {
+  if (!errors || typeof errors !== "object") return null;
 
-const STEP_LABELS: Record<StepId, string> = {
-  type: "Төрөл",
-  payer: "Холбоо барих",
-  attendee: "Мэдээлэл",
-  attendees: "Хамрагчид",
-  summary: "Тойм",
-};
+  const node = errors as Record<string, unknown>;
+  if ("type" in node && typeof node.message === "string") return path.join(".");
 
-function TypeStep() {
-  return (
-    <FormField
-      name="registrantType"
-      render={({ field }) => (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => field.onChange("individual")}
-            className={cn(
-              "flex flex-col items-start gap-3 rounded-2xl border-2 p-6 text-left transition-colors",
-              field.value === "individual"
-                ? "border-[#F98C01] bg-[#FFF7EC]"
-                : "border-neutral-200 hover:border-neutral-300",
-            )}
-          >
-            <UserRound className="size-8 text-[#F98C01]" />
-            <div>
-              <p className="font-bold">Хувиараа бүртгүүлэх</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Өөрийгөө ганцаараа бүртгүүлж, өөрөө төлбөрөө хийнэ.
-              </p>
-            </div>
-          </button>
+  for (const [key, value] of Object.entries(node)) {
+    if (key === "ref") continue;
+    const found = firstErrorField(value, [...path, key]);
+    if (found) return found;
+  }
 
-          <button
-            type="button"
-            onClick={() => field.onChange("church_leader")}
-            className={cn(
-              "flex flex-col items-start gap-3 rounded-2xl border-2 p-6 text-left transition-colors",
-              field.value === "church_leader"
-                ? "border-[#F98C01] bg-[#FFF7EC]"
-                : "border-neutral-200 hover:border-neutral-300",
-            )}
-          >
-            <Users className="size-8 text-[#F98C01]" />
-            <div>
-              <p className="font-bold">Сүмийн ахлагчаар олноор нь бүртгэх</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Сүмийнхээ хэд хэдэн хүүхдийг нэг дор бүртгэж, нэг удаа төлнө.
-              </p>
-            </div>
-          </button>
-        </div>
-      )}
-    />
-  );
+  return null;
 }
 
-function PayerStep() {
+function Section({
+  title,
+  hint,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      <FormField
-        name="payerName"
-        render={({ field }) => (
-          <FormItem className="sm:col-span-2">
-            <FormLabel>Таны бүтэн нэр</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                placeholder="Бат-Эрдэнэ Ганбаяр"
-                autoComplete="name"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        name="payerPhone"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Таны утасны дугаар</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                inputMode="tel"
-                maxLength={8}
-                placeholder="99112233"
-                onChange={(e) =>
-                  field.onChange(e.target.value.replace(/\D/g, "").slice(0, 8))
-                }
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        name="payerEmail"
-        render={({ field }) => (
-          <FormItem className="sm:col-span-2">
-            <FormLabel>Таны имэйл хаяг</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                type="email"
-                placeholder="name@example.com"
-                autoComplete="email"
-              />
-            </FormControl>
-            <p className="text-xs text-muted-foreground">
-              Бүртгэлээ баталгаажуулах, шаардлагатай үед тантай холбогдоход ашиглана.
-            </p>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </div>
+    <section className="grid gap-3">
+      <div>
+        <h2 className="text-sm font-bold text-neutral-900">{title}</h2>
+        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      </div>
+      {children}
+    </section>
   );
 }
 
 export function RegistrationForm() {
-  const form = useForm<
-    RegistrationFormValues,
-    unknown,
-    CreateRegistrationInput
-  >({
-    resolver: zodResolver(createRegistrationSchema),
-    mode: "onChange",
-    defaultValues: {
-      registrantType: undefined,
-      payerName: "",
-      payerPhone: "",
-      payerEmail: "",
-      attendees: [BLANK_ATTENDEE],
+  const form = useForm<RegistrationFormValues, unknown, RegistrationFormOutput>(
+    {
+      resolver: zodResolver(registrationFormSchema),
+      mode: "onTouched",
+      defaultValues: {
+        churchName: "",
+        payerName: "",
+        payerPhone: "",
+        payerEmail: "",
+        attendees: [BLANK_ATTENDEE],
+      },
     },
+  );
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "attendees",
   });
 
-  const [stepIndex, setStepIndex] = React.useState(0);
+  const { clearDraft } = useRegistrationDraft(form);
+
   const [churches, setChurches] = React.useState<string[]>([]);
   const [pricing, setPricing] = React.useState<PricingSettings | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
-  const router = useRouter();
+  const [focusIndex, setFocusIndex] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     fetch("/api/registration/churches")
@@ -209,84 +126,32 @@ export function RegistrationForm() {
     }).catch(() => {});
   }, []);
 
-  const registrantType = form.watch("registrantType");
+  const isGroup = fields.length > 1;
 
-  const steps: StepId[] = React.useMemo(() => {
-    if (registrantType === "church_leader")
-      return ["type", "payer", "attendees", "summary"];
-    return ["type", "attendee", "summary"];
-  }, [registrantType]);
+  const startedRef = React.useRef(false);
+  React.useEffect(() => {
+    const subscription = form.watch(() => {
+      if (startedRef.current) return;
+      startedRef.current = true;
+      trackEvent("registration_started", {});
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
-  const currentStep = steps[stepIndex];
-
-  async function goNext() {
-    let fieldsToValidate: Path<RegistrationFormValues>[] = [];
-
-    if (currentStep === "type") {
-      if (!registrantType) {
-        form.setError("registrantType", {
-          message: "Бүртгүүлэх төрлөө сонгоно уу",
-        });
-        return;
-      }
-      if (registrantType === "individual") {
-        const first = form.getValues("attendees")[0] ?? BLANK_ATTENDEE;
-        form.setValue("attendees", [first]);
-      }
-    }
-    if (currentStep === "payer")
-      fieldsToValidate = ["payerName", "payerPhone", "payerEmail"];
-    if (currentStep === "attendee") {
-      fieldsToValidate = [
-        "attendees.0.fullName",
-        "attendees.0.age",
-        "attendees.0.phone",
-        "attendees.0.email",
-        "attendees.0.parentPhone",
-        "attendees.0.churchName",
-        "attendees.0.grade",
-      ];
-    }
-    if (currentStep === "attendees") fieldsToValidate = ["attendees"];
-
-    const valid = fieldsToValidate.length
-      ? await form.trigger(fieldsToValidate)
-      : true;
-    if (!valid) return;
-
-    // The "individual" flow has no separate payer step — the one attendee's
-    // own name/phone double as the payer info the schema requires at the
-    // top level, so sync them in before the summary step reads/submits them.
-    if (currentStep === "attendee") {
-      const attendee = form.getValues("attendees.0");
-      form.setValue("payerName", attendee.fullName);
-      form.setValue("payerPhone", attendee.phone ?? "");
-      form.setValue("payerEmail", attendee.email ?? "");
-    }
-
-    setStepIndex((i) => Math.min(i + 1, steps.length - 1));
+  function addAttendee() {
+    append(BLANK_ATTENDEE);
+    setFocusIndex(fields.length);
+    trackEvent("registration_person_added", { attendees: fields.length + 1 });
   }
 
-  function goBack() {
-    if (stepIndex === 0) {
-      router.push("/");
-      return;
-    }
-    setStepIndex((i) => Math.max(i - 1, 0));
-  }
-
-  async function onSubmit(values: CreateRegistrationInput) {
+  async function onSubmit(values: RegistrationFormOutput) {
     setSubmitting(true);
 
-    const payload: CreateRegistrationInput =
-      values.registrantType === "individual"
-        ? {
-            ...values,
-            payerName: values.attendees[0].fullName,
-            payerPhone: values.attendees[0].phone ?? "",
-            payerEmail: values.attendees[0].email ?? "",
-          }
-        : values;
+    const payload = toCreateRegistrationInput(values);
+    trackEvent("registration_submitted", {
+      attendees: payload.attendees.length,
+      registrantType: payload.registrantType,
+    });
 
     try {
       const res = await fetch("/api/registration", {
@@ -300,6 +165,7 @@ export function RegistrationForm() {
         throw new Error(data.error ?? "unknown");
       }
 
+      clearDraft();
       window.location.href = data.checkoutUrl;
     } catch {
       toast.error("Бүртгэл үүсгэхэд алдаа гарлаа. Дахин оролдоно уу.");
@@ -307,80 +173,152 @@ export function RegistrationForm() {
     }
   }
 
-  const isLastStep = stepIndex === steps.length - 1;
+  function onInvalid(errors: FieldErrors<RegistrationFormValues>) {
+    trackEvent("registration_invalid", {
+      field: firstErrorField(errors) ?? "unknown",
+      attendees: fields.length,
+    });
+
+    toast.error("Дутуу бөглөсөн талбар байна.");
+    document
+      .querySelector("[aria-invalid='true']")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   return (
     <FormProvider {...form}>
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (isLastStep) {
-            form.handleSubmit(onSubmit)();
-          } else {
-            goNext();
-          }
-        }}
-        className="grid gap-4"
+        onSubmit={form.handleSubmit(onSubmit, onInvalid)}
+        className="grid gap-6"
       >
-        <Stepper
-          labels={steps.map((s) => STEP_LABELS[s])}
-          currentIndex={stepIndex}
-        />
-
-        <Card className="border-neutral-200 shadow-sm">
-          <CardContent className="py-5">
-            {currentStep === "type" && <TypeStep />}
-            {currentStep === "payer" && <PayerStep />}
-            {currentStep === "attendee" && (
-              <AttendeeFields
-                namePrefix="attendees.0"
-                churches={churches}
-                onCreateChurch={handleCreateChurch}
-                phoneRequired
-                emailRequired
-              />
+        <Section
+          title="Хамрагддаг цуглаан"
+          // hint="Нэг цуглааны ахлагч болон найзуудтайгаа хамт бүртгүүлээрэй"
+        >
+          <FormField
+            control={form.control}
+            name="churchName"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <ChurchCombobox
+                    value={field.value}
+                    churches={churches}
+                    onChange={(v) =>
+                      form.setValue("churchName", v, { shouldValidate: true })
+                    }
+                    onCreate={handleCreateChurch}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-            {currentStep === "attendees" && (
-              <AttendeesStep
-                churches={churches}
-                onCreateChurch={handleCreateChurch}
-              />
-            )}
-            {currentStep === "summary" && <SummaryStep pricing={pricing} />}
-          </CardContent>
-        </Card>
+          />
+        </Section>
 
-        <div className="flex items-center justify-center gap-3">
+        <Section
+          title="Бүртгүүлэх хүн"
+          hint="Олон хүнийг нэг дор бүртгэж, нэг удаа төлж болно."
+        >
+          <div className="grid gap-3">
+            {fields.map((field, index) => (
+              <AttendeeRow
+                key={field.id}
+                index={index}
+                phoneRequired={!isGroup}
+                autoFocus={focusIndex === index}
+                onRemove={fields.length > 1 ? () => remove(index) : undefined}
+              />
+            ))}
+          </div>
+
           <Button
             type="button"
             variant="outline"
-            onClick={goBack}
-            disabled={submitting}
+            className="w-full"
+            onClick={addAttendee}
           >
-            Буцах
+            <Plus className="size-4" />
+            Хүн нэмэх
           </Button>
+        </Section>
 
-          {isLastStep ? (
-            <Button
-              type="submit"
-              size="lg"
-              disabled={submitting}
-              className="min-w-40"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" /> Түр хүлээнэ үү...
-                </>
-              ) : (
-                "Төлбөр төлөх"
+        <Section
+          title="Тасалбар хүлээн авах"
+          hint="Бүх хамрагчийн QR тасалбарыг энэ имэйлээр илгээнэ."
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="payerEmail"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Имэйл хаяг</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="name@example.com"
+                      autoComplete="email"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </Button>
-          ) : (
-            <Button type="submit" size="lg">
-              Үргэлжлүүлэх
-            </Button>
-          )}
-        </div>
+            />
+
+            {isGroup && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="payerName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Бүртгэж буй хүний нэр</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Бат-Эрдэнэ Ганбаяр"
+                          autoComplete="name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="payerPhone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Таны утас</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          inputMode="tel"
+                          maxLength={8}
+                          placeholder="99112233"
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value.replace(/\D/g, "").slice(0, 8),
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+          </div>
+        </Section>
+
+        <PriceBar
+          pricing={pricing}
+          attendeeCount={fields.length}
+          submitting={submitting}
+        />
       </form>
     </FormProvider>
   );

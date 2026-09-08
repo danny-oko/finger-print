@@ -10,7 +10,6 @@ import type { RegistrationStatus } from "@/lib/admin/types";
 export type DetailAttendee = {
   id: string;
   fullName: string;
-  age: number;
   grade: number;
   churchName: string;
   ticketCode: string | null;
@@ -71,7 +70,6 @@ type RegistrationRow = {
 type AttendeeRow = {
   id: string;
   full_name: string;
-  age: number;
   grade: number;
   church_name: string;
   ticket_code: string | null;
@@ -90,7 +88,7 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
   if (!registration) return null;
 
   const attendees = await d1Query<AttendeeRow>(
-    `SELECT id, full_name, age, grade, church_name, ticket_code, checked_in_at
+    `SELECT id, full_name, grade, church_name, ticket_code, checked_in_at
      FROM attendees WHERE registration_id = ? ORDER BY created_at ASC`,
     [id],
   );
@@ -113,7 +111,6 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
     attendees: attendees.map((a) => ({
       id: a.id,
       fullName: a.full_name,
-      age: a.age,
       grade: a.grade,
       churchName: a.church_name,
       ticketCode: a.ticket_code,
@@ -124,7 +121,6 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
 
 export type TicketDetail = {
   fullName: string;
-  age: number;
   grade: number;
   churchName: string;
   ticketCode: string;
@@ -142,7 +138,6 @@ export type TicketDetail = {
 export async function getTicketDetail(code: string): Promise<TicketDetail | null> {
   const row = await d1QueryOne<{
     full_name: string;
-    age: number;
     grade: number;
     church_name: string;
     ticket_code: string;
@@ -150,7 +145,7 @@ export async function getTicketDetail(code: string): Promise<TicketDetail | null
     registration_id: string;
     payer_name: string;
   }>(
-    `SELECT a.full_name, a.age, a.grade, a.church_name, a.ticket_code, a.checked_in_at,
+    `SELECT a.full_name, a.grade, a.church_name, a.ticket_code, a.checked_in_at,
             a.registration_id, r.payer_name
      FROM attendees a
      JOIN registrations r ON r.id = a.registration_id
@@ -162,7 +157,6 @@ export async function getTicketDetail(code: string): Promise<TicketDetail | null
 
   return {
     fullName: row.full_name,
-    age: row.age,
     grade: row.grade,
     churchName: row.church_name,
     ticketCode: row.ticket_code,

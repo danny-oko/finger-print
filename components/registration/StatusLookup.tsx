@@ -12,7 +12,6 @@ import { formatMnt } from "@/lib/registration/pricing";
 type Attendee = {
   id: string;
   full_name: string;
-  age: number;
   grade: number;
   church_name: string;
 };

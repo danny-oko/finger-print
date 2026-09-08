@@ -19,7 +19,6 @@ type AttendeeRow = {
   id: string;
   registration_id: string;
   full_name: string;
-  age: number;
   grade: number;
   church_name: string;
 };
@@ -52,7 +51,7 @@ export async function GET(request: Request) {
     const ids = registrations.map((r) => r.id);
     const placeholders = ids.map(() => "?").join(", ");
     const attendees = await d1Query<AttendeeRow>(
-      `SELECT id, registration_id, full_name, age, grade, church_name
+      `SELECT id, registration_id, full_name, grade, church_name
        FROM attendees WHERE registration_id IN (${placeholders})`,
       ids,
     );

@@ -1,6 +1,8 @@
+import { waitUntil } from "@vercel/functions";
 import { NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
 
+import { trackServerEvent } from "@/lib/analytics/server";
 import { createCheckout, type BylCheckoutItem } from "@/lib/byl";
 import { d1Query } from "@/lib/d1";
 import { computePricing, getPricingSettings } from "@/lib/registration/pricing";
@@ -50,31 +52,35 @@ export async function POST(request: Request) {
       ],
     );
 
+    // One church per registration — the form asks for it once — but it's
+    // still denormalised onto every attendee row so the admin monitor can
+    // group and filter attendees without joining back.
     for (const attendee of input.attendees) {
       await d1Query(
         `INSERT INTO attendees (
-          id, registration_id, full_name, age, phone, parent_phone, church_name, grade, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          id, registration_id, full_name, phone, church_name, grade, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
           uuid(),
           registrationId,
           attendee.fullName,
-          attendee.age,
           attendee.phone ?? null,
-          attendee.parentPhone,
-          attendee.churchName,
+          input.churchName,
           attendee.grade,
           now,
         ],
       );
-
-      await d1Query(
-        "INSERT OR IGNORE INTO churches (id, name, created_at) VALUES (?, ?, ?)",
-        [uuid(), attendee.churchName, now],
-      );
     }
+
+    await d1Query(
+      "INSERT OR IGNORE INTO churches (id, name, created_at) VALUES (?, ?, ?)",
+      [uuid(), input.churchName, now],
+    );
   } catch (error) {
     console.error("Failed to persist registration", error);
+    waitUntil(
+      trackServerEvent("registration_create_failed", { reason: "database_error" }),
+    );
     return NextResponse.json({ error: "database_error" }, { status: 500 });
   }
 
@@ -87,7 +93,7 @@ export async function POST(request: Request) {
     price_data: {
       unit_amount: pricing.pricePerAttendeeMnt,
       product_data: {
-        name: `${a.fullName} — ${a.grade}-р анги, ${a.churchName}`,
+        name: `${a.fullName} — ${a.grade}-р анги, ${input.churchName}`,
       },
     },
     quantity: 1,
@@ -122,12 +128,26 @@ export async function POST(request: Request) {
       ],
     );
 
+    // The client's own "submitted" event fires before this request and can
+    // be lost to the checkout redirect, so this is the reliable top of the
+    // funnel: a row exists and Byl has a checkout for it.
+    waitUntil(
+      trackServerEvent("registration_created", {
+        attendees: input.attendees.length,
+        registrantType: input.registrantType,
+        totalMnt: pricing.totalMnt,
+      }),
+    );
+
     return NextResponse.json({
       registrationId,
       checkoutUrl: checkout.url,
     });
   } catch (error) {
     console.error("Failed to create Byl checkout", error);
+    waitUntil(
+      trackServerEvent("registration_create_failed", { reason: "payment_error" }),
+    );
 
     await d1Query(
       `UPDATE registrations SET status = 'failed', updated_at = ? WHERE id = ?`,

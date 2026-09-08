@@ -140,7 +140,6 @@ export type AttendeeSortKey =
   | "fullName"
   | "churchName"
   | "grade"
-  | "age"
   | "state"
   | "path"
   | "payerName"
@@ -167,7 +166,6 @@ export const ATTENDEE_SORT_LABEL: Record<AttendeeSortKey, string> = {
   fullName: "Нэр",
   churchName: "Сүм",
   grade: "Анги",
-  age: "Нас",
   state: "Төлөв",
   path: "Бүртгэсэн арга",
   payerName: "Төлөгч",
@@ -227,8 +225,6 @@ export function sortAttendees(
         return row.churchName;
       case "grade":
         return row.grade;
-      case "age":
-        return row.age;
       case "state":
         return STATE_ORDER[rowState(row)];
       case "path":
@@ -575,7 +571,6 @@ export function computeStats(rows: MonitorRow[]): MonitorStats {
 
 const CSV_COLUMNS: [string, (row: MonitorRow) => string | number | null][] = [
   ["Нэр", (r) => r.fullName],
-  ["Нас", (r) => r.age],
   ["Анги", (r) => r.grade],
   ["Сүм", (r) => r.churchName],
   ["Утас", (r) => r.phone],

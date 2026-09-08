@@ -17,9 +17,8 @@ export type RegistrantType = "individual" | "church_leader";
 export type MonitorRow = {
   attendeeId: string;
   fullName: string;
-  age: number;
   phone: string | null;
-  parentPhone: string;
+  parentPhone: string | null;
   churchName: string;
   grade: number;
   ticketCode: string | null;

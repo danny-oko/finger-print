@@ -93,6 +93,22 @@ bunx wrangler d1 execute finger-print-2026 --remote \
   --file=./db/migrations/0001_add_ticketing.sql
 ```
 
+## 5b. Retire the age and parent-phone columns on an existing database
+
+Skip this if you just created the database in step 1. The registration form
+no longer asks for age (grade already carries it) or for a parent's phone
+number, so `attendees.age` and `attendees.parent_phone` have to stop being
+`NOT NULL` before the app can insert a row without them:
+
+```bash
+bunx wrangler d1 execute finger-print-2026 --remote \
+  --file=./db/migrations/0004_retire_attendee_age_and_parent_phone.sql
+```
+
+Both columns are kept rather than dropped, so what was collected before the
+change is still there and the status lookup still matches on `parent_phone`
+for those older rows; new rows just leave both `NULL`.
+
 ## 6. Create a Gmail App Password (optional — for emailing tickets)
 
 This step is optional. Without it, a paid registration still issues every
@@ -142,7 +158,7 @@ variable turns the login on — no code change, no redeploy of anything but the
 env. There are no per-user admin accounts; the dashboard is read-only and the
 team is small, so one shared password is the right amount of machinery.
 
-Leaving it open publishes every attendee's name, age, school year and phone
+Leaving it open publishes every attendee's name, school year and phone
 number, so it's worth setting before the registration link goes out widely.
 
 ```
@@ -162,6 +178,46 @@ project's Environment Variables, plus:
 ```
 NEXT_PUBLIC_SITE_URL=https://finger-print.org
 ```
+
+## 10. Web Analytics custom events
+
+Page views work as soon as Web Analytics is enabled on the project. The
+custom events below additionally need a plan that includes **Custom Events** —
+without it the calls are simply ignored, nothing breaks.
+
+Every event this app sends is declared in `lib/analytics/events.ts`, which is
+the one file to read (or change) to know what leaves the site. None of them
+carry a name, phone number, email or church — this app handles minors' data,
+so only counts, enum values and field *names* are ever sent.
+
+| Event | Sent from | Answers |
+| --- | --- | --- |
+| `registration_started` | browser, first keystroke | How many people who open the form actually start it |
+| `registration_person_added` | browser | How often a registration is for a group, and how big |
+| `registration_draft_restored` | browser | Whether the saved draft is earning its keep |
+| `registration_invalid` | browser | **Which field blocks a submit** — the topmost failing one |
+| `registration_submitted` | browser | Intent, before the redirect to Byl |
+| `registration_created` | `POST /api/registration` | Row + checkout both exist (the reliable funnel top) |
+| `registration_create_failed` | `POST /api/registration` | Split by `database_error` / `payment_error` |
+| `registration_awaiting_verification` | Byl webhook | Bank transfers waiting on a human |
+| `registration_paid` | Byl webhook | Actual conversions |
+
+The funnel to watch is
+`view → started → submitted → created → paid`, with `registration_invalid`
+explaining the drop between *submitted* and *created*.
+
+Revenue is deliberately **not** sourced from here — the admin monitor reads
+it straight from D1, which is authoritative. `totalMnt` rides along on the
+payment events only for segmenting.
+
+Server-side events go out through `waitUntil()`, so they never add latency to
+the Byl webhook's 5-second budget, and `trackServerEvent` swallows every
+failure: losing a metric must never turn a payment into a retry. On a
+deployment-protected preview these calls get a `401` unless the project has a
+[Protection Bypass for Automation](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation)
+secret set — expected, and harmless.
+
+To see them: **Vercel dashboard → the project → Analytics → Events**.
 
 ## Useful queries while testing
 
