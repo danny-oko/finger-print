@@ -73,6 +73,27 @@ Church grouping runs on the normalized name from [`lib/registration/churchName.t
 
 Everything above is filterable by status, registration path, church, grade, attendance and a free-text search across names, phones, emails and ticket codes, and the filtered set exports to CSV.
 
+## Share previews
+
+The site is shared mostly by pasting the link into Messenger and group chats,
+so the link preview is the first thing most people see of it. Both the card
+image and its metadata are generated server-side:
+
+- [`app/opengraph-image.tsx`](app/opengraph-image.tsx) and
+  [`app/event/registration/opengraph-image.tsx`](app/event/registration/opengraph-image.tsx)
+  render a 1200x630 card with `next/og`, sharing one design in
+  [`lib/og/card.tsx`](lib/og/card.tsx). The ticket price on the card is read
+  from D1, so it follows the `settings` table rather than a number baked in at
+  deploy time; the route revalidates hourly, so that costs ~24 reads a day.
+- Fonts are bundled in `assets/` rather than fetched. `next/og`'s built-in
+  font has no bold weight and no tugrik sign, so `₮` rendered as an empty box
+  and `fontWeight: 800` did nothing until they were added.
+- `metadataBase` in [`app/layout.tsx`](app/layout.tsx) is what makes
+  `og:image` absolute. Without it chat apps silently drop the image and fall
+  back to scraping something off the page.
+- The language redirect in [`proxy.ts`](proxy.ts) skips `opengraph-image`
+  routes, so a crawler fetching the PNG isn't bounced through a 307 first.
+
 ## Door check-in
 
 `/admin/check-in` is the scanner staff run on their phones at the door, behind

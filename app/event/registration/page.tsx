@@ -3,9 +3,25 @@ import Link from "next/link";
 
 import { RegistrationForm } from "@/components/registration/RegistrationForm";
 
+const DESCRIPTION =
+  "Хурууны хээ 2026 чуулганы онлайн бүртгэл. Ганцаараа эсвэл ахлагчаараа бүлгээрээ бүртгүүлээрэй.";
+
 export const metadata: Metadata = {
   title: "Бүртгэл | Хурууны хээ 2026",
-  description: "Finger Print конференцын онлайн бүртгэл",
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: "Finger Print",
+    locale: "mn_MN",
+    url: "/event/registration",
+    title: "Хурууны хээ 2026 — онлайн бүртгэл",
+    description: DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Хурууны хээ 2026 — онлайн бүртгэл",
+    description: DESCRIPTION,
+  },
 };
 
 export default function EventRegistrationPage() {
