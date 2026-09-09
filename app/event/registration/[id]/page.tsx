@@ -55,10 +55,8 @@ export default async function RegistrationDetailPage({
   if (!registration) notFound();
 
   return (
-    <main className="min-h-dvh bg-neutral-50">
-      <div className="mx-auto w-full max-w-md px-4 py-10">
-        <RegistrationDetail initial={registration} />
-      </div>
+    <main className="flex h-dvh items-center justify-center overflow-hidden bg-neutral-50 p-4 print:block print:h-auto print:overflow-visible print:p-0">
+      <RegistrationDetail initial={registration} />
     </main>
   );
 }
