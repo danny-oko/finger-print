@@ -106,6 +106,34 @@ export async function createCheckout(
   return json.data;
 }
 
+export async function retrieveCheckout(
+  checkoutId: string | number,
+): Promise<BylCheckout> {
+  const { baseUrl, projectId, token } = getConfig();
+
+  const res = await fetch(
+    `${baseUrl}/projects/${projectId}/checkouts/${checkoutId}`,
+    {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+      cache: "no-store",
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(
+      `Byl checkout retrieval failed: ${res.status} ${await res.text()}`,
+    );
+  }
+
+  const json = (await res.json()) as { data: BylCheckout };
+
+  if (!json.data) {
+    throw new Error("Byl checkout retrieval returned no checkout");
+  }
+
+  return json.data;
+}
+
 export const INVOICE_DESCRIPTION_MAX_LENGTH = 255;
 
 export type BylInvoice = {

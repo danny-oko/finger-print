@@ -6,6 +6,7 @@ import { RegistrationDetail } from "@/components/registration/RegistrationDetail
 import { Button } from "@/components/ui/button";
 import { logServerError, userMessage } from "@/lib/errors";
 import { getRegistrationDetail } from "@/lib/registration/detail";
+import { reconcilePendingRegistration } from "@/lib/registration/settle";
 
 export const metadata: Metadata = {
   title: "Миний бүртгэл | Finger Print",
@@ -53,6 +54,19 @@ export default async function RegistrationDetailPage({
   }
 
   if (!registration) notFound();
+
+  // A payment whose webhook never arrived would otherwise read as unpaid
+  // forever. Ask Byl directly, and never let that check break the page —
+  // showing a stale 'pending' beats showing nothing.
+  if (registration.status === "pending") {
+    try {
+      if (await reconcilePendingRegistration(id)) {
+        registration = (await getRegistrationDetail(id)) ?? registration;
+      }
+    } catch (error) {
+      logServerError("registration.reconcile", error, { registrationId: id });
+    }
+  }
 
   return (
     <main className="min-h-dvh bg-neutral-50">
