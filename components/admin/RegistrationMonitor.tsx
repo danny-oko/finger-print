@@ -29,6 +29,7 @@ import {
   EMPTY_FILTERS,
   REGISTRATION_SORT_LABEL,
   applyFilters,
+  attendeeRemoval,
   computeStats,
   findSimilarGroupPairs,
   groupByChurch,
@@ -74,10 +75,29 @@ function toFormValues(row: MonitorRow): AdminAttendeeValues {
 
 type EditTarget = { attendeeId: string; values: AdminAttendeeValues };
 type AddTarget = { registrationId: string; payerName: string; churchName: string };
+type RegistrationTarget = {
+  registrationId: string;
+  payerName: string;
+  attendeeCount: number;
+};
 type Pending =
-  | { kind: "attendee"; row: MonitorRow }
-  | { kind: "cancel"; group: RegistrationGroup }
-  | { kind: "registration"; group: RegistrationGroup };
+  | {
+      kind: "attendee";
+      attendeeId: string;
+      name: string;
+      churchName: string;
+      hasTicket: boolean;
+    }
+  | ({ kind: "cancel" } & RegistrationTarget)
+  | ({ kind: "registration" } & RegistrationTarget);
+
+function toRegistrationTarget(group: RegistrationGroup): RegistrationTarget {
+  return {
+    registrationId: group.registrationId,
+    payerName: group.payerName,
+    attendeeCount: group.attendeeCount,
+  };
+}
 
 export function RegistrationMonitor({ unprotected = false }: { unprotected?: boolean }) {
   const router = useRouter();
@@ -270,7 +290,10 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
     setWorking(false);
 
     if (!result.ok) {
+      // Close as well as complain: a refusal here is a rule, not a hiccup,
+      // so leaving the dialog up invites a retry that can't work.
       toast.error(result.message);
+      onSuccess?.();
       return;
     }
 
@@ -302,26 +325,22 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
 
     if (pending.kind === "attendee") {
       runAction(
-        removeAttendee(pending.row.attendeeId),
-        `${pending.row.fullName} жагсаалтаас хасагдлаа`,
+        removeAttendee(pending.attendeeId),
+        `${pending.name} жагсаалтаас хасагдлаа`,
         () => setPending(null),
       );
       return;
     }
 
     if (pending.kind === "cancel") {
-      runAction(
-        cancelRegistration(pending.group.registrationId),
-        "Бүртгэл цуцлагдлаа",
-        () => setPending(null),
+      runAction(cancelRegistration(pending.registrationId), "Бүртгэл цуцлагдлаа", () =>
+        setPending(null),
       );
       return;
     }
 
-    runAction(
-      removeRegistration(pending.group.registrationId),
-      "Бүртгэл устлаа",
-      () => setPending(null),
+    runAction(removeRegistration(pending.registrationId), "Бүртгэл устлаа", () =>
+      setPending(null),
     );
   }
 
@@ -332,11 +351,33 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
         payerName: group.payerName,
         churchName: group.churches[0] ?? "",
       }),
-    onCancel: (group: RegistrationGroup) => setPending({ kind: "cancel", group }),
-    onDelete: (group: RegistrationGroup) => setPending({ kind: "registration", group }),
+    onCancel: (group: RegistrationGroup) =>
+      setPending({ kind: "cancel", ...toRegistrationTarget(group) }),
+    onDelete: (group: RegistrationGroup) =>
+      setPending({ kind: "registration", ...toRegistrationTarget(group) }),
     onEditAttendee: (row: MonitorRow) =>
       setEditing({ attendeeId: row.attendeeId, values: toFormValues(row) }),
-    onDeleteAttendee: (row: MonitorRow) => setPending({ kind: "attendee", row }),
+
+    // Removing the only person on a registration is the registration going
+    // away — the server refuses anything else, so the confirm has to ask the
+    // question that can actually be answered.
+    onDeleteAttendee: (row: MonitorRow) =>
+      setPending(
+        attendeeRemoval(row).kind === "registration"
+          ? {
+              kind: "registration",
+              registrationId: row.registrationId,
+              payerName: row.payerName,
+              attendeeCount: row.attendeeCount,
+            }
+          : {
+              kind: "attendee",
+              attendeeId: row.attendeeId,
+              name: row.fullName,
+              churchName: row.churchName,
+              hasTicket: Boolean(row.ticketCode),
+            },
+      ),
   };
 
   function handleExport() {
@@ -550,7 +591,7 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
         working={working}
         title={
           pending?.kind === "attendee"
-            ? `${pending.row.fullName}-ийг хасах уу?`
+            ? `${pending.name}-ийг хасах уу?`
             : pending?.kind === "cancel"
               ? "Энэ бүртгэлийг цуцлах уу?"
               : "Энэ бүртгэлийг устгах уу?"
@@ -566,27 +607,25 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
           pending?.kind === "attendee" ? (
             <>
               <p>
-                {pending.row.fullName} ({pending.row.churchName}) жагсаалтаас
-                бүрмөсөн хасагдана. Буцаах боломжгүй.
+                {pending.name} ({pending.churchName}) жагсаалтаас бүрмөсөн
+                хасагдана. Буцаах боломжгүй.
               </p>
-              {pending.row.ticketCode && (
-                <p>Түүний тасалбар хүчингүй болно.</p>
-              )}
+              {pending.hasTicket && <p>Түүний тасалбар хүчингүй болно.</p>}
               <p>Төлбөрийн дүн өөрчлөгдөхгүй.</p>
             </>
           ) : pending?.kind === "cancel" ? (
             <>
               <p>
-                {pending.group.payerName}-ийн {pending.group.attendeeCount} хүний
-                бүртгэл цуцлагдсан төлөвт орно.
+                {pending.payerName}-ийн {pending.attendeeCount} хүний бүртгэл
+                цуцлагдсан төлөвт орно.
               </p>
               <p>Мэдээлэл нь жагсаалтад үлдэх ба хүсвэл дараа устгаж болно.</p>
             </>
           ) : pending?.kind === "registration" ? (
             <>
               <p>
-                {pending.group.payerName}-ийн {pending.group.attendeeCount} хүний
-                бүртгэл болон тэдгээр хүмүүс бүрмөсөн устана. Буцаах боломжгүй.
+                {pending.payerName}-ийн {pending.attendeeCount} хүний бүртгэл
+                болон тэдгээр хүмүүс бүрмөсөн устана. Буцаах боломжгүй.
               </p>
               <p>Төлбөр төлөгдөөгүй тул мөнгөнд нөлөөлөхгүй.</p>
             </>

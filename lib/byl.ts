@@ -86,7 +86,14 @@ export async function createCheckout(
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
       customer_email: input.customerEmail,
-      email_collection: true,
+      // Nothing reads the address Byl would collect — tickets live on the
+      // registration page, not in an inbox — so asking for one is a field
+      // between the payer and QPay that buys nothing.
+      email_collection: false,
+      // Byl can't be handed a phone: customer_phone is dropped, a custom
+      // field's value stores as null, and turning collection on only renders
+      // an empty box asking for the number the form already took. The link
+      // to the payer is client_reference_id -> registrations.payer_phone.
       phone_number_collection: false,
     }),
   });

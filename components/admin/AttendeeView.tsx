@@ -104,9 +104,9 @@ export function AttendeeView({
               <div className="flex shrink-0 items-center gap-1">
                 <StateBadge state={rowState(row)} />
                 <AttendeeActions
-                  name={row.fullName}
+                  row={row}
                   onEdit={() => onEdit(row)}
-                  onDelete={() => onDelete(row)}
+                  onRemove={() => onDelete(row)}
                 />
               </div>
             </div>
@@ -229,9 +229,9 @@ export function AttendeeView({
                 </td>
                 <td className="px-3 py-2">
                   <AttendeeActions
-                    name={row.fullName}
+                    row={row}
                     onEdit={() => onEdit(row)}
-                    onDelete={() => onDelete(row)}
+                    onRemove={() => onDelete(row)}
                   />
                 </td>
               </tr>
