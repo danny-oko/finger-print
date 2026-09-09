@@ -80,7 +80,11 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
     <FormItemContext.Provider value={{ id }}>
       <div
         data-slot="form-item"
-        className={cn("grid gap-2", className)}
+        // content-start keeps the label and control packed at the top: without
+        // it a field whose error message adds a third row stretches its rows
+        // to fill the taller cell, so neighbouring fields in the same row sit
+        // at different heights the moment one of them is invalid.
+        className={cn("grid content-start gap-2", className)}
         {...props}
       />
     </FormItemContext.Provider>

@@ -2,6 +2,11 @@ import { z } from "zod";
 
 import { GRADE_CHOICES } from "@/lib/registration/grade";
 
+// Short on purpose: these sit under the narrowest field on the row, where a
+// full sentence wraps to three lines and shoves the form around.
+export const PHONE_TAKEN_MESSAGE = "Бүртгэлтэй дугаар";
+export const PHONE_DUPLICATE_MESSAGE = "Давхардсан дугаар";
+
 // Mongolian mobile numbers: 8 digits, commonly starting 5/6/7/8/9.
 export const phoneSchema = z
   .string()
@@ -25,6 +30,29 @@ export const attendeeSchema = z.object({
 
 export type Attendee = z.infer<typeof attendeeSchema>;
 
+// One number can't be two people. Flagged on the later row so the first one
+// someone typed stays untouched.
+function checkDuplicatePhones(
+  attendees: { phone?: string }[],
+  ctx: z.RefinementCtx,
+) {
+  const seen = new Set<string>();
+
+  attendees.forEach((attendee, index) => {
+    const phone = attendee.phone;
+    if (!phone) return;
+
+    if (seen.has(phone)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["attendees", index, "phone"],
+        message: PHONE_DUPLICATE_MESSAGE,
+      });
+    }
+    seen.add(phone);
+  });
+}
+
 // Two ways to be paid for the same registration: Byl's hosted checkout
 // (card / QPay, with a redirect back to the ticket page) or a Byl invoice,
 // which carries a description we choose onto the payer's bank statement.
@@ -47,6 +75,8 @@ export const createRegistrationSchema = z
       .max(50),
   })
   .superRefine((data, ctx) => {
+    checkDuplicatePhones(data.attendees, ctx);
+
     if (data.registrantType !== "individual") return;
 
     if (data.attendees.length !== 1) {
@@ -96,6 +126,8 @@ export const registrationFormSchema = z
       .transform((v) => (v ? v : undefined)),
   })
   .superRefine((data, ctx) => {
+    checkDuplicatePhones(data.attendees, ctx);
+
     if (data.attendees.length > 1) {
       // Someone is registering on others' behalf, so they have to identify
       // themselves — none of the attendees is the payer.
