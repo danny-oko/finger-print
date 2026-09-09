@@ -63,7 +63,7 @@ export function ReviewDialog({
           <>
             <DialogHeader className="px-6 pt-6 pb-4 text-left">
               <DialogTitle className="text-xl font-black">
-                {values.attendees.length} хүн бүртгүүлж байна
+                Хурууны Хээ - Онлайн бүртгэл
               </DialogTitle>
               <DialogDescription>
                 Төлбөр төлөхийн өмнө мэдээллээ шалгана уу. Буруу бол засаж
@@ -103,7 +103,9 @@ export function ReviewDialog({
                       </span>
                     </span>
                     <span className="shrink-0 text-[13px] font-medium text-neutral-500">
-                      {breakdown ? formatMnt(breakdown.pricePerAttendeeMnt) : ""}
+                      {breakdown
+                        ? formatMnt(breakdown.pricePerAttendeeMnt)
+                        : ""}
                     </span>
                   </li>
                 ))}
@@ -142,30 +144,13 @@ export function ReviewDialog({
                 onClick={() => onConfirm("checkout")}
                 disabled={submitting !== null}
               >
+                <Landmark className="size-4" />
                 {submitting === "checkout" ? (
                   <>
-                    <Loader2 className="size-4 animate-spin" /> Түр хүлээнэ үү...
+                    <Loader2 className="size-4 animate-spin" />
                   </>
                 ) : (
                   "Төлбөр төлөх"
-                )}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-12"
-                onClick={() => onConfirm("invoice")}
-                disabled={submitting !== null}
-              >
-                {submitting === "invoice" ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" /> Түр хүлээнэ үү...
-                  </>
-                ) : (
-                  <>
-                    <Landmark className="size-4" />
-                    Шилжүүлэгээр төлөх
-                  </>
                 )}
               </Button>
               <Button
@@ -176,7 +161,7 @@ export function ReviewDialog({
                 disabled={submitting !== null}
               >
                 <Pencil className="size-4" />
-                Засах
+                {submitting ? "Түр хүлээнэ үү..." : "Мэдээлэл засах"}
               </Button>
             </DialogFooter>
           </>
