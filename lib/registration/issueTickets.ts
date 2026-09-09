@@ -2,7 +2,6 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
 import { attendees, registrations } from "@/lib/db/schema";
-import { isTicketEmailConfigured, sendTicketEmail } from "@/lib/email/sendTicketEmail";
 import { generateTicketCode } from "@/lib/registration/ticketCode";
 
 const MAX_CODE_ATTEMPTS = 5;
@@ -26,13 +25,12 @@ async function assignTicketCode(attendeeId: string): Promise<string> {
 }
 
 /**
- * Called once a Byl webhook marks a registration "paid". Generates a QR
- * ticket code per attendee (idempotently — safe to call again on a retried
- * webhook). If Gmail is configured they're also emailed to the payer in one
- * message; if it isn't, the codes are still issued and the success page is
- * how the registrant gets them.
+ * Called once a registration is paid. Assigns a QR ticket code per attendee,
+ * idempotently — safe to call again on a webhook retry or a reconcile.
+ * Tickets are read off /event/registration/<id>, which the registrant reaches
+ * by looking up their phone number, so issuing the codes is the whole job.
  */
-export async function issueTicketsAndSendEmail(registrationId: string): Promise<void> {
+export async function issueTickets(registrationId: string): Promise<void> {
   const registration = await db
     .select()
     .from(registrations)
@@ -40,7 +38,7 @@ export async function issueTicketsAndSendEmail(registrationId: string): Promise<
     .get();
 
   if (!registration) return;
-  if (registration.ticketsIssuedAt) return; // already handled — webhook retry
+  if (registration.ticketsIssuedAt) return;
 
   const attendeeRows = await db
     .select()
@@ -48,38 +46,8 @@ export async function issueTicketsAndSendEmail(registrationId: string): Promise<
     .where(eq(attendees.registrationId, registrationId))
     .all();
 
-  const tickets = [];
   for (const attendee of attendeeRows) {
-    const code = attendee.ticketCode ?? (await assignTicketCode(attendee.id));
-    tickets.push({ name: attendee.fullName, code });
-  }
-
-  // Codes are assigned above no matter what, so a missing email address or
-  // absent SMTP config costs the registrant nothing — it only means the
-  // tickets arrive on screen rather than in their inbox.
-  //
-  // Neither message names the registration. Its id is the only thing
-  // guarding /event/registration/<id>, which lists every attendee's name and
-  // ticket code, so logging one hands that page to anyone reading logs — and
-  // both conditions here are global or near-impossible, so an id would add
-  // nothing to diagnosing them.
-  if (!isTicketEmailConfigured()) {
-    console.info("Tickets issued; email skipped (no SMTP config)");
-  } else if (!registration.payerEmail) {
-    console.warn("Tickets issued, but the registration has no payer_email to send to");
-  } else {
-    // Absent in local development, where there's no public origin to link
-     // to — the email still sends, just without the button.
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-
-    await sendTicketEmail({
-      to: registration.payerEmail,
-      payerName: registration.payerName,
-      tickets,
-      registrationUrl: siteUrl
-        ? `${siteUrl}/event/registration/${registrationId}`
-        : null,
-    });
+    if (!attendee.ticketCode) await assignTicketCode(attendee.id);
   }
 
   await db

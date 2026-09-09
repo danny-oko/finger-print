@@ -3,7 +3,7 @@ import { waitUntil } from "@vercel/functions";
 import { trackServerEvent } from "@/lib/analytics/server";
 import { parseBylAmount, retrieveCheckout } from "@/lib/byl";
 import { d1Query, d1QueryOne } from "@/lib/d1";
-import { issueTicketsAndSendEmail } from "@/lib/registration/issueTickets";
+import { issueTickets } from "@/lib/registration/issueTickets";
 
 type PendingRow = {
   id: string;
@@ -61,7 +61,7 @@ export async function reconcilePendingRegistration(id: string): Promise<boolean>
     }),
   );
 
-  await issueTicketsAndSendEmail(id);
+  await issueTickets(id);
 
   return true;
 }

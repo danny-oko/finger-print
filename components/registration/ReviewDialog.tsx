@@ -74,7 +74,6 @@ export function ReviewDialog({
             <div className="grid max-h-[50dvh] gap-5 overflow-y-auto border-y border-neutral-200 bg-neutral-50 px-6 py-5">
               <div className="grid gap-2">
                 <Row label="Цуглаан" value={values.churchName} />
-                <Row label="Тасалбар очих имэйл" value={values.payerEmail} />
                 {isGroup && (
                   <Row
                     label="Бүртгэж буй хүн"

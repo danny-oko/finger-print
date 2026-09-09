@@ -28,9 +28,9 @@ function onlyDigits(value: string) {
 }
 
 /**
- * One attendee's fields. Church is asked once for the whole registration and
- * the ticket email once on the payer, so a person is just name + grade +
- * phone — cheap enough that a leader can add ten of them without despair.
+ * One attendee's fields. Church is asked once for the whole registration, so
+ * a person is just name + grade + phone — cheap enough that a leader can add
+ * ten of them without despair.
  *
  * `phoneRequired` is true only for a lone registrant, whose own number
  * doubles as the payer phone the status lookup keys on. `showIndex` is off
