@@ -160,6 +160,40 @@ ADMIN_SESSION_SECRET=<long random string, e.g. `openssl rand -hex 32`>
 so changing it signs everyone out. Without both variables set, the page just
 shows its login screen and refuses every password.
 
+## 7b. The door check-in scanner
+
+`/admin/check-in` is what staff run on their own phones at the door. It needs
+no extra configuration — it shares the monitor's session, so signing in once
+covers both pages, and it writes to the same `attendees.checked_in_at` column
+the monitor already reports on.
+
+Two things are worth knowing before the day:
+
+- **The page must be served over https.** Browsers only hand out a camera on
+  a secure origin, so the Vercel URL works and a `bun dev` server opened from
+  a phone by LAN IP does not. The page says so rather than showing a dead
+  black rectangle, and offers manual code entry as a way through.
+- **Ask staff to open it once before the doors open.** The first visit is
+  what triggers the camera permission prompt, and that is not a conversation
+  worth having with a queue waiting.
+
+Every scan lands on one of five answers, each with its own colour, vibration
+and beep so staff can work without watching the screen:
+
+| Answer | Means |
+| --- | --- |
+| Ирсэн бүртгэл хийгдлээ | Checked in just now — let them in |
+| Өмнө нь бүртгэгдсэн | This ticket already came through, with the time it did |
+| Төлбөр төлөгдөөгүй | Send them to the registration desk |
+| Тасалбар олдсонгүй | The code is well-formed but belongs to no one |
+| QR танигдсангүй | Nothing readable — rescan, or type the code |
+
+A scan never overwrites an earlier arrival time, so the same ticket used
+twice reads as exactly that rather than being quietly re-stamped. Anything
+scanned by mistake can be undone from the result card or from the "Сүүлд
+орсон" list, which shows arrivals from every phone on the door — not just
+the one holding it.
+
 ## 8. Set env vars in Vercel
 
 Add everything from `.env.example` (with real values) to the Vercel

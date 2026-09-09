@@ -19,16 +19,17 @@ app/
   event/registration/          Conference registration form + thank-you page
   event/status/                Look up a registration by phone number
   admin/registration-monitor/  Staff dashboard for monitoring registrations
+  admin/check-in/              QR door scanner for marking attendees as arrived
   api/registration/            Registration, pricing, churches, lookup, Byl webhook
-  api/admin/                   Admin session + monitor data
+  api/admin/                   Admin session, monitor data, door check-in
 components/
   registration/                Registration form steps, stepper, church combobox
-  admin/                       Registration monitor views, filters, stats
+  admin/                       Monitor views and filters, door scanner
   ui/                          shadcn/ui components
 lib/
   d1.ts, byl.ts                Cloudflare D1 and Byl API clients
   registration/                Shared zod schema + pricing helpers
-  admin/                       Admin auth + monitor grouping/sorting helpers
+  admin/                       Admin auth, monitor grouping/sorting, check-in
 db/schema.sql                  D1 table definitions
 db/migrations/                 Incremental schema changes for live databases
 docs/registration-setup.md     One-time Cloudflare/Byl/admin setup steps
@@ -71,6 +72,26 @@ The two registration paths converge into one dataset: each attendee is a single 
 Church grouping runs on the normalized name from [`lib/registration/churchName.ts`](lib/registration/churchName.ts), so case, punctuation and Cyrillic/Latin spellings of the same church fold together automatically. Names that are merely *close* (a likely typo) are surfaced as a suggestion the admin can merge with one tap — a view-only merge that never rewrites stored data.
 
 Everything above is filterable by status, registration path, church, grade, attendance and a free-text search across names, phones, emails and ticket codes, and the filtered set exports to CSV.
+
+## Door check-in
+
+`/admin/check-in` is the scanner staff run on their phones at the door, behind
+the same session as the monitor. It reads a ticket's QR through the camera and
+marks that attendee as arrived on the spot — no confirm step, since the person
+is already standing there.
+
+Decoding uses the browser's native `BarcodeDetector` where it exists and falls
+back to [jsQR](https://github.com/cozmo/jsQR) everywhere else, which is what
+makes it work on the iPhones half the team will be holding. Each scan answers
+with a colour, a vibration and a beep so staff can watch the door instead of
+the screen: checked in, already came through (with the time), payment not
+settled, unknown code, or unreadable. A repeat scan never overwrites the first
+arrival time, and a mis-scan can be undone from the result card or from the
+shared list of recent arrivals.
+
+Camera access needs an https origin, so the deployed URL works and a LAN-IP
+dev server does not — the page says so and offers manual code entry, using the
+same ambiguity-free alphabet the codes are minted from.
 
 ## Scripts
 

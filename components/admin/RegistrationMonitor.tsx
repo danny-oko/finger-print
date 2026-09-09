@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, LogOut, RefreshCw, TriangleAlert } from "lucide-react";
+import { Download, LogOut, RefreshCw, ScanLine, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -430,6 +430,18 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
                 : "Уншиж байна..."}
             </p>
           </div>
+
+          <Button
+            asChild
+            variant="outline"
+            size="icon"
+            aria-label="Хаалганы бүртгэл"
+            title="Хаалганы бүртгэл"
+          >
+            <a href="/admin/check-in">
+              <ScanLine className="size-4" />
+            </a>
+          </Button>
 
           <Button
             type="button"

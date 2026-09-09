@@ -1,6 +1,11 @@
 "use client";
 
 import type { AdminAttendeeInput } from "@/lib/admin/attendeeSchema";
+import type {
+  CheckInAttendee,
+  CheckInResponse,
+  DoorCounts,
+} from "@/lib/admin/checkIn";
 
 // Plain wording for everything the management endpoints can refuse.
 export const MANAGE_MESSAGE: Record<string, string> = {
@@ -82,3 +87,15 @@ export const previewCleanup = (hours: number) =>
 
 export const runCleanup = (ids: string[]) =>
   send<{ deleted: number }>("/api/admin/cleanup", "POST", { ids });
+
+export const scanTicket = (code: string) =>
+  send<CheckInResponse>("/api/admin/check-in", "POST", { code });
+
+export const loadDoorState = () =>
+  send<{ counts: DoorCounts; recent: CheckInAttendee[] }>("/api/admin/check-in", "GET");
+
+export const undoCheckIn = (attendeeId: string) =>
+  send<{ attendee: CheckInAttendee; counts: DoorCounts }>(
+    `/api/admin/check-in?attendeeId=${encodeURIComponent(attendeeId)}`,
+    "DELETE",
+  );
