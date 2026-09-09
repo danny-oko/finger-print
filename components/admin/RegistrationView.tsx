@@ -146,9 +146,9 @@ function RegistrationCard({
                     <StateBadge state={rowState(row)} />
                   )}
                   <AttendeeActions
-                    name={row.fullName}
+                    row={row}
                     onEdit={() => actions.onEditAttendee(row)}
-                    onDelete={() => actions.onDeleteAttendee(row)}
+                    onRemove={() => actions.onDeleteAttendee(row)}
                   />
                 </div>
               </li>

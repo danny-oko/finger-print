@@ -49,6 +49,36 @@ export const STATE_CLASS: Record<MonitorState, string> = {
   cancelled: "bg-neutral-200 text-neutral-700 border-neutral-300",
 };
 
+/**
+ * What "remove this person" can actually do for one row. Someone who is the
+ * only attendee on their registration can't be removed on their own — that
+ * would leave a payment for nobody — so the menu offers to delete the whole
+ * registration instead, or says why nothing is possible. Working this out
+ * up front is what stops the dashboard offering an action the server will
+ * refuse after the confirm has already been clicked.
+ */
+export type AttendeeRemoval =
+  | { kind: "attendee"; label: string }
+  | { kind: "registration"; label: string }
+  | { kind: "blocked"; label: string; reason: string };
+
+export function attendeeRemoval(row: MonitorRow): AttendeeRemoval {
+  if (row.attendeeCount > 1) {
+    return { kind: "attendee", label: "Жагсаалтаас хасах" };
+  }
+
+  if (row.status === "paid") {
+    return {
+      kind: "blocked",
+      label: "Хасах боломжгүй",
+      reason:
+        "Төлбөр төлсөн бүртгэл дээрх цорын ганц хүн. Төлбөрийн бүртгэл устдаггүй.",
+    };
+  }
+
+  return { kind: "registration", label: "Бүртгэлийг бүтнээр устгах" };
+}
+
 export const PATH_LABEL: Record<RegistrantType, string> = {
   individual: "Хувиараа",
   church_leader: "Ахлагчаар",
