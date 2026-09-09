@@ -86,7 +86,10 @@ export async function createCheckout(
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
       customer_email: input.customerEmail,
-      email_collection: true,
+      // Nothing reads the address Byl would collect — tickets live on the
+      // registration page, not in an inbox — so asking for one is a field
+      // between the payer and QPay that buys nothing.
+      email_collection: false,
       phone_number_collection: false,
     }),
   });
