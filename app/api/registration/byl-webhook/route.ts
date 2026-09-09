@@ -10,7 +10,7 @@ import {
   type BylWebhookEvent,
 } from "@/lib/byl";
 import { d1Query } from "@/lib/d1";
-import { issueTicketsAndSendEmail } from "@/lib/registration/issueTickets";
+import { issueTickets } from "@/lib/registration/issueTickets";
 
 export const runtime = "nodejs";
 
@@ -140,9 +140,9 @@ export async function POST(request: Request) {
   );
 
   // Best-effort — the payment itself is already recorded above, so a
-  // ticket/email failure here must not turn into a Byl retry loop.
+  // ticket-issuing failure here must not turn into a Byl retry loop.
   try {
-    await issueTicketsAndSendEmail(registrationId);
+    await issueTickets(registrationId);
   } catch (error) {
     console.error("Failed to issue tickets / send ticket email", error);
   }

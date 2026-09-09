@@ -90,7 +90,6 @@ export function RegistrationForm() {
         churchName: "",
         payerName: "",
         payerPhone: "",
-        payerEmail: "",
         attendees: [BLANK_ATTENDEE],
       },
     },
@@ -315,76 +314,55 @@ export function RegistrationForm() {
             </Button>
           </Section>
 
-          <Section
-            title="Тасалбар хүлээн авах"
-            hint="Бүх хамрагчийн QR тасалбарыг энэ имэйлээр илгээнэ."
-          >
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="payerEmail"
-                render={({ field }) => (
-                  <FormItem className="sm:col-span-2">
-                    <FormLabel>Имэйл хаяг</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="email"
-                        placeholder="name@example.com"
-                        autoComplete="email"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {isGroup && (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="payerName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Бүртгэж буй хүний нэр</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Бат-Эрдэнэ Ганбаяр"
-                            autoComplete="name"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="payerPhone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Таны утас</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            inputMode="tel"
-                            maxLength={8}
-                            placeholder="99112233"
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value.replace(/\D/g, "").slice(0, 8),
-                              )
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
-            </div>
-          </Section>
+          {isGroup && (
+            <Section
+              title="Бүртгэж буй хүн"
+              hint="Тасалбар энэ хуудсанд гарна — дараа нь энэ дугаараар хайж олно."
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="payerName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Бүртгэж буй хүний нэр</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Бат-Эрдэнэ Ганбаяр"
+                          autoComplete="name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="payerPhone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Таны утас</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          inputMode="tel"
+                          maxLength={8}
+                          placeholder="99112233"
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value.replace(/\D/g, "").slice(0, 8),
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </Section>
+          )}
         </div>
 
         <PriceBar

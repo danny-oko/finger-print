@@ -8,16 +8,9 @@ export const phoneSchema = z
   .trim()
   .regex(/^[5-9]\d{7}$/, "8 оронтой утасны дугаар оруулна уу");
 
-export const emailSchema = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .email("Имэйл хаягаа зөв оруулна уу");
-
 // One person attending. Deliberately small: church is asked once for the
-// whole registration (everyone in one submission comes from one church) and
-// the ticket email is asked once on the payer, so adding a second teen costs
-// three fields, not seven.
+// whole registration (everyone in one submission comes from one church), so
+// adding a second teen costs three fields, not seven.
 export const attendeeSchema = z.object({
   fullName: z.string().trim().min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
   phone: z
@@ -48,7 +41,6 @@ export const createRegistrationSchema = z
     churchName: z.string().trim().min(2, "Хамаарах сүмээ сонгоно уу").max(160),
     payerName: z.string().trim().min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
     payerPhone: phoneSchema,
-    payerEmail: emailSchema,
     attendees: z
       .array(attendeeSchema)
       .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
@@ -97,7 +89,6 @@ export const registrationFormSchema = z
       .array(attendeeSchema)
       .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
       .max(50),
-    payerEmail: emailSchema,
     payerName: z.string().trim().max(120).optional(),
     payerPhone: z
       .union([phoneSchema, z.literal("")])
@@ -160,7 +151,6 @@ export function toCreateRegistrationInput(
     churchName: values.churchName,
     payerName: isGroup ? (values.payerName ?? "") : first.fullName,
     payerPhone: isGroup ? (values.payerPhone ?? "") : (first.phone ?? ""),
-    payerEmail: values.payerEmail,
     attendees: values.attendees,
   };
 }
