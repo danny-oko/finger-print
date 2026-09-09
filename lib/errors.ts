@@ -7,6 +7,7 @@
 export type AppErrorCode =
   | "invalid_input"
   | "invalid_phone"
+  | "phone_taken"
   | "not_found"
   | "database_error"
   | "service_unavailable"
@@ -24,6 +25,10 @@ const MESSAGES: Record<AppErrorCode, UserMessage> = {
   invalid_phone: {
     title: "Утасны дугаар буруу байна",
     hint: "8 оронтой дугаараа шалгаад дахин оруулна уу.",
+  },
+  phone_taken: {
+    title: "Энэ дугаараар аль хэдийн бүртгүүлсэн байна",
+    hint: "Бүртгэлээ шалгах хуудсаар тасалбараа олж болно.",
   },
   not_found: {
     title: "Бүртгэл олдсонгүй",
@@ -64,6 +69,7 @@ export function userMessageText(code: string | null | undefined): string {
 /** Fallback for a failed response that carried no code of its own. */
 export function codeFromStatus(status: number): AppErrorCode {
   if (status === 404) return "not_found";
+  if (status === 409) return "phone_taken";
   if (status === 503) return "service_unavailable";
   if (status === 502) return "payment_error";
   if (status === 400 || status === 422) return "invalid_input";

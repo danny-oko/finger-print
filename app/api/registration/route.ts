@@ -8,6 +8,7 @@ import { d1Query } from "@/lib/d1";
 import { httpErrorFor, logServerError } from "@/lib/errors";
 import { formatGrade, toGradeColumns } from "@/lib/registration/grade";
 import { invoiceDescription, paymentReference } from "@/lib/registration/invoice";
+import { findTakenPhones } from "@/lib/registration/phones";
 import {
   computePricing,
   getPricingSettings,
@@ -29,6 +30,33 @@ export async function POST(request: Request) {
   const input = parsed.data;
   const registrationId = uuid();
   const now = new Date().toISOString();
+
+  // The form checks this as people type, but that check is advisory — two
+  // tabs, a stale page or a direct POST all land here instead.
+  try {
+    const taken = await findTakenPhones(
+      input.attendees.map((a) => a.phone).filter((p): p is string => Boolean(p)),
+    );
+
+    if (taken.length > 0) {
+      waitUntil(
+        trackServerEvent("registration_create_failed", { reason: "phone_taken" }),
+      );
+      return NextResponse.json(
+        { error: "phone_taken", phones: taken },
+        { status: 409 },
+      );
+    }
+  } catch (error) {
+    const { code, status } = httpErrorFor(error);
+    logServerError("registration.create", error, {
+      step: "check_taken_phones",
+      registrationId,
+      attendees: input.attendees.length,
+    });
+    waitUntil(trackServerEvent("registration_create_failed", { reason: code }));
+    return NextResponse.json({ error: code }, { status });
+  }
 
   let pricing: PricingBreakdown;
   try {

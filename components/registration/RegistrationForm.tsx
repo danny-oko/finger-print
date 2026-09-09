@@ -7,7 +7,9 @@ import {
   FormProvider,
   useFieldArray,
   useForm,
+  useWatch,
   type FieldErrors,
+  type Resolver,
 } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -25,12 +27,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRegistrationDraft } from "@/hooks/use-registration-draft";
+import { useTakenPhones } from "@/hooks/use-taken-phones";
 import { trackEvent } from "@/lib/analytics/client";
 import { errorCodeFrom, userMessage } from "@/lib/errors";
 import type { PricingSettings } from "@/lib/registration/pricing";
 import {
   registrationFormSchema,
   toCreateRegistrationInput,
+  PHONE_TAKEN_MESSAGE,
   type PaymentMethod,
   type RegistrationFormOutput,
   type RegistrationFormValues,
@@ -81,10 +85,62 @@ function Section({
   );
 }
 
+type FormResolver = Resolver<
+  RegistrationFormValues,
+  unknown,
+  RegistrationFormOutput
+>;
+
 export function RegistrationForm() {
+  // Whether a number is already attending is an answer only the server has,
+  // so it arrives after the schema has had its say. Layering it into the
+  // resolver rather than calling setError keeps it a real validation result:
+  // it shows under the field and it blocks submit, like every other rule.
+  const isTakenRef = React.useRef<(phone: string) => boolean>(() => false);
+
+  const resolver = React.useMemo<FormResolver>(() => {
+    const base = zodResolver(registrationFormSchema) as FormResolver;
+
+    return async (values, context, options) => {
+      const result = await base(values, context, options);
+
+      const attendeeErrors = [
+        ...((result.errors.attendees as unknown[] | undefined) ?? []),
+      ];
+      let flagged = false;
+
+      (values.attendees ?? []).forEach((attendee, index) => {
+        const phone = (attendee?.phone ?? "").trim();
+        const existing = attendeeErrors[index] as
+          | { phone?: unknown }
+          | undefined;
+
+        // An empty or malformed number already has its own message; only an
+        // otherwise-good one can be somebody else's.
+        if (!phone || existing?.phone || !isTakenRef.current(phone)) return;
+
+        attendeeErrors[index] = {
+          ...(existing ?? {}),
+          phone: { type: "taken", message: PHONE_TAKEN_MESSAGE },
+        };
+        flagged = true;
+      });
+
+      if (!flagged) return result;
+
+      return {
+        values: {},
+        errors: {
+          ...result.errors,
+          attendees: attendeeErrors,
+        } as FieldErrors<RegistrationFormValues>,
+      } as Awaited<ReturnType<FormResolver>>;
+    };
+  }, []);
+
   const form = useForm<RegistrationFormValues, unknown, RegistrationFormOutput>(
     {
-      resolver: zodResolver(registrationFormSchema),
+      resolver,
       mode: "onTouched",
       defaultValues: {
         churchName: "",
@@ -100,7 +156,36 @@ export function RegistrationForm() {
     name: "attendees",
   });
 
-  const { clearDraft } = useRegistrationDraft(form);
+  useRegistrationDraft(form);
+
+  const watchedAttendees = useWatch({ control: form.control, name: "attendees" });
+  const phones = React.useMemo(
+    () => (watchedAttendees ?? []).map((a) => (a?.phone ?? "").trim()),
+    [watchedAttendees],
+  );
+
+  const isTaken = useTakenPhones(phones);
+  isTakenRef.current = isTaken;
+
+  const flaggedRef = React.useRef<`attendees.${number}.phone`[]>([]);
+
+  // A verdict arrives well after the keystroke that asked for it, so the
+  // fields it concerns have to be re-run. Only those: revalidating the whole
+  // form would light up rows the person hasn't reached yet. The fields
+  // flagged last time are re-run too — otherwise a field the person marked
+  // and then corrected keeps its red until it's blurred, since react-hook-form
+  // only revalidates a field it considers touched.
+  React.useEffect(() => {
+    const taken = phones
+      .map((phone, index) => ({ phone, index }))
+      .filter(({ phone }) => phone && isTaken(phone))
+      .map(({ index }) => `attendees.${index}.phone` as const);
+
+    const paths = [...new Set([...flaggedRef.current, ...taken])];
+    flaggedRef.current = taken;
+
+    if (paths.length > 0) form.trigger(paths);
+  }, [isTaken, phones, form]);
 
   const [churches, setChurches] = React.useState<string[]>([]);
   const [pricing, setPricing] = React.useState<PricingSettings | null>(null);
@@ -194,6 +279,30 @@ export function RegistrationForm() {
       const code = await errorCodeFrom(res.clone());
       const { title, hint } = userMessage(code);
 
+      // Somebody registered one of these numbers between opening the review
+      // and confirming it. Back to the form with the offending rows marked —
+      // the resolver keeps them marked, since the check now has its answer.
+      if (code === "phone_taken") {
+        const { phones: takenPhones } = (await res.json().catch(() => ({}))) as {
+          phones?: string[];
+        };
+
+        const taken = new Set(takenPhones ?? []);
+        review.attendees.forEach((attendee, index) => {
+          if (attendee.phone && taken.has(attendee.phone)) {
+            form.setError(`attendees.${index}.phone`, {
+              type: "taken",
+              message: PHONE_TAKEN_MESSAGE,
+            });
+          }
+        });
+
+        toast.error(title, { description: hint });
+        setReview(null);
+        setSubmitting(null);
+        return;
+      }
+
       // A payment failure is the one case where the registration did save.
       // Repeating "try again" here would earn a duplicate row, so it points
       // at the saved one instead.
@@ -209,7 +318,6 @@ export function RegistrationForm() {
             ? {
                 label: "Бүртгэлээ харах",
                 onClick: () => {
-                  clearDraft();
                   window.location.href = `/event/registration/${registrationId}`;
                 },
               }
@@ -232,7 +340,10 @@ export function RegistrationForm() {
       return;
     }
 
-    clearDraft();
+    // The draft deliberately survives the handoff: an invoice can go unpaid
+    // for a day, and coming back to a form that still holds everyone's names
+    // is the difference between paying late and giving up. The detail page
+    // clears it once the payment lands.
     window.location.href = data.paymentUrl;
   }
 
@@ -258,7 +369,7 @@ export function RegistrationForm() {
         // covers every control in the form. Labels shrink to sit clearly
         // below the group titles — size only, so an invalid field's label
         // still turns red.
-        className="grid gap-4 [&_[data-slot=form-label]]:text-[13px] [&_[role=combobox]]:h-11 [&_input]:h-11"
+        className="grid gap-4 [&_[data-slot=form-label]]:text-[13px] [&_[data-slot=form-message]]:text-xs [&_[data-slot=form-message]]:leading-snug [&_[role=combobox]]:h-11 [&_input]:h-11"
       >
         <div className="divide-y divide-neutral-200 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
           <Section
