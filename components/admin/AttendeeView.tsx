@@ -2,6 +2,7 @@
 
 import { ArrowDown, ArrowUp, Phone, Ticket, UserRound, Users } from "lucide-react";
 
+import { AttendeeActions } from "@/components/admin/RowActions";
 import { StateBadge } from "@/components/admin/StateBadge";
 import {
   ATTENDEE_SORT_LABEL,
@@ -57,11 +58,15 @@ export function AttendeeView({
   sortKey,
   sortDirection,
   onSortChange,
+  onEdit,
+  onDelete,
 }: {
   rows: MonitorRow[];
   sortKey: AttendeeSortKey;
   sortDirection: SortDirection;
   onSortChange: (key: AttendeeSortKey, direction: SortDirection) => void;
+  onEdit: (row: MonitorRow) => void;
+  onDelete: (row: MonitorRow) => void;
 }) {
   function handleHeaderClick(key: AttendeeSortKey) {
     if (key === sortKey) {
@@ -96,7 +101,14 @@ export function AttendeeView({
                   {row.churchName} · {formatGrade(row)}
                 </p>
               </div>
-              <StateBadge state={rowState(row)} />
+              <div className="flex shrink-0 items-center gap-1">
+                <StateBadge state={rowState(row)} />
+                <AttendeeActions
+                  name={row.fullName}
+                  onEdit={() => onEdit(row)}
+                  onDelete={() => onDelete(row)}
+                />
+              </div>
             </div>
 
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -176,6 +188,9 @@ export function AttendeeView({
                   </th>
                 );
               })}
+              <th scope="col" className="w-12 px-3 py-2">
+                <span className="sr-only">Үйлдэл</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -211,6 +226,13 @@ export function AttendeeView({
                 </td>
                 <td className="px-3 py-2 text-xs whitespace-nowrap text-neutral-500">
                   {formatDate(row.registrationCreatedAt)}
+                </td>
+                <td className="px-3 py-2">
+                  <AttendeeActions
+                    name={row.fullName}
+                    onEdit={() => onEdit(row)}
+                    onDelete={() => onDelete(row)}
+                  />
                 </td>
               </tr>
             ))}

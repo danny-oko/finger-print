@@ -3,13 +3,26 @@
 import { Download, LogOut, RefreshCw, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
+import { toast } from "sonner";
 
+import { AttendeeDialog } from "@/components/admin/AttendeeDialog";
 import { AttendeeView } from "@/components/admin/AttendeeView";
+import { CleanupCard } from "@/components/admin/CleanupCard";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { HelpStrip } from "@/components/admin/HelpStrip";
 import { ChurchView } from "@/components/admin/ChurchView";
 import { MonitorControls, type SortOption, type ViewMode } from "@/components/admin/MonitorControls";
 import { MonitorStats } from "@/components/admin/MonitorStats";
 import { RegistrationView } from "@/components/admin/RegistrationView";
 import { Button } from "@/components/ui/button";
+import {
+  cancelRegistration,
+  createAttendee,
+  removeAttendee,
+  removeRegistration,
+  saveAttendee,
+} from "@/lib/admin/actions";
+import type { AdminAttendeeInput, AdminAttendeeValues } from "@/lib/admin/attendeeSchema";
 import {
   ATTENDEE_SORT_LABEL,
   CHURCH_SORT_LABEL,
@@ -27,11 +40,13 @@ import {
   type AttendeeSortKey,
   type ChurchSortKey,
   type Filters,
+  type RegistrationGroup,
   type RegistrationSortKey,
   type SortDirection,
 } from "@/lib/admin/monitor";
 import type { MonitorResponse, MonitorRow } from "@/lib/admin/types";
 import { normalizeChurchName } from "@/lib/registration/churchName";
+import { YOUTH_LEADER, type GradeChoice } from "@/lib/registration/grade";
 
 const AUTO_REFRESH_MS = 60_000;
 
@@ -40,6 +55,29 @@ type SortState<K extends string> = { key: K; direction: SortDirection };
 function toOptions<K extends string>(labels: Record<K, string>): SortOption<K>[] {
   return (Object.keys(labels) as K[]).map((value) => ({ value, label: labels[value] }));
 }
+
+/** Back from the two stored columns to the single value the form offers. */
+function toGradeChoice(row: MonitorRow): GradeChoice {
+  return (row.role === YOUTH_LEADER || row.grade === null
+    ? YOUTH_LEADER
+    : String(row.grade)) as GradeChoice;
+}
+
+function toFormValues(row: MonitorRow): AdminAttendeeValues {
+  return {
+    fullName: row.fullName,
+    grade: toGradeChoice(row),
+    churchName: row.churchName,
+    phone: row.phone ?? "",
+  };
+}
+
+type EditTarget = { attendeeId: string; values: AdminAttendeeValues };
+type AddTarget = { registrationId: string; payerName: string; churchName: string };
+type Pending =
+  | { kind: "attendee"; row: MonitorRow }
+  | { kind: "cancel"; group: RegistrationGroup }
+  | { kind: "registration"; group: RegistrationGroup };
 
 export function RegistrationMonitor({ unprotected = false }: { unprotected?: boolean }) {
   const router = useRouter();
@@ -74,6 +112,11 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
   // church -> canonical church. Session-only: it changes how the data reads,
   // never what's stored.
   const [aliases, setAliases] = React.useState<Record<string, string>>({});
+
+  const [editing, setEditing] = React.useState<EditTarget | null>(null);
+  const [adding, setAdding] = React.useState<AddTarget | null>(null);
+  const [pending, setPending] = React.useState<Pending | null>(null);
+  const [working, setWorking] = React.useState(false);
 
   const load = React.useCallback(
     async () => {
@@ -217,6 +260,85 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
         ? `${sortedRegistrations.length} төлбөр · ${filteredRows.length} хүн`
         : `${filteredRows.length} хүн`;
 
+  async function runAction(
+    action: Promise<{ ok: true; data: unknown } | { ok: false; message: string }>,
+    successMessage: string,
+    onSuccess?: () => void,
+  ) {
+    setWorking(true);
+    const result = await action;
+    setWorking(false);
+
+    if (!result.ok) {
+      toast.error(result.message);
+      return;
+    }
+
+    toast.success(successMessage);
+    onSuccess?.();
+    refresh();
+  }
+
+  function handleAddSubmit(values: AdminAttendeeInput) {
+    if (!adding) return;
+    runAction(
+      createAttendee(adding.registrationId, values),
+      `${values.fullName} нэмэгдлээ`,
+      () => setAdding(null),
+    );
+  }
+
+  function handleEditSubmit(values: AdminAttendeeInput) {
+    if (!editing) return;
+    runAction(
+      saveAttendee(editing.attendeeId, values),
+      `${values.fullName}-ийн мэдээлэл хадгалагдлаа`,
+      () => setEditing(null),
+    );
+  }
+
+  function handleConfirm() {
+    if (!pending) return;
+
+    if (pending.kind === "attendee") {
+      runAction(
+        removeAttendee(pending.row.attendeeId),
+        `${pending.row.fullName} жагсаалтаас хасагдлаа`,
+        () => setPending(null),
+      );
+      return;
+    }
+
+    if (pending.kind === "cancel") {
+      runAction(
+        cancelRegistration(pending.group.registrationId),
+        "Бүртгэл цуцлагдлаа",
+        () => setPending(null),
+      );
+      return;
+    }
+
+    runAction(
+      removeRegistration(pending.group.registrationId),
+      "Бүртгэл устлаа",
+      () => setPending(null),
+    );
+  }
+
+  const registrationActions = {
+    onAddAttendee: (group: RegistrationGroup) =>
+      setAdding({
+        registrationId: group.registrationId,
+        payerName: group.payerName,
+        churchName: group.churches[0] ?? "",
+      }),
+    onCancel: (group: RegistrationGroup) => setPending({ kind: "cancel", group }),
+    onDelete: (group: RegistrationGroup) => setPending({ kind: "registration", group }),
+    onEditAttendee: (row: MonitorRow) =>
+      setEditing({ attendeeId: row.attendeeId, values: toFormValues(row) }),
+    onDeleteAttendee: (row: MonitorRow) => setPending({ kind: "attendee", row }),
+  };
+
   function handleExport() {
     const blob = new Blob([toCsv(sortedAttendees)], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -333,6 +455,8 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
           </p>
         )}
 
+        <HelpStrip />
+
         <MonitorStats stats={stats} />
 
         <MonitorControls
@@ -360,6 +484,8 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
             sortKey={attendeeSort.key}
             sortDirection={attendeeSort.direction}
             onSortChange={(key, direction) => setAttendeeSort({ key, direction })}
+            onEdit={registrationActions.onEditAttendee}
+            onDelete={registrationActions.onDeleteAttendee}
           />
         ) : view === "churches" ? (
           <ChurchView
@@ -375,14 +501,99 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
             onResetMerges={() => setAliases({})}
           />
         ) : (
-          <RegistrationView
-            groups={sortedRegistrations}
-            sortKey={registrationSort.key}
-            sortDirection={registrationSort.direction}
-            onSortChange={(key, direction) => setRegistrationSort({ key, direction })}
-          />
+          <>
+            <CleanupCard refreshKey={generatedAt} onDone={refresh} />
+            <RegistrationView
+              groups={sortedRegistrations}
+              sortKey={registrationSort.key}
+              sortDirection={registrationSort.direction}
+              onSortChange={(key, direction) => setRegistrationSort({ key, direction })}
+              actions={registrationActions}
+            />
+          </>
         )}
       </div>
+
+      <AttendeeDialog
+        mode="add"
+        open={adding !== null}
+        onOpenChange={(open) => !open && setAdding(null)}
+        context={adding?.payerName}
+        churches={churchOptions.map((c) => c.label)}
+        initial={
+          adding
+            ? {
+                fullName: "",
+                grade: undefined as never,
+                churchName: adding.churchName,
+                phone: "",
+              }
+            : undefined
+        }
+        working={working}
+        onSubmit={handleAddSubmit}
+      />
+
+      <AttendeeDialog
+        mode="edit"
+        open={editing !== null}
+        onOpenChange={(open) => !open && setEditing(null)}
+        churches={churchOptions.map((c) => c.label)}
+        initial={editing?.values}
+        working={working}
+        onSubmit={handleEditSubmit}
+      />
+
+      <ConfirmDialog
+        open={pending !== null}
+        onOpenChange={(open) => !open && setPending(null)}
+        working={working}
+        title={
+          pending?.kind === "attendee"
+            ? `${pending.row.fullName}-ийг хасах уу?`
+            : pending?.kind === "cancel"
+              ? "Энэ бүртгэлийг цуцлах уу?"
+              : "Энэ бүртгэлийг устгах уу?"
+        }
+        confirmLabel={
+          pending?.kind === "attendee"
+            ? "Тийм, хас"
+            : pending?.kind === "cancel"
+              ? "Тийм, цуцал"
+              : "Тийм, устга"
+        }
+        body={
+          pending?.kind === "attendee" ? (
+            <>
+              <p>
+                {pending.row.fullName} ({pending.row.churchName}) жагсаалтаас
+                бүрмөсөн хасагдана. Буцаах боломжгүй.
+              </p>
+              {pending.row.ticketCode && (
+                <p>Түүний тасалбар хүчингүй болно.</p>
+              )}
+              <p>Төлбөрийн дүн өөрчлөгдөхгүй.</p>
+            </>
+          ) : pending?.kind === "cancel" ? (
+            <>
+              <p>
+                {pending.group.payerName}-ийн {pending.group.attendeeCount} хүний
+                бүртгэл цуцлагдсан төлөвт орно.
+              </p>
+              <p>Мэдээлэл нь жагсаалтад үлдэх ба хүсвэл дараа устгаж болно.</p>
+            </>
+          ) : pending?.kind === "registration" ? (
+            <>
+              <p>
+                {pending.group.payerName}-ийн {pending.group.attendeeCount} хүний
+                бүртгэл болон тэдгээр хүмүүс бүрмөсөн устана. Буцаах боломжгүй.
+              </p>
+              <p>Төлбөр төлөгдөөгүй тул мөнгөнд нөлөөлөхгүй.</p>
+            </>
+          ) : null
+        }
+        onConfirm={handleConfirm}
+      />
     </main>
   );
 }

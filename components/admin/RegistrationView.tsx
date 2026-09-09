@@ -1,9 +1,21 @@
 "use client";
 
-import { ChevronDown, Mail, Phone, Ticket, UserRound, Users } from "lucide-react";
+import {
+  Ban,
+  ChevronDown,
+  Mail,
+  Phone,
+  Ticket,
+  Trash2,
+  UserPlus,
+  UserRound,
+  Users,
+} from "lucide-react";
 import * as React from "react";
 
+import { AttendeeActions } from "@/components/admin/RowActions";
 import { StateBadge } from "@/components/admin/StateBadge";
+import { Button } from "@/components/ui/button";
 import {
   PATH_LABEL,
   REGISTRATION_SORT_LABEL,
@@ -12,6 +24,7 @@ import {
   type RegistrationSortKey,
   type SortDirection,
 } from "@/lib/admin/monitor";
+import type { MonitorRow } from "@/lib/admin/types";
 import { formatMnt } from "@/lib/registration/pricing";
 import { cn } from "@/lib/utils";
 import { formatGrade } from "@/lib/registration/grade";
@@ -26,7 +39,21 @@ function formatDateTime(iso: string): string {
       })}`;
 }
 
-function RegistrationCard({ group }: { group: RegistrationGroup }) {
+type Actions = {
+  onAddAttendee: (group: RegistrationGroup) => void;
+  onCancel: (group: RegistrationGroup) => void;
+  onDelete: (group: RegistrationGroup) => void;
+  onEditAttendee: (row: MonitorRow) => void;
+  onDeleteAttendee: (row: MonitorRow) => void;
+};
+
+function RegistrationCard({
+  group,
+  actions,
+}: {
+  group: RegistrationGroup;
+  actions: Actions;
+}) {
   const [open, setOpen] = React.useState(false);
   const viaLeader = group.registrantType === "church_leader";
 
@@ -109,17 +136,62 @@ function RegistrationCard({ group }: { group: RegistrationGroup }) {
                     {row.churchName} · {formatGrade(row)}
                   </p>
                 </div>
-                {row.ticketCode ? (
-                  <span className="inline-flex shrink-0 items-center gap-1 font-mono text-[11px] text-neutral-500">
-                    <Ticket className="size-3" />
-                    {row.ticketCode}
-                  </span>
-                ) : (
-                  <StateBadge state={rowState(row)} />
-                )}
+                <div className="flex shrink-0 items-center gap-1">
+                  {row.ticketCode ? (
+                    <span className="inline-flex items-center gap-1 font-mono text-[11px] text-neutral-500">
+                      <Ticket className="size-3" />
+                      {row.ticketCode}
+                    </span>
+                  ) : (
+                    <StateBadge state={rowState(row)} />
+                  )}
+                  <AttendeeActions
+                    name={row.fullName}
+                    onEdit={() => actions.onEditAttendee(row)}
+                    onDelete={() => actions.onDeleteAttendee(row)}
+                  />
+                </div>
               </li>
             ))}
           </ul>
+
+          {/* Everything that changes this registration, in one row, worded as
+              what it does rather than what it updates. */}
+          <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => actions.onAddAttendee(group)}
+            >
+              <UserPlus className="size-3.5" />
+              Хүн нэмэх
+            </Button>
+
+            {group.state !== "paid" && (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => actions.onCancel(group)}
+                >
+                  <Ban className="size-3.5" />
+                  Цуцлах
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => actions.onDelete(group)}
+                >
+                  <Trash2 className="size-3.5" />
+                  Бүртгэлийг устгах
+                </Button>
+              </>
+            )}
+          </div>
 
           {group.state !== "paid" && group.bylCheckoutUrl && (
             <a
@@ -144,11 +216,13 @@ export function RegistrationView({
   sortKey,
   sortDirection,
   onSortChange,
+  actions,
 }: {
   groups: RegistrationGroup[];
   sortKey: RegistrationSortKey;
   sortDirection: SortDirection;
   onSortChange: (key: RegistrationSortKey, direction: SortDirection) => void;
+  actions: Actions;
 }) {
   if (groups.length === 0) {
     return (
@@ -189,7 +263,11 @@ export function RegistrationView({
 
       <ul className="grid grid-cols-[minmax(0,1fr)] gap-2">
         {groups.map((group) => (
-          <RegistrationCard key={group.registrationId} group={group} />
+          <RegistrationCard
+            key={group.registrationId}
+            group={group}
+            actions={actions}
+          />
         ))}
       </ul>
     </div>
