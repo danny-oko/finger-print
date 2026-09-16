@@ -65,3 +65,30 @@ export async function reconcilePendingRegistration(id: string): Promise<boolean>
 
   return true;
 }
+
+const RECONCILE_CONCURRENCY = 6;
+
+// The per-registration reconcile only fires while the registrant keeps their
+// page open, so anyone who paid and closed the tab stays pending unless the
+// admin monitor sweeps them too.
+export async function reconcileAllPending(): Promise<number> {
+  const rows = await d1Query<{ id: string }>(
+    `SELECT id FROM registrations WHERE status = 'pending' AND byl_checkout_id IS NOT NULL`,
+  );
+
+  let settled = 0;
+  for (let i = 0; i < rows.length; i += RECONCILE_CONCURRENCY) {
+    const results = await Promise.allSettled(
+      rows.slice(i, i + RECONCILE_CONCURRENCY).map((row) => reconcilePendingRegistration(row.id)),
+    );
+    for (const [j, result] of results.entries()) {
+      if (result.status === "fulfilled") {
+        if (result.value) settled++;
+      } else {
+        console.error("Failed to reconcile registration", rows[i + j].id, result.reason);
+      }
+    }
+  }
+
+  return settled;
+}
