@@ -6,6 +6,7 @@ import type {
   CheckInResponse,
   DoorCounts,
 } from "@/lib/admin/checkIn";
+import type { ManualStatus } from "@/lib/admin/manage";
 
 // Plain wording for everything the management endpoints can refuse.
 export const MANAGE_MESSAGE: Record<string, string> = {
@@ -70,6 +71,9 @@ export const removeAttendee = (attendeeId: string) =>
 
 export const cancelRegistration = (registrationId: string) =>
   send(`/api/admin/registrations/${registrationId}`, "PATCH", { action: "cancel" });
+
+export const setPaymentStatus = (registrationId: string, status: ManualStatus) =>
+  send(`/api/admin/registrations/${registrationId}`, "PATCH", { action: "set_status", status });
 
 export const removeRegistration = (registrationId: string) =>
   send(`/api/admin/registrations/${registrationId}`, "DELETE");

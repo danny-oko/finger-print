@@ -24,6 +24,7 @@ import {
   type RegistrationSortKey,
   type SortDirection,
 } from "@/lib/admin/monitor";
+import type { ManualStatus } from "@/lib/admin/manage";
 import type { MonitorRow } from "@/lib/admin/types";
 import { formatMnt } from "@/lib/registration/pricing";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ type Actions = {
   onDelete: (group: RegistrationGroup) => void;
   onEditAttendee: (row: MonitorRow) => void;
   onDeleteAttendee: (row: MonitorRow) => void;
+  onSetStatus: (row: MonitorRow, status: ManualStatus) => void;
 };
 
 function RegistrationCard({
@@ -149,6 +151,7 @@ function RegistrationCard({
                     row={row}
                     onEdit={() => actions.onEditAttendee(row)}
                     onRemove={() => actions.onDeleteAttendee(row)}
+                    onSetStatus={(status) => actions.onSetStatus(row, status)}
                   />
                 </div>
               </li>

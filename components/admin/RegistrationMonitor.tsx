@@ -17,12 +17,14 @@ import { RegistrationView } from "@/components/admin/RegistrationView";
 import { Button } from "@/components/ui/button";
 import {
   cancelRegistration,
+  setPaymentStatus,
   createAttendee,
   removeAttendee,
   removeRegistration,
   saveAttendee,
 } from "@/lib/admin/actions";
 import type { AdminAttendeeInput, AdminAttendeeValues } from "@/lib/admin/attendeeSchema";
+import type { ManualStatus } from "@/lib/admin/manage";
 import {
   ATTENDEE_SORT_LABEL,
   CHURCH_SORT_LABEL,
@@ -37,6 +39,7 @@ import {
   sortAttendees,
   sortChurchGroups,
   sortRegistrations,
+  STATE_LABEL,
   toCsv,
   type AttendeeSortKey,
   type ChurchSortKey,
@@ -89,6 +92,7 @@ type Pending =
       hasTicket: boolean;
     }
   | ({ kind: "cancel" } & RegistrationTarget)
+  | ({ kind: "status"; status: ManualStatus; wasPaid: boolean } & RegistrationTarget)
   | ({ kind: "registration" } & RegistrationTarget);
 
 function toRegistrationTarget(group: RegistrationGroup): RegistrationTarget {
@@ -332,6 +336,15 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
       return;
     }
 
+    if (pending.kind === "status") {
+      runAction(
+        setPaymentStatus(pending.registrationId, pending.status),
+        `Төлөв «${STATE_LABEL[pending.status]}» боллоо`,
+        () => setPending(null),
+      );
+      return;
+    }
+
     if (pending.kind === "cancel") {
       runAction(cancelRegistration(pending.registrationId), "Бүртгэл цуцлагдлаа", () =>
         setPending(null),
@@ -355,6 +368,17 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
       setPending({ kind: "cancel", ...toRegistrationTarget(group) }),
     onDelete: (group: RegistrationGroup) =>
       setPending({ kind: "registration", ...toRegistrationTarget(group) }),
+    onSetStatus: (row: MonitorRow, status: ManualStatus) => {
+      if (row.status === status) return;
+      setPending({
+        kind: "status",
+        status,
+        wasPaid: row.status === "paid",
+        registrationId: row.registrationId,
+        payerName: row.payerName,
+        attendeeCount: row.attendeeCount,
+      });
+    },
     onEditAttendee: (row: MonitorRow) =>
       setEditing({ attendeeId: row.attendeeId, values: toFormValues(row) }),
 
@@ -539,6 +563,7 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
             onSortChange={(key, direction) => setAttendeeSort({ key, direction })}
             onEdit={registrationActions.onEditAttendee}
             onDelete={registrationActions.onDeleteAttendee}
+            onSetStatus={registrationActions.onSetStatus}
           />
         ) : view === "churches" ? (
           <ChurchView
@@ -604,14 +629,18 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
         title={
           pending?.kind === "attendee"
             ? `${pending.name}-ийг хасах уу?`
-            : pending?.kind === "cancel"
+            : pending?.kind === "status"
+              ? `Төлөвийг «${STATE_LABEL[pending.status]}» болгох уу?`
+              : pending?.kind === "cancel"
               ? "Энэ бүртгэлийг цуцлах уу?"
               : "Энэ бүртгэлийг устгах уу?"
         }
         confirmLabel={
           pending?.kind === "attendee"
             ? "Тийм, хас"
-            : pending?.kind === "cancel"
+            : pending?.kind === "status"
+              ? "Тийм, өөрчил"
+              : pending?.kind === "cancel"
               ? "Тийм, цуцал"
               : "Тийм, устга"
         }
@@ -624,6 +653,21 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
               </p>
               {pending.hasTicket && <p>Түүний тасалбар хүчингүй болно.</p>}
               <p>Төлбөрийн дүн өөрчлөгдөхгүй.</p>
+            </>
+          ) : pending?.kind === "status" ? (
+            <>
+              <p>
+                {pending.payerName}-ийн {pending.attendeeCount} хүний бүртгэл бүхэлдээ
+                өөрчлөгдөнө.
+              </p>
+              {pending.status === "paid" ? (
+                <p>Тасалбар олгогдож, хаалган дээр нэвтрэх боломжтой болно.</p>
+              ) : pending.wasPaid ? (
+                <p>
+                  Төлбөр төлөгдөөгүй гэж тооцогдох тул тасалбараар нэвтрэх боломжгүй
+                  болно.
+                </p>
+              ) : null}
             </>
           ) : pending?.kind === "cancel" ? (
             <>
