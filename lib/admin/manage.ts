@@ -190,7 +190,10 @@ export async function setRegistrationStatus(
   );
 
   if (!registration) return { ok: false, reason: "registration_not_found" };
-  if (registration.status === status) return { ok: true };
+  // Not for "paid": if a prior call's issueTickets() threw after the status
+  // write already committed, the registration reads back as paid with no
+  // tickets issued, and this must retry rather than look like a no-op.
+  if (status !== "paid" && registration.status === status) return { ok: true };
 
   const now = new Date().toISOString();
 
