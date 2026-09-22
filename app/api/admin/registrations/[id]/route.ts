@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 
 import { isAdminAuthenticated } from "@/lib/admin/auth";
-import { cancelRegistration, deleteRegistration } from "@/lib/admin/manage";
+import {
+  cancelRegistration,
+  deleteRegistration,
+  MANUAL_STATUSES,
+  setRegistrationStatus,
+  type ManualStatus,
+} from "@/lib/admin/manage";
 import { httpErrorFor, logServerError } from "@/lib/errors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** The only supported change is cancelling — nothing else here is editable. */
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -17,14 +22,22 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const body = (await request.json().catch(() => null)) as { action?: string } | null;
+  const body = (await request.json().catch(() => null)) as
+    | { action?: string; status?: string }
+    | null;
 
-  if (body?.action !== "cancel") {
+  const isStatus =
+    body?.action === "set_status" &&
+    MANUAL_STATUSES.includes(body.status as ManualStatus);
+
+  if (body?.action !== "cancel" && !isStatus) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
 
   try {
-    const result = await cancelRegistration(id);
+    const result = isStatus
+      ? await setRegistrationStatus(id, body!.status as ManualStatus)
+      : await cancelRegistration(id);
 
     if (!result.ok) {
       return NextResponse.json(
@@ -36,7 +49,7 @@ export async function PATCH(
     return NextResponse.json({ ok: true });
   } catch (error) {
     const { code, status } = httpErrorFor(error);
-    logServerError("admin.registration.cancel", error, { registrationId: id });
+    logServerError("admin.registration.update", error, { registrationId: id });
     return NextResponse.json({ error: code }, { status });
   }
 }

@@ -11,6 +11,7 @@ import {
   type AttendeeSortKey,
   type SortDirection,
 } from "@/lib/admin/monitor";
+import type { ManualStatus } from "@/lib/admin/manage";
 import type { MonitorRow } from "@/lib/admin/types";
 import { cn } from "@/lib/utils";
 import { formatGrade, formatGradeShort } from "@/lib/registration/grade";
@@ -60,6 +61,7 @@ export function AttendeeView({
   onSortChange,
   onEdit,
   onDelete,
+  onSetStatus,
 }: {
   rows: MonitorRow[];
   sortKey: AttendeeSortKey;
@@ -67,6 +69,7 @@ export function AttendeeView({
   onSortChange: (key: AttendeeSortKey, direction: SortDirection) => void;
   onEdit: (row: MonitorRow) => void;
   onDelete: (row: MonitorRow) => void;
+  onSetStatus: (row: MonitorRow, status: ManualStatus) => void;
 }) {
   function handleHeaderClick(key: AttendeeSortKey) {
     if (key === sortKey) {
@@ -107,6 +110,7 @@ export function AttendeeView({
                   row={row}
                   onEdit={() => onEdit(row)}
                   onRemove={() => onDelete(row)}
+                  onSetStatus={(status) => onSetStatus(row, status)}
                 />
               </div>
             </div>
@@ -232,6 +236,7 @@ export function AttendeeView({
                     row={row}
                     onEdit={() => onEdit(row)}
                     onRemove={() => onDelete(row)}
+                    onSetStatus={(status) => onSetStatus(row, status)}
                   />
                 </td>
               </tr>

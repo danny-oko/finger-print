@@ -3,6 +3,7 @@ import { v4 as uuid } from "uuid";
 import { d1Query, d1QueryOne } from "@/lib/d1";
 import { toGradeColumns } from "@/lib/registration/grade";
 import type { AdminAttendeeInput } from "@/lib/admin/attendeeSchema";
+import { issueTickets } from "@/lib/registration/issueTickets";
 import { generateTicketCode } from "@/lib/registration/ticketCode";
 
 // The rules about what may be changed or deleted live here, not in the UI,
@@ -165,6 +166,51 @@ export async function cancelRegistration(
   await d1Query(
     "UPDATE registrations SET status = 'cancelled', updated_at = ? WHERE id = ?",
     [new Date().toISOString(), registrationId],
+  );
+
+  return { ok: true };
+}
+
+export const MANUAL_STATUSES = ["paid", "pending", "cancelled"] as const;
+export type ManualStatus = (typeof MANUAL_STATUSES)[number];
+
+/**
+ * For payments Byl never reported, cash at the door, or a mistake to undo.
+ * Leaving 'paid' keeps the ticket codes — check-in refuses them while the
+ * registration is unpaid — but clears tickets_issued_at so anyone added in
+ * the meantime gets a code when it's marked paid again.
+ */
+export async function setRegistrationStatus(
+  registrationId: string,
+  status: ManualStatus,
+): Promise<{ ok: true } | { ok: false; reason: ManageFailure }> {
+  const registration = await d1QueryOne<{ status: string }>(
+    "SELECT status FROM registrations WHERE id = ?",
+    [registrationId],
+  );
+
+  if (!registration) return { ok: false, reason: "registration_not_found" };
+  if (registration.status === status) return { ok: true };
+
+  const now = new Date().toISOString();
+
+  if (status === "paid") {
+    await d1Query(
+      `UPDATE registrations
+          SET status = 'paid', paid_at = COALESCE(paid_at, ?),
+              awaiting_verification_at = NULL, updated_at = ?
+        WHERE id = ?`,
+      [now, now, registrationId],
+    );
+    await issueTickets(registrationId);
+    return { ok: true };
+  }
+
+  await d1Query(
+    `UPDATE registrations
+        SET status = ?, paid_at = NULL, tickets_issued_at = NULL, updated_at = ?
+      WHERE id = ?`,
+    [status, now, registrationId],
   );
 
   return { ok: true };
