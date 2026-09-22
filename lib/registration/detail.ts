@@ -33,6 +33,7 @@ export type RegistrationDetail = {
   paidAt: string | null;
   ticketsIssued: boolean;
   createdAt: string;
+  paymentUrl: string | null;
   attendees: DetailAttendee[];
 };
 
@@ -67,6 +68,7 @@ type RegistrationRow = {
   paid_at: string | null;
   tickets_issued_at: string | null;
   created_at: string;
+  byl_checkout_url: string | null;
 };
 
 type AttendeeRow = {
@@ -83,7 +85,7 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
   const registration = await d1QueryOne<RegistrationRow>(
     `SELECT id, registrant_type, payer_name, payer_phone, payer_email, attendee_count,
             price_per_attendee_mnt, total_mnt, currency, status, awaiting_verification_at,
-            paid_at, tickets_issued_at, created_at
+            paid_at, tickets_issued_at, created_at, byl_checkout_url
      FROM registrations WHERE id = ?`,
     [id],
   );
@@ -111,6 +113,7 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
     paidAt: registration.paid_at,
     ticketsIssued: Boolean(registration.tickets_issued_at),
     createdAt: registration.created_at,
+    paymentUrl: registration.byl_checkout_url,
     attendees: attendees.map((a) => ({
       id: a.id,
       fullName: a.full_name,

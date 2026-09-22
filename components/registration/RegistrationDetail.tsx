@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Clock,
   Copy,
+  CreditCard,
   Landmark,
   Printer,
   Search,
@@ -246,6 +247,21 @@ function StatusPanel({ detail }: { detail: Detail }) {
         icon: <Landmark className="size-12 text-sky-600" />,
         title: "Шилжүүлгийг шалгаж байна",
         body: "Таны банкны шилжүүлгийг хүлээн авлаа. Зохион байгуулагч баталгаажуулмагц тасалбар энэ хуудсанд гарч ирнэ — холбоосоо хадгална уу.",
+      };
+    }
+
+    if (detail.status === "pending" && detail.paymentUrl) {
+      return {
+        icon: <CreditCard className="size-12 text-[#F98C01]" />,
+        title: "Төлбөр хараахан хийгдээгүй байна",
+        body: "Таны бүртгэл хадгалагдсан ч төлбөр хараахан төлөгдөөгүй байна. Үргэлжлүүлэн төлбөрөө хийх үү? Төлсний дараа энэ хуудас автоматаар шинэчлэгдэнэ.",
+        action: (
+          <Button asChild className="mt-2 h-11 bg-[#F98C01] hover:bg-[#e07d00]">
+            <a href={detail.paymentUrl} target="_blank" rel="noreferrer">
+              Төлбөрөө үргэлжлүүлэх
+            </a>
+          </Button>
+        ),
       };
     }
 
