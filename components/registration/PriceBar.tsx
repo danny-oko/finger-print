@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +56,10 @@ export function PriceBar({
           )}
         </Button>
       </div>
+      <p className="mx-auto mt-2 flex w-full max-w-2xl items-center gap-1 text-[11px] text-neutral-400">
+        <ShieldCheck className="size-3" /> Byl-ээр дамжуулан аюулгүй төлбөр
+        хийгдэнэ
+      </p>
     </div>
   );
 }

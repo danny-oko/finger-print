@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Building2, Plus, UserRound, Users } from "lucide-react";
 import * as React from "react";
 import {
   FormProvider,
@@ -30,7 +30,11 @@ import { useRegistrationDraft } from "@/hooks/use-registration-draft";
 import { useTakenPhones } from "@/hooks/use-taken-phones";
 import { trackEvent } from "@/lib/analytics/client";
 import { errorCodeFrom, userMessage } from "@/lib/errors";
-import type { PricingSettings } from "@/lib/registration/pricing";
+import {
+  computePricing,
+  formatMnt,
+  type PricingSettings,
+} from "@/lib/registration/pricing";
 import {
   registrationFormSchema,
   toCreateRegistrationInput,
@@ -61,24 +65,36 @@ function firstErrorField(errors: unknown, path: string[] = []): string | null {
   return null;
 }
 
+// Every section gets the same step number + icon treatment, so the form
+// reads as a short, ordered sequence rather than one long wall of fields —
+// the thing people most often lose their place in on a phone.
 function Section({
+  step,
+  icon: Icon,
   title,
   hint,
   children,
 }: {
+  step: number;
+  icon: React.ComponentType<{ className?: string }>;
   title: string;
   hint?: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="grid gap-4 px-5 py-6 sm:px-6">
-      <div className="grid gap-1">
-        <h2 className="text-base font-bold tracking-tight text-neutral-900">
-          {title}
-        </h2>
-        {hint && (
-          <p className="text-[13px] leading-snug text-neutral-500">{hint}</p>
-        )}
+      <div className="flex items-start gap-3">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#F98C01]/10 text-[#F98C01]">
+          <Icon className="size-4" />
+        </span>
+        <div className="grid gap-1 pt-0.5">
+          <h2 className="text-base font-bold tracking-tight text-neutral-900">
+            <span className="text-neutral-400">{step}.</span> {title}
+          </h2>
+          {hint && (
+            <p className="text-[13px] leading-snug text-neutral-500">{hint}</p>
+          )}
+        </div>
       </div>
       {children}
     </section>
@@ -224,6 +240,7 @@ export function RegistrationForm() {
   }, []);
 
   const isGroup = fields.length > 1;
+  const breakdown = pricing ? computePricing(pricing, fields.length) : null;
 
   const startedRef = React.useRef(false);
   React.useEffect(() => {
@@ -373,6 +390,8 @@ export function RegistrationForm() {
       >
         <div className="divide-y divide-neutral-200 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
           <Section
+            step={1}
+            icon={Building2}
             title="Хамрагддаг цуглаан"
             // hint="Нэг цуглааны ахлагч болон найзуудтайгаа хамт бүртгүүлээрэй"
           >
@@ -398,10 +417,12 @@ export function RegistrationForm() {
           </Section>
 
           <Section
+            step={2}
+            icon={Users}
             title="Бүртгүүлэх хүн"
             hint="Олон хүнийг нэг дор бүртгэж, нэг удаа төлж болно."
           >
-            <div className="grid gap-7">
+            <div className="grid gap-4">
               {fields.map((field, index) => (
                 <AttendeeRow
                   key={field.id}
@@ -410,6 +431,11 @@ export function RegistrationForm() {
                   phoneRequired={!isGroup}
                   autoFocus={focusIndex === index}
                   onRemove={fields.length > 1 ? () => remove(index) : undefined}
+                  priceLabel={
+                    breakdown
+                      ? formatMnt(breakdown.pricePerAttendeeMnt)
+                      : undefined
+                  }
                 />
               ))}
             </div>
@@ -427,6 +453,8 @@ export function RegistrationForm() {
 
           {isGroup && (
             <Section
+              step={3}
+              icon={UserRound}
               title="Бүртгэж буй хүн"
               hint="Тасалбар энэ хуудсанд гарна — дараа нь энэ дугаараар хайж олно."
             >

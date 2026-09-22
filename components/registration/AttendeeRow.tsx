@@ -42,12 +42,16 @@ export function AttendeeRow({
   showIndex,
   onRemove,
   autoFocus = false,
+  priceLabel,
 }: {
   index: number;
   phoneRequired: boolean;
   showIndex: boolean;
   onRemove?: () => void;
   autoFocus?: boolean;
+  // This person's share of the total, shown next to their number so a
+  // group leader sees the cost add up as they go, not just at the end.
+  priceLabel?: string;
 }) {
   const { control } = useFormContext<RegistrationFormValues>();
   const namePrefix = `attendees.${index}` as const;
@@ -60,13 +64,116 @@ export function AttendeeRow({
     if (autoFocus) nameRef.current?.focus();
   }, [autoFocus]);
 
+  const fields = (
+    <div className="grid gap-4 sm:grid-cols-7">
+      <FormField
+        control={control}
+        name={`${namePrefix}.fullName`}
+        render={({ field }) => (
+          <FormItem className="sm:col-span-3">
+            <FormLabel>Бүтэн нэр</FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                ref={nameRef}
+                placeholder="Бат-Эрдэнэ Ганбаяр"
+                autoComplete="off"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    gradeRef.current?.focus();
+                  }
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name={`${namePrefix}.grade`}
+        render={({ field }) => (
+          <FormItem className="sm:col-span-2">
+            <FormLabel>Анги</FormLabel>
+            <Select
+              value={field.value ?? undefined}
+              onValueChange={(v) => {
+                field.onChange(v);
+                phoneRef.current?.focus();
+              }}
+            >
+              <FormControl>
+                <SelectTrigger ref={gradeRef} className="w-full">
+                  <SelectValue placeholder="Сонгох" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {GRADE_CHOICES.map((choice) => (
+                  <SelectItem key={choice} value={choice}>
+                    {gradeChoiceLabel(choice)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name={`${namePrefix}.phone`}
+        render={({ field }) => (
+          <FormItem className="sm:col-span-2">
+            <FormLabel>
+              Утас{" "}
+              {!phoneRequired && (
+                <span className="font-normal text-muted-foreground">
+                  (заавал биш)
+                </span>
+              )}
+            </FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                ref={phoneRef}
+                value={(field.value as string | undefined) ?? ""}
+                inputMode="tel"
+                maxLength={8}
+                placeholder="99112233"
+                onChange={(e) =>
+                  field.onChange(onlyDigits(e.target.value).slice(0, 8))
+                }
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  );
+
+  if (!showIndex) return fields;
+
   return (
-    <div className="grid gap-3">
-      {showIndex && (
-        <div className="flex items-center justify-between">
+    <div className="grid gap-4 rounded-xl border border-neutral-200 bg-neutral-50/60 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[#F98C01]/10 text-[13px] font-bold text-[#F98C01]">
+            {index + 1}
+          </span>
           <p className="text-[13px] font-bold text-neutral-500">
             {index + 1}-р хүн
           </p>
+        </div>
+        <div className="flex items-center gap-1">
+          {priceLabel && (
+            <span className="text-[13px] font-medium text-neutral-400">
+              {priceLabel}
+            </span>
+          )}
           {onRemove && (
             <Button
               type="button"
@@ -79,96 +186,9 @@ export function AttendeeRow({
             </Button>
           )}
         </div>
-      )}
-
-      <div className="grid gap-4 sm:grid-cols-7">
-        <FormField
-          control={control}
-          name={`${namePrefix}.fullName`}
-          render={({ field }) => (
-            <FormItem className="sm:col-span-3">
-              <FormLabel>Бүтэн нэр</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  ref={nameRef}
-                  placeholder="Бат-Эрдэнэ Ганбаяр"
-                  autoComplete="off"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      gradeRef.current?.focus();
-                    }
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name={`${namePrefix}.grade`}
-          render={({ field }) => (
-            <FormItem className="sm:col-span-2">
-              <FormLabel>Анги</FormLabel>
-              <Select
-                value={field.value ?? undefined}
-                onValueChange={(v) => {
-                  field.onChange(v);
-                  phoneRef.current?.focus();
-                }}
-              >
-                <FormControl>
-                  <SelectTrigger ref={gradeRef} className="w-full">
-                    <SelectValue placeholder="Сонгох" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {GRADE_CHOICES.map((choice) => (
-                    <SelectItem key={choice} value={choice}>
-                      {gradeChoiceLabel(choice)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name={`${namePrefix}.phone`}
-          render={({ field }) => (
-            <FormItem className="sm:col-span-2">
-              <FormLabel>
-                Утас{" "}
-                {!phoneRequired && (
-                  <span className="font-normal text-muted-foreground">
-                    (заавал биш)
-                  </span>
-                )}
-              </FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  ref={phoneRef}
-                  value={(field.value as string | undefined) ?? ""}
-                  inputMode="tel"
-                  maxLength={8}
-                  placeholder="99112233"
-                  onChange={(e) =>
-                    field.onChange(onlyDigits(e.target.value).slice(0, 8))
-                  }
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </div>
+
+      {fields}
     </div>
   );
 }

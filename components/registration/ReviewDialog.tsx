@@ -1,6 +1,6 @@
 "use client";
 
-import { Landmark, Loader2, Pencil } from "lucide-react";
+import { Landmark, Loader2, Pencil, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -62,6 +62,9 @@ export function ReviewDialog({
         {values && (
           <>
             <DialogHeader className="px-6 pt-6 pb-4 text-left">
+              <p className="text-xs font-bold tracking-wide text-[#F98C01] uppercase">
+                Сүүлийн алхам
+              </p>
               <DialogTitle className="text-xl font-black">
                 Хурууны Хээ - Онлайн бүртгэл
               </DialogTitle>
@@ -138,6 +141,10 @@ export function ReviewDialog({
                 deliberate second choice: it's what a church leader collecting
                 cash from a group actually needs. */}
             <DialogFooter className="flex flex-col gap-2 px-6 pb-6 sm:flex-col">
+              <p className="flex items-center justify-center gap-1.5 text-[12px] text-neutral-400">
+                <ShieldCheck className="size-3.5" /> Аюулгүй төлбөр — Byl-ээр
+                баталгаажина
+              </p>
               <Button
                 type="button"
                 className="h-12 text-base"
