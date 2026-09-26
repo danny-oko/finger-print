@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { RegistrationDetail } from "@/components/registration/RegistrationDetail";
 import { Button } from "@/components/ui/button";
 import { logServerError, userMessage } from "@/lib/errors";
-import { getRegistrationDetail } from "@/lib/registration/detail";
+import { getRegistrationDetail, withIssuedTickets } from "@/lib/registration/detail";
 
 export const metadata: Metadata = {
   title: "Миний бүртгэл | Finger Print",
@@ -53,6 +53,8 @@ export default async function RegistrationDetailPage({
   }
 
   if (!registration) notFound();
+
+  registration = await withIssuedTickets(registration);
 
   return (
     <main className="flex h-dvh items-center justify-center overflow-hidden bg-neutral-50 p-4 print:block print:h-auto print:overflow-visible print:p-0">

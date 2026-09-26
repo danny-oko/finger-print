@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
 import { attendees, registrations } from "@/lib/db/schema";
@@ -6,16 +6,23 @@ import { generateTicketCode } from "@/lib/registration/ticketCode";
 
 const MAX_CODE_ATTEMPTS = 5;
 
-async function assignTicketCode(attendeeId: string): Promise<string> {
+async function assignTicketCode(attendeeId: string): Promise<void> {
   let lastError: unknown;
 
   for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt++) {
     const code = generateTicketCode();
     try {
-      // The unique index on attendees.ticket_code turns a (practically
-      // impossible) collision into a query error, which we just retry.
-      await db.update(attendees).set({ ticketCode: code }).where(eq(attendees.id, attendeeId)).run();
-      return code;
+      // The webhook, a reconcile and a page load can all get here at once.
+      // Only the first write lands; a later one would silently swap the code
+      // out from under a ticket that's already on someone's screen. The
+      // unique index turns a (practically impossible) collision into a query
+      // error, which we just retry.
+      await db
+        .update(attendees)
+        .set({ ticketCode: code })
+        .where(and(eq(attendees.id, attendeeId), isNull(attendees.ticketCode)))
+        .run();
+      return;
     } catch (error) {
       lastError = error;
     }

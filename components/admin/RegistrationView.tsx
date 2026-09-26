@@ -173,15 +173,18 @@ function RegistrationCard({
 
             {group.state !== "paid" && (
               <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => actions.onCancel(group)}
-                >
-                  <Ban className="size-3.5" />
-                  Цуцлах
-                </Button>
+                {/* Stored as paid, so the server won't cancel it — delete instead. */}
+                {group.state !== "invited" && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => actions.onCancel(group)}
+                  >
+                    <Ban className="size-3.5" />
+                    Цуцлах
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="ghost"

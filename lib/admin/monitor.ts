@@ -19,6 +19,7 @@ import {
  */
 export type MonitorState =
   | "paid"
+  | "invited"
   | "awaiting"
   | "pending"
   | "failed"
@@ -26,6 +27,9 @@ export type MonitorState =
   | "cancelled";
 
 export function rowState(row: MonitorRow): MonitorState {
+  // Stored as paid so tickets and check-in just work, but no money moved.
+  // An invite the admin has since cancelled shows as cancelled.
+  if (row.source === "invite" && row.status === "paid") return "invited";
   if (row.status === "paid") return "paid";
   if (row.status === "pending") return row.awaitingVerificationAt ? "awaiting" : "pending";
   return row.status;
@@ -33,6 +37,7 @@ export function rowState(row: MonitorRow): MonitorState {
 
 export const STATE_LABEL: Record<MonitorState, string> = {
   paid: "Төлөгдсөн",
+  invited: "Урилгатай",
   awaiting: "Шилжүүлэг шалгах",
   pending: "Хүлээгдэж буй",
   failed: "Амжилтгүй",
@@ -42,6 +47,7 @@ export const STATE_LABEL: Record<MonitorState, string> = {
 
 export const STATE_CLASS: Record<MonitorState, string> = {
   paid: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  invited: "bg-violet-100 text-violet-800 border-violet-200",
   awaiting: "bg-sky-100 text-sky-800 border-sky-200",
   pending: "bg-amber-100 text-amber-800 border-amber-200",
   failed: "bg-red-100 text-red-700 border-red-200",
@@ -67,7 +73,7 @@ export function attendeeRemoval(row: MonitorRow): AttendeeRemoval {
     return { kind: "attendee", label: "Жагсаалтаас хасах" };
   }
 
-  if (row.status === "paid") {
+  if (rowState(row) === "paid") {
     return {
       kind: "blocked",
       label: "Хасах боломжгүй",
@@ -239,6 +245,7 @@ const STATE_ORDER: Record<MonitorState, number> = {
   expired: 3,
   cancelled: 4,
   paid: 5,
+  invited: 6,
 };
 
 const collator = new Intl.Collator("mn", { sensitivity: "base", numeric: true });
@@ -304,6 +311,7 @@ export type ChurchGroup = {
   rows: MonitorRow[];
   attendeeCount: number;
   paidCount: number;
+  invitedCount: number;
   awaitingCount: number;
   pendingCount: number;
   unpaidCount: number;
@@ -361,6 +369,7 @@ export function groupByChurch(
     const registrationIds = new Set<string>();
 
     let paidCount = 0;
+    let invitedCount = 0;
     let awaitingCount = 0;
     let pendingCount = 0;
     let checkedInCount = 0;
@@ -379,6 +388,7 @@ export function groupByChurch(
         paidCount++;
         paidRevenueMnt += row.pricePerAttendeeMnt;
       }
+      if (state === "invited") invitedCount++;
       if (state === "awaiting") awaitingCount++;
       if (state === "pending") pendingCount++;
       if (row.checkedInAt) checkedInCount++;
@@ -412,9 +422,10 @@ export function groupByChurch(
       rows: groupRows,
       attendeeCount: groupRows.length,
       paidCount,
+      invitedCount,
       awaitingCount,
       pendingCount,
-      unpaidCount: groupRows.length - paidCount,
+      unpaidCount: groupRows.length - paidCount - invitedCount,
       checkedInCount,
       selfRegisteredCount,
       viaLeaderCount,
@@ -545,6 +556,7 @@ export function sortRegistrations(
 export type MonitorStats = {
   attendees: number;
   paid: number;
+  invited: number;
   awaiting: number;
   pending: number;
   unpaid: number;
@@ -563,6 +575,7 @@ export function computeStats(rows: MonitorRow[]): MonitorStats {
   const registrations = new Set<string>();
 
   let paid = 0;
+  let invited = 0;
   let awaiting = 0;
   let pending = 0;
   let failed = 0;
@@ -580,6 +593,8 @@ export function computeStats(rows: MonitorRow[]): MonitorStats {
     if (state === "paid") {
       paid++;
       collectedMnt += row.pricePerAttendeeMnt;
+    } else if (state === "invited") {
+      invited++;
     } else {
       if (state === "awaiting") awaiting++;
       if (state === "pending") pending++;
@@ -595,9 +610,10 @@ export function computeStats(rows: MonitorRow[]): MonitorStats {
   return {
     attendees: rows.length,
     paid,
+    invited,
     awaiting,
     pending,
-    unpaid: rows.length - paid,
+    unpaid: rows.length - paid - invited,
     failed,
     checkedIn,
     churches: churches.size,
@@ -616,6 +632,7 @@ const CSV_COLUMNS: [string, (row: MonitorRow) => string | number | null][] = [
   ["Утас", (r) => r.phone],
   ["Эцэг эхийн утас", (r) => r.parentPhone],
   ["Бүртгэсэн арга", (r) => PATH_LABEL[r.registrantType]],
+  ["Урилгаар", (r) => (r.source === "invite" ? "Тийм" : "Үгүй")],
   ["Төлөгч", (r) => r.payerName],
   ["Төлөгчийн утас", (r) => r.payerPhone],
   ["Төлөгчийн имэйл", (r) => r.payerEmail],

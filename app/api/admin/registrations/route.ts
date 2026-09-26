@@ -31,6 +31,7 @@ type Row = {
   total_mnt: number;
   currency: string;
   status: MonitorRow["status"];
+  source: MonitorRow["source"];
   paid_at: string | null;
   awaiting_verification_at: string | null;
   tickets_issued_at: string | null;
@@ -59,7 +60,7 @@ export async function GET() {
          a.created_at AS attendee_created_at,
          r.id AS registration_id, r.registrant_type, r.payer_name, r.payer_phone,
          r.payer_email, r.attendee_count, r.price_per_attendee_mnt, r.total_mnt,
-         r.currency, r.status, r.paid_at, r.awaiting_verification_at,
+         r.currency, r.status, r.source, r.paid_at, r.awaiting_verification_at,
          r.tickets_issued_at, r.byl_checkout_id, r.byl_checkout_url,
          r.created_at AS registration_created_at
        FROM attendees a
@@ -91,6 +92,7 @@ export async function GET() {
         totalMnt: row.total_mnt,
         currency: row.currency,
         status: row.status,
+        source: row.source,
         paidAt: row.paid_at,
         awaitingVerificationAt: row.awaiting_verification_at,
         ticketsIssuedAt: row.tickets_issued_at,

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errorCodeFrom, userMessage, type AppErrorCode } from "@/lib/errors";
 import { cn } from "@/lib/utils";
-import { formatGrade } from "@/lib/registration/grade";
 import { formatMnt } from "@/lib/registration/pricing";
 
 type Attendee = {
@@ -30,6 +29,7 @@ type Registration = {
   status: "pending" | "paid" | "failed" | "expired" | "cancelled";
   tickets_issued_at: string | null;
   created_at: string;
+  invited: boolean;
 };
 
 type Result = Registration & { attendees: Attendee[] };
@@ -70,8 +70,21 @@ const STATUS: Record<
   },
 };
 
-function StatusPill({ status }: { status: Registration["status"] }) {
-  const s = STATUS[status];
+const INVITED = {
+  label: "Урилга",
+  dot: "bg-[#F98C01]",
+  text: "text-[#B45309]",
+  bg: "bg-orange-50",
+};
+
+function StatusPill({
+  status,
+  invited,
+}: {
+  status: Registration["status"];
+  invited: boolean;
+}) {
+  const s = invited && status === "paid" ? INVITED : STATUS[status];
   return (
     <span
       className={cn(
@@ -109,7 +122,7 @@ function ResultCard({ reg }: { reg: Result }) {
           check, and side by side the longer labels squeezed the name into a
           truncation. */}
       <div className="grid gap-2">
-        <StatusPill status={reg.status} />
+        <StatusPill status={reg.status} invited={reg.invited} />
         <div className="min-w-0">
           <p className="font-bold text-neutral-900">{reg.payer_name}</p>
           <p className="text-[13px] text-neutral-500">
@@ -136,9 +149,15 @@ function ResultCard({ reg }: { reg: Result }) {
       )}
 
       <div className="flex items-center justify-between border-t border-neutral-200 pt-3">
-        <span className="text-lg font-black text-[#F98C01]">
-          {formatMnt(reg.total_mnt)}
-        </span>
+        {reg.invited ? (
+          <span className="text-[13px] font-medium text-neutral-500">
+            Урилгаар бүртгүүлсэн
+          </span>
+        ) : (
+          <span className="text-lg font-black text-[#F98C01]">
+            {formatMnt(reg.total_mnt)}
+          </span>
+        )}
         <span className="flex items-center gap-0.5 text-[13px] font-semibold text-neutral-700 group-hover:text-[#F98C01]">
           Дэлгэрэнгүй
           <ChevronRight className="size-4" />

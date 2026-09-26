@@ -62,7 +62,7 @@ function GroupCard({ group }: { group: ChurchGroup }) {
   const [open, setOpen] = React.useState(false);
 
   const paidPercent =
-    group.attendeeCount > 0 ? Math.round((group.paidCount / group.attendeeCount) * 100) : 0;
+    group.attendeeCount > 0 ? Math.round(((group.paidCount + group.invitedCount) / group.attendeeCount) * 100) : 0;
 
   const selfRows = group.rows.filter((row) => row.registrantType === "individual");
   const leaderRows = group.rows.filter((row) => row.registrantType === "church_leader");
@@ -97,6 +97,9 @@ function GroupCard({ group }: { group: ChurchGroup }) {
 
           <p className="mt-1 text-[11px] text-neutral-500">
             <span className="font-semibold text-emerald-700">{group.paidCount} төлсөн</span>
+            {group.invitedCount > 0 && (
+              <span className="text-violet-700"> · {group.invitedCount} урилгатай</span>
+            )}
             {group.unpaidCount > 0 && (
               <span className="text-amber-700"> · {group.unpaidCount} төлөөгүй</span>
             )}

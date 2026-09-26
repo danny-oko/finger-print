@@ -13,7 +13,8 @@ export type ManageFailure =
   | "registration_not_found"
   | "attendee_not_found"
   | "last_attendee"
-  | "registration_paid";
+  | "registration_paid"
+  | "invite_status_locked";
 
 const MAX_CODE_ATTEMPTS = 5;
 
@@ -184,12 +185,17 @@ export async function setRegistrationStatus(
   registrationId: string,
   status: ManualStatus,
 ): Promise<{ ok: true } | { ok: false; reason: ManageFailure }> {
-  const registration = await d1QueryOne<{ status: string }>(
-    "SELECT status FROM registrations WHERE id = ?",
+  const registration = await d1QueryOne<{ status: string; source: string }>(
+    "SELECT status, source FROM registrations WHERE id = ?",
     [registrationId],
   );
 
   if (!registration) return { ok: false, reason: "registration_not_found" };
+  // An invite never had a payment, so the only status change that makes
+  // sense is revoking it.
+  if (registration.source === "invite" && status !== "cancelled") {
+    return { ok: false, reason: "invite_status_locked" };
+  }
   // Not for "paid": if a prior call's issueTickets() threw after the status
   // write already committed, the registration reads back as paid with no
   // tickets issued, and this must retry rather than look like a no-op.
@@ -227,13 +233,16 @@ export async function setRegistrationStatus(
 export async function deleteRegistration(
   registrationId: string,
 ): Promise<{ ok: true } | { ok: false; reason: ManageFailure }> {
-  const registration = await d1QueryOne<{ status: string }>(
-    "SELECT status FROM registrations WHERE id = ?",
+  const registration = await d1QueryOne<{ status: string; source: string }>(
+    "SELECT status, source FROM registrations WHERE id = ?",
     [registrationId],
   );
 
   if (!registration) return { ok: false, reason: "registration_not_found" };
-  if (registration.status === "paid") return { ok: false, reason: "registration_paid" };
+  // An invite is 'paid' only so its ticket works — there's no money to protect.
+  if (registration.status === "paid" && registration.source !== "invite") {
+    return { ok: false, reason: "registration_paid" };
+  }
 
   // Children first — payment_events and attendees both point back here, and
   // D1 enforces foreign keys.

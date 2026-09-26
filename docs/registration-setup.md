@@ -124,6 +124,26 @@ Existing rows all predate the choice, so they become `student`. This
 migration rebuilds the table with the relaxed columns either way, so it's
 safe to run whether or not 0004 has been applied.
 
+## 5d. Add the registration source column
+
+Skip this if you just created the database in step 1. Registrations made
+through the private invite link (step 7c) are marked with a `source` column so
+the admin monitor can label them and keep them out of revenue:
+
+```bash
+bunx wrangler d1 execute finger-print-2026 --remote \
+  --file=./db/migrations/0006_add_registration_source.sql
+```
+
+Additive only: every existing row becomes `public`.
+
+**Apply it before deploying this version of the code, not after.** The admin
+monitor, the registration page (`/event/registration/<id>`), the ticket page
+(`/event/ticket/<code>`) and the `/event/status` lookup all select
+`r.source`, so against a database without the column they fail with a
+database error until the migration runs. Running it early is harmless: the
+current code never reads the column and new public rows get the default.
+
 ## 6. Set the real registration price
 
 The price and tax rate are stored in D1, not hardcoded, so they can be
@@ -194,6 +214,44 @@ scanned by mistake can be undone from the result card or from the "Сүүлд
 орсон" list, which shows arrivals from every phone on the door — not just
 the one holding it.
 
+## 7c. The invite link
+
+`/invited/<token>` is a private, free registration page for guests the team
+invites in person — printed as a QR code rather than linked anywhere. Each
+scan registers one person (church, name, phone, school year or youth leader)
+and hands them their ticket straight away, with no Byl checkout.
+
+The token lives only in the environment, never in the repo:
+
+```bash
+openssl rand -hex 12
+```
+
+```
+INVITE_TOKEN=<the output above>
+```
+
+and the QR should encode `https://finger-print.org/invited/<token>`.
+
+- **Unset** (or shorter than 12 characters) means the invite page is off —
+  every `/invited/...` URL is a 404.
+- **Rotating** the value kills every QR printed with the old one. There is
+  only one token at a time.
+- Anyone holding the QR can register for free, so treat the printout like a
+  key. Each phone number can still only hold one ticket.
+
+An invited registration is stored as `status = 'paid'` with a zero total and
+`source = 'invite'`, which is what lets the ticket page, the `/event/status`
+lookup and the door scanner treat it like any other confirmed ticket. The
+admin monitor shows it as **Урилгатай**, counts it as a confirmed attendee
+but not as revenue, and — unlike a real paid registration — lets it be
+deleted, since there's no payment record to protect. Its payment status can't
+be changed from the dashboard; deleting it is how an invite is revoked.
+
+The token is stripped from Web Analytics: page views and events on
+`/invited/<token>` are recorded as `/invited/[token]` (see
+`components/SiteAnalytics.tsx`).
+
 ## 8. Set env vars in Vercel
 
 Add everything from `.env.example` (with real values) to the Vercel
@@ -222,7 +280,8 @@ so only counts, enum values and field *names* are ever sent.
 | `registration_invalid` | browser | **Which field blocks a submit** — the topmost failing one |
 | `registration_submitted` | browser | Intent, before the redirect to Byl |
 | `registration_created` | `POST /api/registration` | Row + checkout both exist (the reliable funnel top) |
-| `registration_create_failed` | `POST /api/registration` | Split by `database_error` / `payment_error` |
+| `registration_create_failed` | `POST /api/registration`, `POST /api/registration/invited` | Split by `database_error` / `payment_error` |
+| `registration_invited` | `POST /api/registration/invited` | Free registrations through the invite link |
 | `registration_awaiting_verification` | Byl webhook | Bank transfers waiting on a human |
 | `registration_paid` | Byl webhook | Actual conversions |
 

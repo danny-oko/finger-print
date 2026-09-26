@@ -52,24 +52,28 @@ export function AttendeeActions({
           Мэдээлэл засах
         </DropdownMenuItem>
 
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <CreditCard className="size-4 text-muted-foreground" />
-            Төлбөрийн төлөв
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            <DropdownMenuRadioGroup
-              value={row.status}
-              onValueChange={(value) => onSetStatus(value as ManualStatus)}
-            >
-              {PAYMENT_STATUSES.map((status) => (
-                <DropdownMenuRadioItem key={status} value={status}>
-                  {STATE_LABEL[status]}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
+        {/* No payment behind an invite — "pending" would leave its page polling
+            a Byl checkout that doesn't exist. Delete is the way to revoke one. */}
+        {row.source !== "invite" && (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <CreditCard className="size-4 text-muted-foreground" />
+              Төлбөрийн төлөв
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={row.status}
+                onValueChange={(value) => onSetStatus(value as ManualStatus)}
+              >
+                {PAYMENT_STATUSES.map((status) => (
+                  <DropdownMenuRadioItem key={status} value={status}>
+                    {STATE_LABEL[status]}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        )}
 
         <DropdownMenuSeparator />
 

@@ -47,7 +47,7 @@ Open [http://localhost:3000](http://localhost:3000). The marketing site works ou
 
 ## Environment variables
 
-See [`.env.example`](.env.example) for the full list (Cloudflare D1 credentials, Byl API keys, Gmail SMTP, admin password, site URL). Every value is a placeholder — fill in your own before the registration flow or the admin dashboard will work.
+See [`.env.example`](.env.example) for the full list (Cloudflare D1 credentials, Byl API keys, Gmail SMTP, admin password, invite token, site URL). Every value is a placeholder — fill in your own before the registration flow or the admin dashboard will work.
 
 **Do not commit `.env.local`.** It's meant to hold your real values locally; only `.env.example` (with placeholder/sandbox values) should be tracked in git.
 
@@ -72,6 +72,12 @@ The two registration paths converge into one dataset: each attendee is a single 
 Church grouping runs on the normalized name from [`lib/registration/churchName.ts`](lib/registration/churchName.ts), so case, punctuation and Cyrillic/Latin spellings of the same church fold together automatically. Names that are merely *close* (a likely typo) are surfaced as a suggestion the admin can merge with one tap — a view-only merge that never rewrites stored data.
 
 Everything above is filterable by status, registration path, church, grade, attendance and a free-text search across names, phones, emails and ticket codes, and the filtered set exports to CSV.
+
+## Invite link
+
+`/invited/<token>` is a private registration page for invited guests, handed out as a printed QR code. Each scan registers one person for free — church, name, phone, school year — and issues their ticket immediately, skipping Byl. They find it again the same way as everyone else: `/event/registration/<id>` or the `/event/status` phone lookup.
+
+The token is the `INVITE_TOKEN` env var (`openssl rand -hex 12`), never committed. Unset, the page 404s; changing it invalidates every QR already printed. Invited registrations are stored as paid with a zero total and `source = 'invite'`, and the admin monitor labels them **Урилгатай**, counts them as attendees but not revenue, and allows deleting them. See step 7c of [`docs/registration-setup.md`](docs/registration-setup.md). Migration 0006 (step 5d) must be applied **before** deploying this code — the monitor, registration, ticket and status-lookup reads all select `r.source`.
 
 ## Share previews
 

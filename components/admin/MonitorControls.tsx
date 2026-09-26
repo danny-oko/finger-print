@@ -44,6 +44,7 @@ const VIEW_LABEL: Record<ViewMode, string> = {
 
 const STATES: MonitorState[] = [
   "paid",
+  "invited",
   "awaiting",
   "pending",
   "failed",
