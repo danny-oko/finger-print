@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
+import { InviteFriendLink } from "@/components/come/InviteFriendLink";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -110,7 +111,7 @@ export default function Navbar({ className }: { className?: string }) {
 
   // The registration/status flow and the admin dashboard are dedicated,
   // standalone pages — they shouldn't carry the marketing site's navbar.
-  if (pathname?.startsWith("/event") || pathname?.startsWith("/admin") || pathname?.startsWith("/invited")) {
+  if (pathname?.startsWith("/event") || pathname?.startsWith("/admin") || pathname?.startsWith("/invited") || pathname === "/come") {
     return null;
   }
 
@@ -177,6 +178,11 @@ export default function Navbar({ className }: { className?: string }) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
+              <InviteFriendLink
+                className="size-9 bg-secondary hover:bg-secondary/80"
+                tooltipSide="bottom"
+              />
+
               <Button className="rounded-full px-6 text-black" asChild>
                 <Link href="/event/registration">{t("register.button")}</Link>
               </Button>
@@ -221,6 +227,11 @@ export default function Navbar({ className }: { className?: string }) {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              <InviteFriendLink
+                className="size-9 bg-secondary"
+                onClick={() => setIsMobileOpen(false)}
+              />
 
               <Button
                 type="button"

@@ -7,12 +7,12 @@ import { join } from "node:path";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
-const CREAM = "#F2EDE1";
-const INK = "#14161A";
-const TEAL = "#37A8C4";
-const YELLOW = "#F7C948";
-const RED = "#E04434";
-const ORANGE = "#F98C01";
+export const CREAM = "#F2EDE1";
+export const INK = "#14161A";
+export const TEAL = "#37A8C4";
+export const YELLOW = "#F7C948";
+export const RED = "#E04434";
+export const ORANGE = "#F98C01";
 
 export async function ogFonts() {
   const [regular, extraBold] = await Promise.all([
@@ -28,7 +28,7 @@ export async function ogFonts() {
   ];
 }
 
-function Chip({ children }: { children: string }) {
+export function Chip({ children }: { children: string }) {
   return (
     <div
       style={{

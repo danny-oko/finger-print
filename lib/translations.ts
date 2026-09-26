@@ -8,6 +8,8 @@ export type Translations = {
     description: string;
     ctaPrimary: string;
     ctaSecondary: string;
+    videoTitle: string;
+    closeVideo: string;
   };
 
   nav: {
@@ -147,6 +149,7 @@ export type Translations = {
     checkStatus: string;
     bannerTitle: string;
     bannerSubtitle: string;
+    inviteFriend: string;
   };
 };
 
@@ -160,6 +163,8 @@ export const translations: Record<string, Translations> = {
         "How precious are Your thoughts concerning me, O God! How vast is the sum of them! — Psalm 139:17",
       ctaPrimary: "Watch short film",
       ctaSecondary: "Contact us",
+      videoTitle: "Finger Print short film",
+      closeVideo: "Close video",
     },
 
     nav: {
@@ -305,8 +310,7 @@ export const translations: Record<string, Translations> = {
       attendDescription: "Teenagers can attend individually or with friends.",
 
       serveTitle: "Serve",
-      serveDescription:
-        "Join the worship, welcoming, or organizing team.",
+      serveDescription: "Join the worship, welcoming, or organizing team.",
 
       supportTitle: "Financial support",
       supportDescription: "You can also support the conference financially.",
@@ -319,11 +323,12 @@ export const translations: Record<string, Translations> = {
     },
 
     register: {
-      badge: "Registration is open",
+      badge: "Check my registration",
       button: "Register now",
       checkStatus: "Check my registration",
       bannerTitle: "Ready for the conference?",
       bannerSubtitle: "Register now and get your ticket by email.",
+      inviteFriend: "Invite a friend",
     },
   },
 
@@ -336,6 +341,8 @@ export const translations: Record<string, Translations> = {
         "Аяа Бурхан, надад хандсан бодлууд тань хичнээн нандин бэ! Нийлбэр нь хичнээн их вэ! Дуулал 139:17",
       ctaPrimary: "Богино хэмжээний кино үзэх",
       ctaSecondary: "Холбоо барих",
+      videoTitle: "Хурууны хээ богино хэмжээний кино",
+      closeVideo: "Видеог хаах",
     },
 
     nav: {
@@ -498,11 +505,12 @@ export const translations: Record<string, Translations> = {
     },
 
     register: {
-      badge: "Бүртгэл нээлттэй",
+      badge: "Бүртгэлээ шалгах",
       button: "Бүртгүүлэх",
       checkStatus: "Бүртгэлээ шалгах",
       bannerTitle: "Конференцдоо бэлэн үү?",
       bannerSubtitle: "Яг одоо бүртгэлээ хийлгээрэй!",
+      inviteFriend: "Найзаа урих",
     },
   },
 
@@ -515,6 +523,8 @@ export const translations: Record<string, Translations> = {
         "하나님이여, 주께서 나를 향해 가지신 생각이 어찌 그리 귀하신지요! 그 수가 얼마나 많은지요! — 시편 139:17",
       ctaPrimary: "단편 영화 보기",
       ctaSecondary: "문의하기",
+      videoTitle: "Finger Print 단편 영화",
+      closeVideo: "영상 닫기",
     },
 
     nav: {
@@ -662,7 +672,8 @@ export const translations: Record<string, Translations> = {
       attendDescription: "청소년은 혼자 또는 친구와 함께 참석할 수 있습니다.",
 
       serveTitle: "섬기기",
-      serveDescription: "찬양팀, 환영팀 또는 컨퍼런스 준비팀에 참여할 수 있습니다.",
+      serveDescription:
+        "찬양팀, 환영팀 또는 컨퍼런스 준비팀에 참여할 수 있습니다.",
 
       supportTitle: "재정 후원",
       supportDescription: "컨퍼런스를 재정적으로 후원할 수도 있습니다.",
@@ -680,6 +691,7 @@ export const translations: Record<string, Translations> = {
       checkStatus: "등록 확인하기",
       bannerTitle: "컨퍼런스 참여 준비되셨나요?",
       bannerSubtitle: "지금 등록하고 이메일로 티켓을 받아보세요.",
+      inviteFriend: "친구 초대하기",
     },
   },
 };
