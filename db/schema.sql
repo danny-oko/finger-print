@@ -32,6 +32,9 @@ CREATE TABLE IF NOT EXISTS registrations (
   total_mnt INTEGER NOT NULL,
   currency TEXT NOT NULL DEFAULT 'MNT',
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'failed', 'expired', 'cancelled')),
+  -- 'invite' rows came through the private invite link: stored as paid with a
+  -- zero total. See migration 0006.
+  source TEXT NOT NULL DEFAULT 'public' CHECK (source IN ('public', 'invite')),
   byl_checkout_id TEXT,
   byl_client_reference_id TEXT UNIQUE,
   byl_checkout_url TEXT,
@@ -47,6 +50,7 @@ CREATE INDEX IF NOT EXISTS idx_registrations_byl_client_reference_id ON registra
 CREATE INDEX IF NOT EXISTS idx_registrations_byl_checkout_id ON registrations (byl_checkout_id);
 CREATE INDEX IF NOT EXISTS idx_registrations_status ON registrations (status);
 CREATE INDEX IF NOT EXISTS idx_registrations_created_at ON registrations (created_at);
+CREATE INDEX IF NOT EXISTS idx_registrations_source ON registrations (source);
 
 CREATE TABLE IF NOT EXISTS attendees (
   id TEXT PRIMARY KEY,

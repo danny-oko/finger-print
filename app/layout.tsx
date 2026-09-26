@@ -3,7 +3,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
-import { Analytics } from "@vercel/analytics/next";
+import { SiteAnalytics } from "@/components/SiteAnalytics";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://finger-print.org";
 
@@ -46,7 +46,7 @@ export default function RootLayout({
         </Suspense>
         {children}
         <Toaster position="top-center" richColors />
-        <Analytics debug={false} />
+        <SiteAnalytics />
       </body>
     </html>
   );

@@ -8,7 +8,7 @@ type Tile = {
   label: string;
   value: string;
   hint?: string;
-  tone?: "default" | "good" | "warn" | "info";
+  tone?: "default" | "good" | "warn" | "info" | "invite";
 };
 
 const TONE_CLASS: Record<NonNullable<Tile["tone"]>, string> = {
@@ -16,6 +16,7 @@ const TONE_CLASS: Record<NonNullable<Tile["tone"]>, string> = {
   good: "text-emerald-700",
   warn: "text-amber-700",
   info: "text-sky-700",
+  invite: "text-violet-700",
 };
 
 /**
@@ -35,6 +36,12 @@ export function MonitorStats({ stats }: { stats: Stats }) {
       value: String(stats.paid),
       hint: formatMnt(stats.collectedMnt),
       tone: "good",
+    },
+    {
+      label: "Урилгатай",
+      value: String(stats.invited),
+      hint: "үнэгүй тасалбар",
+      tone: stats.invited > 0 ? "invite" : "default",
     },
     {
       label: "Төлөөгүй",
@@ -62,7 +69,7 @@ export function MonitorStats({ stats }: { stats: Stats }) {
 
   return (
     <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:overflow-visible sm:px-0">
-      <div className="flex min-w-max gap-2 sm:grid sm:min-w-0 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">
+      <div className="flex min-w-max gap-2 sm:grid sm:min-w-0 sm:grid-cols-4 sm:gap-3 lg:grid-cols-7">
         {tiles.map((tile) => (
           <div
             key={tile.label}

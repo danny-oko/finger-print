@@ -16,6 +16,7 @@ import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
 
+import { EventTicket } from "@/components/ticket/EventTicket";
 import { Button } from "@/components/ui/button";
 import { clearRegistrationDraft } from "@/hooks/use-registration-draft";
 import type { RegistrationDetail as Detail } from "@/lib/registration/detail";
@@ -25,7 +26,6 @@ import { cn } from "@/lib/utils";
 
 const POLL_INTERVAL_MS = 3000;
 const MAX_POLLS = 20;
-const EVENT_LINE = "2026.10.10 · Хурууны хээ";
 
 // Pinned to Ulaanbaatar and assembled by hand. Locale formatting differs
 // between the server's ICU and the browser's, which made this row a
@@ -52,68 +52,14 @@ function formatDateTime(iso: string): string {
   return `${part.year}.${part.month}.${part.day} ${part.hour}:${part.minute}`;
 }
 
-/**
- * One attendee's stub. The dashed line is the fold a real ticket has: above
- * it is who this is, below it is what gets scanned at the door. The card
- * fills whatever height the screen gave it and the QR takes the slack, so
- * the code is as large as the phone allows without the page ever scrolling.
- */
-function Ticket({ attendee }: { attendee: Detail["attendees"][number] }) {
-  return (
-    <article className="flex h-full max-h-[30rem] w-full shrink-0 snap-center flex-col self-center overflow-hidden rounded-3xl bg-neutral-900 print:h-auto print:break-inside-avoid print:border print:border-neutral-300">
-      <div className="shrink-0 px-6 pt-5 pb-4 text-center">
-        <p className="text-[11px] font-semibold tracking-wide text-[#F98C01]">
-          {EVENT_LINE}
-        </p>
-        <p className="mt-1.5 text-lg leading-tight font-bold text-balance text-white">
-          {attendee.fullName}
-        </p>
-        <p className="mt-0.5 text-xs text-neutral-400">
-          {formatGrade(attendee)} · {attendee.churchName}
-        </p>
-      </div>
-
-      <div className="relative shrink-0" aria-hidden>
-        <div className="mx-6 border-t border-dashed border-neutral-700" />
-        {/* Punched out of both edges, in the page's own colour — the notch is
-            what makes the dashed line read as a tear-off rather than a rule. */}
-        <span className="absolute top-1/2 -left-2.5 size-5 -translate-y-1/2 rounded-full bg-neutral-50" />
-        <span className="absolute top-1/2 -right-2.5 size-5 -translate-y-1/2 rounded-full bg-neutral-50" />
-      </div>
-
-      {/* The QR takes the slack the screen has left, up to a cap — big enough
-          to scan across a doorway, never so big it swallows the stub. */}
-      <div className="flex min-h-0 flex-1 items-center justify-center px-6 pt-5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`/api/registration/tickets/${attendee.ticketCode}/qr`}
-          alt={`QR тасалбар ${attendee.ticketCode}`}
-          width={320}
-          height={320}
-          className="h-full max-h-72 w-auto max-w-full rounded-xl bg-white object-contain p-2.5 print:h-44"
-        />
-      </div>
-
-      <div className="grid shrink-0 justify-items-center gap-2 px-6 pt-3 pb-5">
-        <p className="font-mono text-lg font-bold tracking-[0.15em] text-[#F98C01]">
-          {attendee.ticketCode}
-        </p>
-        {attendee.checkedIn && (
-          <p className="rounded-full bg-emerald-500/15 px-3 py-1 text-[11px] font-semibold text-emerald-400">
-            Ирсэн бүртгэл хийгдсэн
-          </p>
-        )}
-      </div>
-    </article>
-  );
-}
-
 /** The paid page: one ticket per attendee, swiped through in place. */
 function TicketDeck({
   attendees,
+  invited,
   onCurrentChange,
 }: {
   attendees: Detail["attendees"][number][];
+  invited: boolean;
   onCurrentChange: (index: number) => void;
 }) {
   const trackRef = React.useRef<HTMLDivElement>(null);
@@ -155,12 +101,29 @@ function TicketDeck({
         )}
       >
         {attendees.map((attendee) => (
-          <Ticket key={attendee.id} attendee={attendee} />
+          <div
+            key={attendee.id}
+            // Scrolls on its own only as a last resort, when even the
+            // compressed ticket can't keep the QR at its floor.
+            className="flex h-full w-full shrink-0 snap-center flex-col overflow-y-auto overscroll-y-contain [scrollbar-width:none] print:h-auto print:overflow-visible print:py-4 [&::-webkit-scrollbar]:hidden"
+          >
+            <EventTicket
+              fill
+              invited={invited}
+              fullName={attendee.fullName}
+              grade={attendee.grade}
+              role={attendee.role}
+              churchName={attendee.churchName}
+              ticketCode={attendee.ticketCode}
+              checkedIn={attendee.checkedIn}
+              className="my-auto max-h-[38rem]"
+            />
+          </div>
         ))}
       </div>
 
       {many && (
-        <div className="flex shrink-0 items-center justify-center gap-3 pt-3 print:hidden">
+        <div className="flex shrink-0 items-center justify-center gap-3 pt-3 print:hidden [@media(max-height:700px)]:pt-1">
           <Button
             type="button"
             variant="ghost"
@@ -194,9 +157,9 @@ function Receipt({ detail }: { detail: Detail }) {
   return (
     <details className="group text-left print:open">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-xl px-1 py-2 text-xs text-neutral-500 marker:hidden hover:text-neutral-900">
-        <span>Төлбөрийн мэдээлэл</span>
+        <span>{detail.invited ? "Бүртгэлийн мэдээлэл" : "Төлбөрийн мэдээлэл"}</span>
         <span className="font-bold text-neutral-900">
-          {formatMnt(detail.totalMnt)}
+          {detail.invited ? "Урилга" : formatMnt(detail.totalMnt)}
         </span>
       </summary>
 
@@ -208,9 +171,11 @@ function Receipt({ detail }: { detail: Detail }) {
         <div className="flex justify-between gap-4">
           <dt className="text-neutral-500">Бүртгэлийн төрөл</dt>
           <dd className="font-medium">
-            {detail.registrantType === "church_leader"
-              ? "Сүмийн ахлагчаар"
-              : "Хувиараа"}
+            {detail.invited
+              ? "Урилгаар бүртгүүлсэн"
+              : detail.registrantType === "church_leader"
+                ? "Сүмийн ахлагчаар"
+                : "Хувиараа"}
           </dd>
         </div>
         <div className="flex justify-between gap-4">
@@ -223,14 +188,16 @@ function Receipt({ detail }: { detail: Detail }) {
             </span>
           </dd>
         </div>
-        <div className="flex justify-between gap-4">
-          <dt className="text-neutral-500">
-            {detail.attendeeCount} хүн × {formatMnt(detail.pricePerAttendeeMnt)}
-          </dt>
-          <dd className="font-bold text-[#F98C01]">
-            {formatMnt(detail.totalMnt)}
-          </dd>
-        </div>
+        {!detail.invited && (
+          <div className="flex justify-between gap-4">
+            <dt className="text-neutral-500">
+              {detail.attendeeCount} хүн × {formatMnt(detail.pricePerAttendeeMnt)}
+            </dt>
+            <dd className="font-bold text-[#F98C01]">
+              {formatMnt(detail.totalMnt)}
+            </dd>
+          </div>
+        )}
         <p className="pt-1 font-mono text-[10px] break-all text-neutral-300">
           {detail.id}
         </p>
@@ -323,10 +290,11 @@ export function RegistrationDetail({ initial }: { initial: Detail }) {
 
   // The registration is paid for and the tickets are on this page, so the
   // saved form draft has done its job. This is the only place it's dropped —
-  // an unpaid registration leaves it alone so the form still remembers.
+  // an unpaid registration leaves it alone so the form still remembers. An
+  // invite never used that draft, so it has no business clearing it.
   React.useEffect(() => {
-    if (detail.status === "paid") clearRegistrationDraft();
-  }, [detail.status]);
+    if (detail.status === "paid" && !detail.invited) clearRegistrationDraft();
+  }, [detail.status, detail.invited]);
 
   // Right after checkout the webhook usually hasn't landed yet, so a pending
   // registration re-checks itself for about a minute rather than making the
@@ -379,27 +347,34 @@ export function RegistrationDetail({ initial }: { initial: Detail }) {
   }
 
   return (
-    <div className="flex h-[90dvh] max-h-full w-full max-w-sm flex-col print:h-auto print:max-h-none">
+    <div
+      className={cn(
+        "flex h-full max-h-[48rem] w-full max-w-sm flex-col print:h-auto print:max-h-none",
+        paid && "md:max-w-2xl",
+      )}
+    >
       {paid ? (
         <>
-          <header className="shrink-0 pb-4 text-center">
+          <header className="shrink-0 pb-3 text-center [@media(max-height:700px)]:pb-2">
             <p className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-emerald-700">
               <CheckCircle2 className="size-4" />
-              Төлбөр амжилттай
+              {detail.invited ? "Урилга баталгаажлаа" : "Төлбөр амжилттай"}
             </p>
-            <p className="mt-0.5 text-xs text-neutral-500">
-              {detail.attendeeCount} хүний бүртгэл баталгаажлаа. Энэ QR-ийг
-              хаалган дээр харуулна уу.
+            <p className="mt-0.5 text-xs text-neutral-500 [@media(max-height:700px)]:hidden">
+              {detail.invited
+                ? "Энэ QR-ийг хаалган дээр харуулна уу."
+                : `${detail.attendeeCount} хүний бүртгэл баталгаажлаа. QR-ийг хаалган дээр харуулна уу.`}
             </p>
           </header>
 
           <TicketDeck
             attendees={detail.attendees}
+            invited={detail.invited}
             onCurrentChange={setCurrent}
           />
 
-          <footer className="shrink-0 pt-4">
-            <div className="flex items-center justify-center gap-1 print:hidden">
+          <footer className="mx-auto w-full max-w-sm shrink-0 pt-4 [@media(max-height:700px)]:pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-x-0.5 max-[399px]:[&_[data-slot=button]]:px-2 max-[399px]:[&_[data-slot=button]]:text-xs max-[359px]:[&_svg]:hidden print:hidden">
               <Button
                 type="button"
                 variant="ghost"

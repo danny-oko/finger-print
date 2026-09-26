@@ -196,3 +196,22 @@ export function normalizePhone(raw: string): string {
   // Strip a leading country code (976) if present, keep the last 8 digits.
   return digits.length > 8 ? digits.slice(-8) : digits;
 }
+
+// The invite link registers exactly one person and never touches payment.
+// The phone is required: it's how they find their ticket again on
+// /event/status, and the only way to tell two invitees with the same name apart.
+export const invitedRegistrationFormSchema = z.object({
+  churchName: z.string().trim().min(2, "Хамаарах сүмээ сонгоно уу").max(160),
+  fullName: z.string().trim().min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
+  phone: phoneSchema,
+  grade: z.enum(GRADE_CHOICES, { error: "Ангиа сонгоно уу" }),
+});
+
+export type InvitedRegistrationFormValues = z.input<typeof invitedRegistrationFormSchema>;
+export type InvitedRegistrationFormOutput = z.output<typeof invitedRegistrationFormSchema>;
+
+export const createInvitedRegistrationSchema = invitedRegistrationFormSchema.extend({
+  token: z.string().min(1).max(200),
+});
+
+export type CreateInvitedRegistrationInput = z.infer<typeof createInvitedRegistrationSchema>;

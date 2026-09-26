@@ -1,6 +1,9 @@
 import { d1Query, d1QueryOne } from "@/lib/d1";
+import { logServerError } from "@/lib/errors";
 import type { AttendeeRole } from "@/lib/registration/grade";
 import type { RegistrationStatus } from "@/lib/admin/types";
+import type { RegistrationSource } from "@/lib/registration/invite";
+import { issueTickets } from "@/lib/registration/issueTickets";
 
 // Shared read model for the public registration pages. These URLs are
 // guarded only by an unguessable id (a UUID, or a ticket code), so contact
@@ -29,6 +32,7 @@ export type RegistrationDetail = {
   totalMnt: number;
   currency: string;
   status: RegistrationStatus;
+  invited: boolean;
   awaitingVerification: boolean;
   paidAt: string | null;
   ticketsIssued: boolean;
@@ -64,6 +68,7 @@ type RegistrationRow = {
   total_mnt: number;
   currency: string;
   status: RegistrationStatus;
+  source: RegistrationSource;
   awaiting_verification_at: string | null;
   paid_at: string | null;
   tickets_issued_at: string | null;
@@ -84,7 +89,7 @@ type AttendeeRow = {
 export async function getRegistrationDetail(id: string): Promise<RegistrationDetail | null> {
   const registration = await d1QueryOne<RegistrationRow>(
     `SELECT id, registrant_type, payer_name, payer_phone, payer_email, attendee_count,
-            price_per_attendee_mnt, total_mnt, currency, status, awaiting_verification_at,
+            price_per_attendee_mnt, total_mnt, currency, status, source, awaiting_verification_at,
             paid_at, tickets_issued_at, created_at, byl_checkout_url
      FROM registrations WHERE id = ?`,
     [id],
@@ -109,6 +114,7 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
     totalMnt: registration.total_mnt,
     currency: registration.currency,
     status: registration.status,
+    invited: registration.source === "invite",
     awaitingVerification: Boolean(registration.awaiting_verification_at),
     paidAt: registration.paid_at,
     ticketsIssued: Boolean(registration.tickets_issued_at),
@@ -126,6 +132,26 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
   };
 }
 
+// Paid with no tickets means issueTickets() threw after the status write
+// committed — the webhook, a reconcile or the invite route. Retrying on read
+// means whoever holds the link never has to report it.
+export async function withIssuedTickets(
+  registration: RegistrationDetail,
+): Promise<RegistrationDetail> {
+  if (registration.status !== "paid" || registration.ticketsIssued) return registration;
+
+  try {
+    await issueTickets(registration.id);
+    return (await getRegistrationDetail(registration.id)) ?? registration;
+  } catch (error) {
+    logServerError("registration.issueTickets", error, {
+      step: "self_heal",
+      registrationId: registration.id,
+    });
+    return registration;
+  }
+}
+
 export type TicketDetail = {
   fullName: string;
   grade: number | null;
@@ -135,6 +161,7 @@ export type TicketDetail = {
   checkedIn: boolean;
   registrationId: string;
   payerName: string;
+  invited: boolean;
 };
 
 /**
@@ -153,9 +180,10 @@ export async function getTicketDetail(code: string): Promise<TicketDetail | null
     checked_in_at: string | null;
     registration_id: string;
     payer_name: string;
+    source: RegistrationSource;
   }>(
     `SELECT a.full_name, a.grade, a.role, a.church_name, a.ticket_code, a.checked_in_at,
-            a.registration_id, r.payer_name
+            a.registration_id, r.payer_name, r.source
      FROM attendees a
      JOIN registrations r ON r.id = a.registration_id
      WHERE a.ticket_code = ? AND r.status = 'paid'`,
@@ -173,5 +201,6 @@ export async function getTicketDetail(code: string): Promise<TicketDetail | null
     checkedIn: Boolean(row.checked_in_at),
     registrationId: row.registration_id,
     payerName: row.payer_name,
+    invited: row.source === "invite",
   };
 }

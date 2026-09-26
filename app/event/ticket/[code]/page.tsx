@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
 
+import { EventTicket } from "@/components/ticket/EventTicket";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { getTicketDetail } from "@/lib/registration/detail";
-import { formatGrade } from "@/lib/registration/grade";
 
 export const metadata: Metadata = {
   title: "Тасалбар | Finger Print",
@@ -31,49 +29,34 @@ export default async function TicketPage({ params }: { params: Promise<{ code: s
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4 py-10">
-      <div className="grid w-full max-w-sm gap-4">
+      <div className="grid w-full max-w-sm gap-4 md:max-w-2xl">
         <div className="grid justify-items-center gap-1 text-center">
           <p className="text-xs font-semibold text-[#F98C01]">2026.10.10 · FINGER PRINT</p>
           <h1 className="text-xl font-black text-neutral-900">Таны тасалбар</h1>
         </div>
 
-        <Card className="overflow-hidden border-neutral-900 bg-neutral-900">
-          <CardContent className="grid justify-items-center gap-3 py-8 text-center">
-            <p className="text-lg font-bold text-white">{ticket.fullName}</p>
-            <p className="text-xs text-neutral-400">
-              {formatGrade(ticket)} · {ticket.churchName}
-            </p>
-
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/api/registration/tickets/${ticket.ticketCode}/qr`}
-              alt={`QR тасалбар ${ticket.ticketCode}`}
-              width={200}
-              height={200}
-              className="rounded-xl bg-white p-3"
-            />
-
-            <p className="text-[11px] font-semibold tracking-widest text-neutral-500 uppercase">
-              Тасалбарын код
-            </p>
-            <p className="font-mono text-xl font-bold tracking-wider text-[#F98C01]">
-              {ticket.ticketCode}
-            </p>
-
-            {ticket.checkedIn && (
-              <p className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-3 py-1 text-[11px] font-semibold text-emerald-400">
-                <CheckCircle2 className="size-3" />
-                Ирсэн бүртгэл хийгдсэн
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <EventTicket
+          invited={ticket.invited}
+          fullName={ticket.fullName}
+          grade={ticket.grade}
+          role={ticket.role}
+          churchName={ticket.churchName}
+          ticketCode={ticket.ticketCode}
+          checkedIn={ticket.checkedIn}
+        />
 
         <p className="text-center text-xs text-muted-foreground">
-          Төлбөрийг {ticket.payerName} хийсэн. Хаалган дээр энэ QR-г харуулна уу.
+          {ticket.invited
+            ? "Урилгаар бүртгүүлсэн."
+            : `Төлбөрийг ${ticket.payerName} хийсэн.`}{" "}
+          Хаалган дээр энэ QR-г харуулна уу.
         </p>
 
-        <Button asChild variant="outline" className="print:hidden">
+        <Button
+          asChild
+          variant="outline"
+          className="h-11 w-full justify-self-center md:max-w-sm print:hidden"
+        >
           <a href="/event/status">Бүртгэл шалгах</a>
         </Button>
       </div>

@@ -23,6 +23,7 @@ export type AnalyticsEvents = {
     totalMnt: number;
   };
   registration_create_failed: { reason: string };
+  registration_invited: Record<string, never>;
   registration_paid: { totalMnt: number | null };
   registration_awaiting_verification: { totalMnt: number | null };
 };

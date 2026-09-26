@@ -1,4 +1,5 @@
 import type { AttendeeRole } from "@/lib/registration/grade";
+import type { RegistrationSource } from "@/lib/registration/invite";
 
 export type RegistrationStatus =
   | "pending"
@@ -40,6 +41,7 @@ export type MonitorRow = {
   totalMnt: number;
   currency: string;
   status: RegistrationStatus;
+  source: RegistrationSource;
   paidAt: string | null;
   awaitingVerificationAt: string | null;
   ticketsIssuedAt: string | null;

@@ -110,7 +110,7 @@ export default function Navbar({ className }: { className?: string }) {
 
   // The registration/status flow and the admin dashboard are dedicated,
   // standalone pages — they shouldn't carry the marketing site's navbar.
-  if (pathname?.startsWith("/event") || pathname?.startsWith("/admin")) {
+  if (pathname?.startsWith("/event") || pathname?.startsWith("/admin") || pathname?.startsWith("/invited")) {
     return null;
   }
 

@@ -42,8 +42,13 @@ export const ChurchCombobox = React.forwardRef<
     onSelected?: () => void;
     onCreate?: (name: string) => void;
     churches: string[];
+    // Handed down by FormControl so the label, error text and red border
+    // reach the trigger.
+    id?: string;
+    "aria-invalid"?: React.AriaAttributes["aria-invalid"];
+    "aria-describedby"?: string;
   }
->(({ value, onChange, onSelected, onCreate, churches }, ref) => {
+>(({ value, onChange, onSelected, onCreate, churches, ...aria }, ref) => {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [pendingCreate, setPendingCreate] = React.useState<string | null>(null);
@@ -111,6 +116,7 @@ export const ChurchCombobox = React.forwardRef<
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
+            {...aria}
             ref={ref}
             type="button"
             variant="outline"

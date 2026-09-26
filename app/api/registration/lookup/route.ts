@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { d1Query } from "@/lib/d1";
 import { httpErrorFor, logServerError } from "@/lib/errors";
+import type { RegistrationSource } from "@/lib/registration/invite";
 import { normalizePhone, phoneSchema } from "@/lib/registration/schema";
 
 type RegistrationRow = {
@@ -13,6 +14,7 @@ type RegistrationRow = {
   total_mnt: number;
   currency: string;
   status: string;
+  source: RegistrationSource;
   tickets_issued_at: string | null;
   created_at: string;
 };
@@ -41,7 +43,7 @@ export async function GET(request: Request) {
   try {
     const registrations = await d1Query<RegistrationRow>(
       `SELECT DISTINCT r.id, r.registrant_type, r.payer_name, r.payer_phone, r.attendee_count,
-              r.total_mnt, r.currency, r.status, r.tickets_issued_at, r.created_at
+              r.total_mnt, r.currency, r.status, r.source, r.tickets_issued_at, r.created_at
        FROM registrations r
        LEFT JOIN attendees a ON a.registration_id = r.id
        WHERE r.payer_phone = ? OR a.phone = ? OR a.parent_phone = ?
@@ -63,8 +65,9 @@ export async function GET(request: Request) {
       ids,
     );
 
-    const result = registrations.map((r) => ({
+    const result = registrations.map(({ source, ...r }) => ({
       ...r,
+      invited: source === "invite",
       attendees: attendees.filter((a) => a.registration_id === r.id),
     }));
 

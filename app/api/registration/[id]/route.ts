@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { httpErrorFor, logServerError } from "@/lib/errors";
-import { getRegistrationDetail } from "@/lib/registration/detail";
+import { getRegistrationDetail, withIssuedTickets } from "@/lib/registration/detail";
 import { reconcilePendingRegistration } from "@/lib/registration/settle";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +33,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         logServerError("registration.reconcile", error, { registrationId: id });
       }
     }
+
+    registration = await withIssuedTickets(registration);
 
     return NextResponse.json({ registration });
   } catch (error) {
