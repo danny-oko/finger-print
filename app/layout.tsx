@@ -8,7 +8,7 @@ import { SiteAnalytics } from "@/components/SiteAnalytics";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://finger-print.org";
 
 const DESCRIPTION =
-  "Хурууны хээ 2026 — залуучуудын чуулган. 2026.10.10, 09:00–17:00. Онлайнаар бүртгүүлээрэй.";
+  "Хурууны хээ 2026 — Өвсөрийн конферренц. 2026.10.10, 10:00–17:00";
 
 export const metadata: Metadata = {
   // Without this, og:image resolves to a relative path and every chat app
@@ -28,7 +28,6 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
   },
   twitter: {
-    // Large card rather than a thumbnail beside the text.
     card: "summary_large_image",
     title: "Хурууны хээ 2026",
     description: DESCRIPTION,

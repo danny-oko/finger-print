@@ -1,14 +1,21 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/useTranslation";
+import { XIcon } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useEffect } from "react";
 
 export default function HeroVideoDialog({
   open,
   onOpenChange,
-  title = "Finger Print Full Video",
+  title,
   src,
 }: {
   open: boolean;
@@ -16,6 +23,9 @@ export default function HeroVideoDialog({
   title?: string;
   src: string;
 }) {
+  const { t } = useTranslation();
+  const videoTitle = title ?? t("hero.videoTitle");
+
   useEffect(() => {
     if (!open) return;
 
@@ -32,23 +42,30 @@ export default function HeroVideoDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
+        showCloseButton={false}
         className={cn(
-          "p-0 border-0 shadow-none rounded-xl",
-          "flex items-center justify-center",
-          "w-[min(98vw,1400px)] max-h-[100vh]",
-          "bg-transparent",
+          "p-0 gap-0 border-0 shadow-none rounded-xl bg-transparent",
+          "max-w-none sm:max-w-none",
+          "w-[min(96vw,calc(86dvh*16/9),1600px)]",
         )}
       >
         <VisuallyHidden>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{videoTitle}</DialogTitle>
         </VisuallyHidden>
 
-        <div className="w-full aspect-video overflow-hidden rounded-xl">
+        <DialogClose
+          className="absolute -top-12 right-0 flex size-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          aria-label={t("hero.closeVideo")}
+        >
+          <XIcon className="size-5" />
+        </DialogClose>
+
+        <div className="w-full aspect-video overflow-hidden rounded-xl bg-black shadow-2xl">
           <iframe
             key={open ? "open" : "closed"}
             className="h-full w-full"
             src={src}
-            title={title}
+            title={videoTitle}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />

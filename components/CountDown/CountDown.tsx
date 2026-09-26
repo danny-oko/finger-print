@@ -3,6 +3,7 @@
 import Link from "next/link";
 import * as React from "react";
 
+import { InviteFriendLink } from "@/components/come/InviteFriendLink";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/useTranslation";
 import { cn } from "@/lib/utils";
@@ -121,9 +122,12 @@ export default function CountDown() {
 
           <div className="mx-auto mt-12 flex max-w-md flex-col items-center gap-3 text-center">
             <p className="text-sm text-white/60">{t("register.bannerSubtitle")}</p>
-            <Button className="h-11 rounded-full px-8 text-black" asChild>
-              <Link href="/event/registration">{t("register.button")}</Link>
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button className="h-11 rounded-full px-8 text-black" asChild>
+                <Link href="/event/registration">{t("register.button")}</Link>
+              </Button>
+              <InviteFriendLink className="size-11 bg-white/10 ring-1 ring-white/20 hover:bg-white/20" />
+            </div>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { Play, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { InviteFriendLink } from "@/components/come/InviteFriendLink";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/useTranslation";
 import HeroVideoDialog from "./HeroVideoDialog";
@@ -36,7 +37,7 @@ export default function HeroContent({
           </div>
 
           <Link
-            href="/event/registration"
+            href="/event/status"
             className="group inline-flex items-center gap-2 rounded-full bg-[#F98C01]/15 px-4 py-2 text-xs font-semibold text-[#F98C01] ring-1 ring-[#F98C01]/40 transition hover:bg-[#F98C01]/25"
           >
             <span className="relative flex size-1.5">
@@ -44,7 +45,9 @@ export default function HeroContent({
               <span className="relative inline-flex size-1.5 rounded-full bg-[#F98C01]" />
             </span>
             {t("register.badge")}
-            <span className="transition-transform group-hover:translate-x-0.5">→</span>
+            <span className="transition-transform group-hover:translate-x-0.5">
+              →
+            </span>
           </Link>
         </div>
 
@@ -61,7 +64,10 @@ export default function HeroContent({
         </p>
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <Button className="h-11 rounded-full px-8 cursor-pointer text-black" asChild>
+          <Button
+            className="h-11 rounded-full px-8 cursor-pointer text-black"
+            asChild
+          >
             <Link href="/event/registration">{t("register.button")}</Link>
           </Button>
 
@@ -74,13 +80,15 @@ export default function HeroContent({
             {t("hero.ctaPrimary")}
           </Button>
 
-          <Button
+          {/* <Button
             variant="secondary"
             className="h-11 rounded-full px-8 cursor-pointer"
             asChild
           >
             <Link href="#about">{t("hero.ctaSecondary")}</Link>
-          </Button>
+          </Button> */}
+
+          <InviteFriendLink className="size-11 border border-white/40 bg-black/30 backdrop-blur hover:bg-black/60" />
 
           <button
             type="button"

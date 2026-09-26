@@ -26,6 +26,9 @@ export type AnalyticsEvents = {
   registration_invited: Record<string, never>;
   registration_paid: { totalMnt: number | null };
   registration_awaiting_verification: { totalMnt: number | null };
+
+  come_yes: { nopes: number };
+  come_shared: { method: "copy" | "native"; named: boolean };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEvents;
