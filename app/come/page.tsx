@@ -19,8 +19,8 @@ export async function generateMetadata({
 }: Props): Promise<Metadata> {
   const to = cleanFriendName((await searchParams).to);
   const title = to
-    ? `${to}, чи надтай хамт Хурууны хээ-д урилгатай! 💌`
-    : "Чи надтай хамт Хурууны хээ-д урилгатай! 💌";
+    ? `${to}, надтай хамт хурууны хээд явна ингсэнүүдээ?~`
+    : "Надтай хамт хурууны хээд явна ингсэнүүдээ?~";
 
   // The card greets the friend by name, so it's a route rather than an
   // opengraph-image file — those never see the query string.
