@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { MailPlus } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -37,14 +37,7 @@ export function InviteFriendLink({
               className,
             )}
           >
-            <Image
-              src="/come/love-letter.gif"
-              alt=""
-              width={48}
-              height={48}
-              unoptimized
-              className="size-[62%]"
-            />
+            <MailPlus className="size-[50%]" strokeWidth={2} />
           </Link>
         </TooltipTrigger>
         <TooltipContent side={tooltipSide} sideOffset={6}>{label}</TooltipContent>

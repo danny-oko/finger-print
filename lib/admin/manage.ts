@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 
-import { d1Query, d1QueryOne } from "@/lib/d1";
+import { d1Query, d1QueryOne } from "@/lib/db/d1";
 import { toGradeColumns } from "@/lib/registration/grade";
 import type { AdminAttendeeInput } from "@/lib/admin/attendeeSchema";
 import { issueTickets } from "@/lib/registration/issueTickets";

@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "D1_API_BASE_URL=http://127.0.0.1:8787/client/v4",
+        "BYL_API_BASE_URL=http://127.0.0.1:8788",
+        "BYL_WEBHOOK_SECRET=local-test-secret",
+        "ADMIN_PASSWORD=",
+        "INVITE_TOKEN=local-invite-token-123",
+        "NEXT_PUBLIC_SITE_URL=http://localhost:3100",
+        "bun", "run", "dev", "--port", "3100"
+      ],
+      "port": 3100
+    }
+  ]
+}

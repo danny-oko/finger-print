@@ -7,9 +7,10 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useForm, useWatch, type FieldErrors, type Resolver } from "react-hook-form";
 import { toast } from "sonner";
+import { v4 as uuid } from "uuid";
 
 import { ChurchCombobox } from "@/components/registration/ChurchCombobox";
-import { Button } from "@/components/ui/button";
+import { FIELD_CLASS, LABEL_CLASS } from "@/components/registration/FormStep";
 import {
   Form,
   FormControl,
@@ -111,6 +112,9 @@ export function InviteRegistrationForm({ token }: { token: string }) {
 
   const [churches, setChurches] = React.useState<string[]>([]);
   const [submitting, setSubmitting] = React.useState(false);
+  // Reused for every retry of this form, so a double tap or a retried
+  // request finds the registration the first one made.
+  const [idempotencyKey] = React.useState(() => uuid());
 
   const phoneRef = React.useRef<HTMLInputElement>(null);
   const gradeRef = React.useRef<HTMLButtonElement>(null);
@@ -144,7 +148,7 @@ export function InviteRegistrationForm({ token }: { token: string }) {
       res = await fetch("/api/registration/invited", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, token }),
+        body: JSON.stringify({ ...values, token, idempotencyKey }),
       });
     } catch {
       const { title, hint } = userMessage("network_error");
@@ -194,7 +198,9 @@ export function InviteRegistrationForm({ token }: { token: string }) {
   }
 
   function onInvalid() {
-    toast.error("Дутуу бөглөсөн талбар байна.");
+    toast.error("Бөглөөгүй эсвэл буруу талбар байна", {
+      description: "Улаанаар тэмдэглэсэн хэсгийг шалгана уу.",
+    });
     document
       .querySelector("[aria-invalid='true']")
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -207,9 +213,9 @@ export function InviteRegistrationForm({ token }: { token: string }) {
       <form
         onSubmit={(e) => form.handleSubmit(onSubmit, onInvalid)(e)}
         noValidate
-        className="grid gap-4 [&_[data-slot=form-label]]:text-[13px] [&_[data-slot=form-message]]:text-xs [&_[data-slot=form-message]]:leading-snug [&_[role=combobox]]:h-11 [&_input]:h-11"
+        className="grid gap-4 [&_[data-slot=form-label]]:font-semibold [&_[data-slot=form-message]]:text-[13px]"
       >
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <div className="relative overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(21,23,28,0.06)]">
           <div
             aria-hidden
             className="relative h-1.5 overflow-hidden"
@@ -227,7 +233,7 @@ export function InviteRegistrationForm({ token }: { token: string }) {
               name="churchName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Хамрагддаг цуглаан</FormLabel>
+                  <FormLabel className={LABEL_CLASS}>Цуглаан</FormLabel>
                   <FormControl>
                     <ChurchCombobox
                       value={field.value}
@@ -236,6 +242,7 @@ export function InviteRegistrationForm({ token }: { token: string }) {
                         form.setValue("churchName", v, { shouldValidate: true })
                       }
                       onCreate={handleCreateChurch}
+                      className={FIELD_CLASS}
                     />
                   </FormControl>
                   <FormMessage />
@@ -248,11 +255,12 @@ export function InviteRegistrationForm({ token }: { token: string }) {
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Бүтэн нэр</FormLabel>
+                  <FormLabel className={LABEL_CLASS}>Нэр</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Бат-Эрдэнэ Ганбаяр"
+                      className={FIELD_CLASS}
+                      placeholder="Жишээ нь: Ганбаярын Тэмүүлэн"
                       autoComplete="name"
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
@@ -273,7 +281,7 @@ export function InviteRegistrationForm({ token }: { token: string }) {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Утас</FormLabel>
+                    <FormLabel className={LABEL_CLASS}>Утас</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -281,10 +289,12 @@ export function InviteRegistrationForm({ token }: { token: string }) {
                           field.ref(el);
                           phoneRef.current = el;
                         }}
-                        inputMode="tel"
+                        className={FIELD_CLASS}
+                        type="tel"
+                        inputMode="numeric"
                         autoComplete="tel-national"
                         maxLength={8}
-                        placeholder="99112233"
+                        placeholder="8 оронтой дугаар"
                         onChange={(e) =>
                           field.onChange(e.target.value.replace(/\D/g, "").slice(0, 8))
                         }
@@ -300,7 +310,7 @@ export function InviteRegistrationForm({ token }: { token: string }) {
                     {phoneTaken && (
                       <Link
                         href="/event/status"
-                        className="-my-2 inline-flex min-h-11 w-fit items-center text-xs font-semibold text-[#F98C01] underline underline-offset-2"
+                        className="-my-2 inline-flex min-h-11 w-fit items-center text-sm font-semibold text-brand-ink underline underline-offset-2"
                       >
                         Тасалбараа шалгах
                       </Link>
@@ -314,7 +324,7 @@ export function InviteRegistrationForm({ token }: { token: string }) {
                 name="grade"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Анги</FormLabel>
+                    <FormLabel className={LABEL_CLASS}>Анги</FormLabel>
                     <Select
                       value={field.value ?? undefined}
                       onValueChange={field.onChange}
@@ -323,14 +333,14 @@ export function InviteRegistrationForm({ token }: { token: string }) {
                         <SelectTrigger
                           ref={gradeRef}
                           onBlur={field.onBlur}
-                          className="w-full"
+                          className={`${FIELD_CLASS} w-full data-[size=default]:h-12`}
                         >
-                          <SelectValue placeholder="Сонгох" />
+                          <SelectValue placeholder="Сонгоно уу" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {GRADE_CHOICES.map((choice) => (
-                          <SelectItem key={choice} value={choice}>
+                          <SelectItem key={choice} value={choice} className="py-2.5 text-base">
                             {gradeChoiceLabel(choice)}
                           </SelectItem>
                         ))}
@@ -344,16 +354,16 @@ export function InviteRegistrationForm({ token }: { token: string }) {
           </div>
         </div>
 
-        <Button
+        <button
           type="submit"
           disabled={submitting}
-          className="h-12 w-full bg-[#F98C01] text-base font-bold hover:bg-[#e07d00]"
+          className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-brand text-base font-semibold text-ink transition-colors hover:bg-brand-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-70"
         >
-          {submitting && <Loader2 className="size-4 animate-spin" />}
-          {submitting ? "Бүртгэж байна…" : "Бүртгүүлэх"}
-        </Button>
-        <p className="text-center text-xs text-neutral-500">
-          Бүртгүүлмэгц тасалбар тань шууд гарч ирнэ.
+          {submitting && <Loader2 className="size-5 animate-spin" />}
+          {submitting ? "Бүртгэж байна…" : "Бүртгүүлж, тасалбараа авах"}
+        </button>
+        <p className="text-center text-sm text-ink/60">
+          Тасалбар тань дараагийн хуудсанд шууд гарна.
         </p>
       </form>
     </Form>

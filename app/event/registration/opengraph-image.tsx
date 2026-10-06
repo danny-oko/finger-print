@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
 
 import { EventCard, OG_SIZE, ogFonts } from "@/lib/og/card";
-import { formatMnt, getPricingSettings } from "@/lib/registration/pricing";
+import { formatMnt } from "@/lib/registration/pricing";
+import { getRegistrationSettings } from "@/lib/registration/settings";
 
 export const alt = "Хурууны хээ 2026 — онлайн бүртгэл";
 export const size = OG_SIZE;
@@ -12,7 +13,7 @@ export const revalidate = 3600;
 export default async function Image() {
   let price = formatMnt(15000);
   try {
-    price = formatMnt((await getPricingSettings()).pricePerAttendeeMnt);
+    price = formatMnt((await getRegistrationSettings()).pricing.pricePerAttendeeMnt);
   } catch {
     // The card is still worth rendering with the standing price.
   }

@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Suspense } from "react";
-import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
+import { displayFont, uiFont } from "@/lib/fonts";
+import { EVENT } from "@/lib/event";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://finger-print.org";
 
-const DESCRIPTION =
-  "Хурууны хээ 2026 — Өвсөрийн конферренц. 2026.10.10, 10:00–17:00";
+const DESCRIPTION = `${EVENT.name} — өсвөрийн чуулган. 2026.10.10, ${EVENT.time}`;
 
 export const metadata: Metadata = {
   // Without this, og:image resolves to a relative path and every chat app
@@ -34,15 +33,14 @@ export const metadata: Metadata = {
   },
 };
 
+// Mongolian is what the registration pages are written in; the marketing
+// site corrects `lang` on the client once its language is known.
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="mn" className={`${displayFont.variable} ${uiFont.variable}`}>
       <body className="relative">
-        <Suspense fallback={null}>
-          <Navbar />
-        </Suspense>
         {children}
         <Toaster position="top-center" richColors />
         <SiteAnalytics />

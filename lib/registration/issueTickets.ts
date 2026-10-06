@@ -1,65 +1,45 @@
-import { and, eq, isNull } from "drizzle-orm";
-
-import { db } from "@/lib/db/client";
-import { attendees, registrations } from "@/lib/db/schema";
+import { d1Batch, d1Query } from "@/lib/db/d1";
 import { generateTicketCode } from "@/lib/registration/ticketCode";
 
-const MAX_CODE_ATTEMPTS = 5;
+const MAX_ATTEMPTS = 4;
 
-async function assignTicketCode(attendeeId: string): Promise<void> {
+type Row = { attendee_id: string | null; ticket_code: string | null; tickets_issued_at: string | null };
+
+export async function issueTickets(registrationId: string): Promise<void> {
+  const rows = await d1Query<Row>(
+    `SELECT a.id AS attendee_id, a.ticket_code, r.tickets_issued_at
+       FROM registrations r
+       LEFT JOIN attendees a ON a.registration_id = r.id
+      WHERE r.id = ?`,
+    [registrationId],
+  );
+
+  if (rows.length === 0 || rows[0].tickets_issued_at) return;
+
+  const missing = rows.filter((r) => r.attendee_id && !r.ticket_code).map((r) => r.attendee_id!);
   let lastError: unknown;
 
-  for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt++) {
-    const code = generateTicketCode();
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
-      // The webhook, a reconcile and a page load can all get here at once.
-      // Only the first write lands; a later one would silently swap the code
-      // out from under a ticket that's already on someone's screen. The
-      // unique index turns a (practically impossible) collision into a query
-      // error, which we just retry.
-      await db
-        .update(attendees)
-        .set({ ticketCode: code })
-        .where(and(eq(attendees.id, attendeeId), isNull(attendees.ticketCode)))
-        .run();
+      await d1Batch(
+        [
+          ...missing.map((attendeeId) => ({
+            sql: "UPDATE attendees SET ticket_code = ? WHERE id = ? AND ticket_code IS NULL",
+            params: [generateTicketCode(), attendeeId],
+          })),
+          {
+            sql: "UPDATE registrations SET tickets_issued_at = ? WHERE id = ? AND tickets_issued_at IS NULL",
+            params: [new Date().toISOString(), registrationId],
+          },
+        ],
+        { idempotent: true },
+      );
       return;
     } catch (error) {
       lastError = error;
+      if (!/UNIQUE/i.test(String((error as Error)?.message))) throw error;
     }
   }
 
-  throw lastError ?? new Error("Failed to assign a unique ticket code");
-}
-
-/**
- * Called once a registration is paid. Assigns a QR ticket code per attendee,
- * idempotently — safe to call again on a webhook retry or a reconcile.
- * Tickets are read off /event/registration/<id>, which the registrant reaches
- * by looking up their phone number, so issuing the codes is the whole job.
- */
-export async function issueTickets(registrationId: string): Promise<void> {
-  const registration = await db
-    .select()
-    .from(registrations)
-    .where(eq(registrations.id, registrationId))
-    .get();
-
-  if (!registration) return;
-  if (registration.ticketsIssuedAt) return;
-
-  const attendeeRows = await db
-    .select()
-    .from(attendees)
-    .where(eq(attendees.registrationId, registrationId))
-    .all();
-
-  for (const attendee of attendeeRows) {
-    if (!attendee.ticketCode) await assignTicketCode(attendee.id);
-  }
-
-  await db
-    .update(registrations)
-    .set({ ticketsIssuedAt: new Date().toISOString() })
-    .where(eq(registrations.id, registrationId))
-    .run();
+  throw lastError;
 }

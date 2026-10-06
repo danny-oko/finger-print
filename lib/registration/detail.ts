@@ -1,4 +1,4 @@
-import { d1Query, d1QueryOne } from "@/lib/d1";
+import { d1Query, d1QueryOne } from "@/lib/db/d1";
 import { logServerError } from "@/lib/errors";
 import type { AttendeeRole } from "@/lib/registration/grade";
 import type { RegistrationStatus } from "@/lib/admin/types";
@@ -57,7 +57,7 @@ export function maskEmail(email: string | null): string | null {
   return `${local[0]}${"•".repeat(Math.min(local.length - 2, 6))}${local.at(-1)}@${domain}`;
 }
 
-type RegistrationRow = {
+type DetailRow = {
   id: string;
   registrant_type: RegistrationDetail["registrantType"];
   payer_name: string;
@@ -74,34 +74,33 @@ type RegistrationRow = {
   tickets_issued_at: string | null;
   created_at: string;
   byl_checkout_url: string | null;
-};
-
-type AttendeeRow = {
-  id: string;
-  full_name: string;
+  attendee_id: string | null;
+  full_name: string | null;
   grade: number | null;
-  role: AttendeeRole;
-  church_name: string;
+  role: AttendeeRole | null;
+  church_name: string | null;
   ticket_code: string | null;
   checked_in_at: string | null;
 };
 
+/** One query: the registration, joined to each of its attendees. */
 export async function getRegistrationDetail(id: string): Promise<RegistrationDetail | null> {
-  const registration = await d1QueryOne<RegistrationRow>(
-    `SELECT id, registrant_type, payer_name, payer_phone, payer_email, attendee_count,
-            price_per_attendee_mnt, total_mnt, currency, status, source, awaiting_verification_at,
-            paid_at, tickets_issued_at, created_at, byl_checkout_url
-     FROM registrations WHERE id = ?`,
+  const rows = await d1Query<DetailRow>(
+    `SELECT r.id, r.registrant_type, r.payer_name, r.payer_phone, r.payer_email, r.attendee_count,
+            r.price_per_attendee_mnt, r.total_mnt, r.currency, r.status, r.source,
+            r.awaiting_verification_at, r.paid_at, r.tickets_issued_at, r.created_at,
+            r.byl_checkout_url,
+            a.id AS attendee_id, a.full_name, a.grade, a.role, a.church_name, a.ticket_code,
+            a.checked_in_at
+       FROM registrations r
+       LEFT JOIN attendees a ON a.registration_id = r.id
+      WHERE r.id = ?
+      ORDER BY a.created_at ASC`,
     [id],
   );
 
+  const registration = rows[0];
   if (!registration) return null;
-
-  const attendees = await d1Query<AttendeeRow>(
-    `SELECT id, full_name, grade, role, church_name, ticket_code, checked_in_at
-     FROM attendees WHERE registration_id = ? ORDER BY created_at ASC`,
-    [id],
-  );
 
   return {
     id: registration.id,
@@ -120,15 +119,17 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
     ticketsIssued: Boolean(registration.tickets_issued_at),
     createdAt: registration.created_at,
     paymentUrl: registration.byl_checkout_url,
-    attendees: attendees.map((a) => ({
-      id: a.id,
-      fullName: a.full_name,
-      grade: a.grade,
-      role: a.role,
-      churchName: a.church_name,
-      ticketCode: a.ticket_code,
-      checkedIn: Boolean(a.checked_in_at),
-    })),
+    attendees: rows
+      .filter((a) => a.attendee_id)
+      .map((a) => ({
+        id: a.attendee_id!,
+        fullName: a.full_name ?? "",
+        grade: a.grade,
+        role: a.role ?? "student",
+        churchName: a.church_name ?? "",
+        ticketCode: a.ticket_code,
+        checkedIn: Boolean(a.checked_in_at),
+      })),
   };
 }
 

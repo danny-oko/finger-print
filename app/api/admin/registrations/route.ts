@@ -1,8 +1,9 @@
+import { waitUntil } from "@vercel/functions";
 import { NextResponse } from "next/server";
 
 import { isAdminAuthenticated } from "@/lib/admin/auth";
 import type { MonitorResponse, MonitorRow } from "@/lib/admin/types";
-import { d1Query } from "@/lib/d1";
+import { d1Query } from "@/lib/db/d1";
 import { reconcileAllPending } from "@/lib/registration/settle";
 
 export const runtime = "nodejs";
@@ -45,12 +46,14 @@ export async function GET() {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  try {
-    await reconcileAllPending();
-  } catch (error) {
-    // Stale statuses beat an empty dashboard when Byl is unreachable.
-    console.error("Failed to reconcile pending registrations with Byl", error);
-  }
+  // In the background: a sweep can mean a few dozen Byl calls, and the
+  // dashboard shouldn't wait on them. Whatever it settles shows on the next
+  // refresh. Stale statuses beat an empty dashboard when Byl is unreachable.
+  waitUntil(
+    reconcileAllPending().catch((error) =>
+      console.error("Failed to reconcile pending registrations with Byl", error),
+    ),
+  );
 
   try {
     const rows = await d1Query<Row>(

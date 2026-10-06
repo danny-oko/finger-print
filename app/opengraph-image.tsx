@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
 
 import { EventCard, OG_SIZE, ogFonts } from "@/lib/og/card";
-import { formatMnt, getPricingSettings } from "@/lib/registration/pricing";
+import { formatMnt } from "@/lib/registration/pricing";
+import { getRegistrationSettings } from "@/lib/registration/settings";
 
 export const alt = "Хурууны хээ 2026 — 2026.10.10";
 export const size = OG_SIZE;
@@ -13,7 +14,7 @@ export const revalidate = 3600;
 
 async function price(): Promise<string> {
   try {
-    const { pricePerAttendeeMnt } = await getPricingSettings();
+    const { pricePerAttendeeMnt } = (await getRegistrationSettings()).pricing;
     return formatMnt(pricePerAttendeeMnt);
   } catch {
     return formatMnt(15000);

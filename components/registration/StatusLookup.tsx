@@ -1,325 +1,281 @@
 "use client";
 
-import { ChevronRight, Loader2, Search, TicketCheck } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Landmark,
+  Loader2,
+  Search,
+  XCircle,
+} from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { errorCodeFrom, userMessage, type AppErrorCode } from "@/lib/errors";
-import { cn } from "@/lib/utils";
+import { formatGrade } from "@/lib/registration/grade";
+import type { LookupRegistration } from "@/lib/registration/lookup";
 import { formatMnt } from "@/lib/registration/pricing";
+import { cn } from "@/lib/utils";
 
-type Attendee = {
-  id: string;
-  full_name: string;
-  grade: number | null;
-  role: string;
-  church_name: string;
+type Tone = "good" | "wait" | "bad";
+
+const TONE: Record<Tone, string> = {
+  good: "text-emerald-700",
+  wait: "text-amber-700",
+  bad: "text-red-700",
 };
 
-type Registration = {
-  id: string;
-  registrant_type: string;
-  payer_name: string;
-  payer_phone: string;
-  attendee_count: number;
-  total_mnt: number;
-  currency: string;
-  status: "pending" | "paid" | "failed" | "expired" | "cancelled";
-  tickets_issued_at: string | null;
-  created_at: string;
-  invited: boolean;
-};
-
-type Result = Registration & { attendees: Attendee[] };
-
-const STATUS: Record<
-  Registration["status"],
-  { label: string; dot: string; text: string; bg: string }
-> = {
-  paid: {
-    label: "Төлбөр төлөгдсөн",
-    dot: "bg-green-500",
-    text: "text-green-800",
-    bg: "bg-green-50",
-  },
-  pending: {
-    label: "Төлбөр хүлээгдэж байна",
-    dot: "bg-amber-500",
-    text: "text-amber-800",
-    bg: "bg-amber-50",
-  },
-  failed: {
-    label: "Амжилтгүй",
-    dot: "bg-red-500",
-    text: "text-red-800",
-    bg: "bg-red-50",
-  },
-  expired: {
-    label: "Хугацаа дууссан",
-    dot: "bg-neutral-400",
-    text: "text-neutral-700",
-    bg: "bg-neutral-100",
-  },
-  cancelled: {
-    label: "Цуцлагдсан",
-    dot: "bg-neutral-400",
-    text: "text-neutral-700",
-    bg: "bg-neutral-100",
-  },
-};
-
-const INVITED = {
-  label: "Урилга",
-  dot: "bg-[#F98C01]",
-  text: "text-[#B45309]",
-  bg: "bg-orange-50",
-};
-
-function StatusPill({
-  status,
-  invited,
-}: {
-  status: Registration["status"];
-  invited: boolean;
-}) {
-  const s = invited && status === "paid" ? INVITED : STATUS[status];
-  return (
-    <span
-      className={cn(
-        "inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold",
-        s.bg,
-        s.text,
-      )}
-    >
-      <span className={cn("size-1.5 rounded-full", s.dot)} />
-      {s.label}
-    </span>
-  );
+function describe(reg: LookupRegistration) {
+  if (reg.status === "paid") {
+    return {
+      tone: "good" as Tone,
+      Icon: CheckCircle2,
+      title: reg.invited ? "Урилгаар бүртгэгдсэн" : "Төлбөр төлөгдсөн",
+      body: "Тасалбар бэлэн. Чуулганы өдөр QR-аа хаалган дээр үзүүлнэ.",
+      action: `Тасалбар харах${reg.attendeeCount > 1 ? ` (${reg.attendeeCount})` : ""}`,
+    };
+  }
+  if (reg.status === "pending" && reg.awaitingVerification) {
+    return {
+      tone: "wait" as Tone,
+      Icon: Landmark,
+      title: "Шилжүүлгийг шалгаж байна",
+      body: "Зохион байгуулагч таны шилжүүлгийг баталгаажуулмагц тасалбар гарна.",
+      action: "Дэлгэрэнгүй",
+    };
+  }
+  if (reg.status === "pending") {
+    return {
+      tone: "wait" as Tone,
+      Icon: Clock,
+      title: "Төлбөр төлөгдөөгүй",
+      body: "Бүртгэл хадгалагдсан ч төлбөр хараахан ороогүй байна.",
+      action: "Төлбөрөө төлөх",
+    };
+  }
+  return {
+    tone: "bad" as Tone,
+    Icon: XCircle,
+    title:
+      reg.status === "expired"
+        ? "Хугацаа дууссан"
+        : reg.status === "cancelled"
+          ? "Цуцлагдсан"
+          : "Төлбөр амжилтгүй",
+    body: "Энэ бүртгэлээр орох боломжгүй. Оролцох бол шинээр бүртгүүлнэ үү.",
+    action: "Дэлгэрэнгүй",
+  };
 }
 
-/** 2026.09.01 — the format the site uses for the conference date itself. */
 function formatDate(iso: string): string {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`;
 }
 
-function ResultCard({ reg }: { reg: Result }) {
-  const names = reg.attendees.map((a) => a.full_name).join(", ");
-  const church = reg.attendees[0]?.church_name;
+const VISIBLE_NAMES = 6;
+
+function ResultCard({ reg }: { reg: LookupRegistration }) {
+  const { tone, Icon, title, body, action } = describe(reg);
+  const church = reg.attendees[0]?.churchName;
+  const hidden = reg.attendees.length - VISIBLE_NAMES;
 
   return (
-    // The whole card is the tap target — on a phone a small "details" link
-    // is a needlessly precise thing to hit, and the chevron already says
-    // there's somewhere to go.
-    <Link
-      href={`/event/registration/${reg.id}`}
-      className="group grid gap-3 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition-colors hover:border-[#F98C01] focus-visible:border-[#F98C01] focus-visible:outline-none"
-    >
-      {/* Status leads and gets its own line: it's what people came to
-          check, and side by side the longer labels squeezed the name into a
-          truncation. */}
-      <div className="grid gap-2">
-        <StatusPill status={reg.status} invited={reg.invited} />
+    <article className="rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(21,23,28,0.06)] sm:p-6">
+      <div className="flex items-start gap-3">
+        <Icon className={cn("mt-0.5 size-6 shrink-0", TONE[tone])} />
         <div className="min-w-0">
-          <p className="font-bold text-neutral-900">{reg.payer_name}</p>
-          <p className="text-[13px] text-neutral-500">
-            {formatDate(reg.created_at)}
-            {church ? ` · ${church}` : ""}
-          </p>
+          <h3 className={cn("text-[17px] font-semibold", TONE[tone])}>{title}</h3>
+          <p className="mt-1 text-[15px] leading-relaxed text-ink/70">{body}</p>
         </div>
       </div>
 
-      <div className="rounded-xl bg-neutral-50 p-3">
-        <p className="text-[13px] font-medium text-neutral-700">
-          {reg.attendee_count} хүн
-        </p>
-        <p className="mt-0.5 line-clamp-2 text-[13px] text-neutral-500">
-          {names}
-        </p>
-      </div>
-
-      {reg.status === "paid" && reg.tickets_issued_at && (
-        <p className="flex items-center gap-1.5 text-[13px] font-medium text-green-700">
-          <TicketCheck className="size-4" />
-          QR тасалбар бэлэн — {reg.attendee_count} ширхэг
-        </p>
-      )}
-
-      <div className="flex items-center justify-between border-t border-neutral-200 pt-3">
-        {reg.invited ? (
-          <span className="text-[13px] font-medium text-neutral-500">
-            Урилгаар бүртгүүлсэн
-          </span>
-        ) : (
-          <span className="text-lg font-black text-[#F98C01]">
-            {formatMnt(reg.total_mnt)}
-          </span>
+      <dl className="mt-5 grid gap-1.5 border-t border-black/5 pt-4 text-[15px]">
+        <div className="flex justify-between gap-4">
+          <dt className="text-ink/60">Бүртгүүлсэн</dt>
+          <dd className="text-right font-medium">
+            {reg.payerName}, {formatDate(reg.createdAt)}
+          </dd>
+        </div>
+        {church && (
+          <div className="flex justify-between gap-4">
+            <dt className="text-ink/60">Цуглаан</dt>
+            <dd className="text-right font-medium">{church}</dd>
+          </div>
         )}
-        <span className="flex items-center gap-0.5 text-[13px] font-semibold text-neutral-700 group-hover:text-[#F98C01]">
-          Дэлгэрэнгүй
-          <ChevronRight className="size-4" />
-        </span>
-      </div>
-    </Link>
+        {!reg.invited && (
+          <div className="flex justify-between gap-4">
+            <dt className="text-ink/60">Төлбөр</dt>
+            <dd className="text-right font-medium tabular-nums">{formatMnt(reg.totalMnt)}</dd>
+          </div>
+        )}
+      </dl>
+
+      <ul className="mt-4 grid gap-1.5" aria-label="Оролцогчид">
+        {reg.attendees.slice(0, VISIBLE_NAMES).map((a) => (
+          <li key={a.id} className="flex items-center justify-between gap-3 rounded-xl bg-mist px-3.5 py-2.5">
+            <span className="min-w-0 truncate font-medium">{a.fullName}</span>
+            <span className="shrink-0 text-sm text-ink/60">
+              {a.checkedIn ? "Ирсэн" : formatGrade(a)}
+            </span>
+          </li>
+        ))}
+        {hidden > 0 && <li className="px-3.5 text-sm text-ink/60">бас {hidden} хүн</li>}
+      </ul>
+
+      <Link
+        href={`/event/registration/${reg.id}`}
+        className={cn(
+          "mt-5 flex h-12 items-center justify-center rounded-full text-base font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink",
+          reg.status === "paid" || (reg.status === "pending" && !reg.awaitingVerification)
+            ? "bg-brand text-ink hover:bg-brand-strong"
+            : "border border-black/15 text-ink hover:bg-mist",
+        )}
+      >
+        {action}
+      </Link>
+    </article>
   );
 }
+
+// Paid registrations first: that's what people are looking for, and an old
+// abandoned attempt above a valid ticket reads as "something went wrong".
+const ORDER: Record<string, number> = { paid: 0, pending: 1 };
 
 export function StatusLookup() {
   const [phone, setPhone] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const [searchedPhone, setSearchedPhone] = React.useState<string | null>(null);
-  const [results, setResults] = React.useState<Result[]>([]);
+  const [searched, setSearched] = React.useState<string | null>(null);
+  const [results, setResults] = React.useState<LookupRegistration[]>([]);
   const [error, setError] = React.useState<AppErrorCode | null>(null);
+  const lastAsked = React.useRef<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (phone.length !== 8) return;
+  const search = React.useCallback(async (value: string) => {
+    if (!/^[5-9]\d{7}$/.test(value) || lastAsked.current === value) return;
+    lastAsked.current = value;
 
     setLoading(true);
     setError(null);
-    // Clear the previous search so stale cards can't sit under an error.
     setResults([]);
-    setSearchedPhone(null);
-
-    let res: Response;
-    try {
-      res = await fetch(`/api/registration/lookup?phone=${phone}`);
-    } catch {
-      // Only a request that never completed lands here, so this really is
-      // the connection and not us.
-      setError("network_error");
-      setLoading(false);
-      return;
-    }
+    setSearched(null);
 
     try {
+      const res = await fetch(`/api/registration/lookup?phone=${value}`);
       if (!res.ok) {
         setError(await errorCodeFrom(res));
+        lastAsked.current = null;
         return;
       }
-
-      const data = await res.json();
-      setResults(data.registrations ?? []);
-      setSearchedPhone(phone);
+      const data = (await res.json()) as { registrations?: LookupRegistration[] };
+      setResults(
+        [...(data.registrations ?? [])].sort((a, b) => (ORDER[a.status] ?? 2) - (ORDER[b.status] ?? 2)),
+      );
+      setSearched(value);
     } catch {
-      setError("unknown");
+      // Only a request that never completed lands here — the connection,
+      // not the registration.
+      setError("network_error");
+      lastAsked.current = null;
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  const foundNothing = searchedPhone !== null && !error && results.length === 0;
+  const invalidStart = phone.length > 0 && !/^[5-9]/.test(phone);
 
   return (
     <div className="grid gap-4">
       <form
-        onSubmit={handleSubmit}
-        className="grid gap-4 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6"
+        onSubmit={(e) => {
+          e.preventDefault();
+          lastAsked.current = null;
+          void search(phone);
+        }}
+        className="rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(21,23,28,0.06)] sm:p-6"
       >
-        <div className="grid gap-1">
-          <h2 className="text-base font-bold tracking-tight text-neutral-900">
-            Утасны дугаараар хайх
-          </h2>
-          <p className="text-[13px] leading-snug text-neutral-500">
-            Бүртгүүлэхдээ оруулсан дугаараа бичнэ үү.
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Input
-            value={phone}
-            onChange={(e) =>
-              setPhone(e.target.value.replace(/\D/g, "").slice(0, 8))
-            }
-            inputMode="tel"
-            maxLength={8}
-            placeholder="99112233"
-            aria-label="Утасны дугаар"
-            className="h-12 text-base sm:flex-1"
-          />
-          <Button
+        <label htmlFor="lookup-phone" className="text-sm font-semibold text-ink">
+          Утасны дугаар
+        </label>
+        <div className="mt-2 flex gap-2">
+          <div className="flex h-13 min-w-0 flex-1 items-center rounded-xl border border-black/15 bg-white focus-within:border-ink focus-within:ring-[3px] focus-within:ring-ink/10">
+            <span className="pl-4 text-base text-ink/50 select-none">+976</span>
+            <input
+              id="lookup-phone"
+              value={phone}
+              onChange={(e) => {
+                const next = e.target.value.replace(/\D/g, "").slice(-8);
+                setPhone(next);
+                // Eight digits is a whole number — no need to make anyone
+                // find the button.
+                if (next.length === 8) void search(next);
+              }}
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel-national"
+              placeholder="9911 2233"
+              aria-describedby="lookup-hint"
+              aria-invalid={invalidStart || undefined}
+              className="h-full w-0 min-w-0 flex-1 bg-transparent px-3 text-lg tracking-wide tabular-nums outline-none placeholder:text-ink/30"
+            />
+          </div>
+          <button
             type="submit"
             disabled={phone.length !== 8 || loading}
-            className="h-12 px-6 text-base sm:w-auto"
+            className="flex h-13 shrink-0 items-center gap-2 rounded-xl bg-ink px-5 text-base font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-40"
           >
-            {loading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Search className="size-4" />
-            )}
-            Хайх
-          </Button>
+            {loading ? <Loader2 className="size-5 animate-spin" /> : <Search className="size-5" />}
+            <span className="max-[359px]:sr-only">Хайх</span>
+          </button>
         </div>
+        <p id="lookup-hint" className={cn("mt-3 text-sm leading-relaxed", invalidStart ? "text-red-700" : "text-ink/60")}>
+          {invalidStart
+            ? "Монгол гар утасны дугаар 5–9-өөр эхэлнэ."
+            : "Ахлагч тань таныг бүлгээр бүртгүүлсэн бол ахлагчийнхаа дугаараар хайна уу."}
+        </p>
       </form>
 
       {error && (
-        // A failed search is not a failed registration, and that's the thing
-        // people jump to — so the hint says which one this is.
-        <div
-          role="alert"
-          className="grid gap-0.5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800"
-        >
-          <p className="font-semibold">{userMessage(error).title}</p>
-          {userMessage(error).hint && (
-            <p className="text-[13px] text-red-700">{userMessage(error).hint}</p>
-          )}
+        <div role="alert" className="flex gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-900">
+          <AlertCircle className="mt-0.5 size-5 shrink-0" />
+          <div>
+            <p className="font-semibold">{userMessage(error).title}</p>
+            {userMessage(error).hint && <p className="mt-1 text-sm">{userMessage(error).hint}</p>}
+          </div>
         </div>
       )}
 
       {loading && (
         <div className="grid gap-3" aria-hidden>
-          {[0, 1].map((i) => (
-            <div
-              key={i}
-              className="h-36 animate-pulse rounded-2xl border border-neutral-200 bg-white"
-            />
-          ))}
+          <div className="h-64 animate-pulse rounded-2xl bg-white" />
         </div>
       )}
 
-      {!loading && foundNothing && (
-        <div className="grid justify-items-center gap-3 rounded-2xl border border-dashed border-neutral-300 bg-white px-5 py-8 text-center">
-          <p className="font-bold text-neutral-900">
-            {searchedPhone} дугаараар бүртгэл олдсонгүй
-          </p>
-          {/* The commonest reason by far, so it leads: a teen entered by
-              their leader has no number of their own on the registration. */}
-          <p className="max-w-sm text-sm text-neutral-500">
-            Хэрэв таныг цуглааны ахлагч бүртгүүлсэн бол бүртгэл нь{" "}
-            <span className="font-medium text-neutral-700">ахлагчийн</span>{" "}
-            дугаар дээр байгаа. Ахлагчаасаа асууж үзээрэй.
-          </p>
-          <Button asChild variant="outline" className="mt-1 h-11">
-            <Link href="/event/registration">Шинээр бүртгүүлэх</Link>
-          </Button>
+      {!loading && searched && results.length === 0 && !error && (
+        <div className="rounded-2xl bg-white p-6 shadow-[0_1px_2px_rgba(21,23,28,0.06)]">
+          <h2 className="text-[17px] font-semibold">{searched} дугаараар бүртгэл олдсонгүй</h2>
+          <ul className="mt-3 grid list-disc gap-1.5 pl-5 text-[15px] leading-relaxed text-ink/70">
+            <li>Ахлагч тань бүртгүүлсэн бол бүртгэл нь ахлагчийн дугаар дээр байгаа.</li>
+            <li>Өөр дугаараар бүртгүүлсэн байж магадгүй — нөгөө дугаараа оруулж үзээрэй.</li>
+          </ul>
+          <Link
+            href="/event/registration"
+            className="mt-5 flex h-12 items-center justify-center rounded-full border border-black/15 text-base font-semibold hover:bg-mist focus-visible:outline-2 focus-visible:outline-ink"
+          >
+            Шинээр бүртгүүлэх
+          </Link>
         </div>
       )}
 
       {!loading && results.length > 0 && (
-        <div className="grid gap-3">
+        <section className="grid gap-3" aria-live="polite">
+          <h2 className="px-1 text-sm font-medium text-ink/60">
+            {searched} дугаар дээр {results.length} бүртгэл олдлоо
+          </h2>
           {results.map((reg) => (
             <ResultCard key={reg.id} reg={reg} />
           ))}
-        </div>
-      )}
-
-      {searchedPhone === null && !loading && (
-        <div className="grid gap-2 rounded-2xl bg-neutral-100 px-5 py-4 text-[13px] leading-relaxed text-neutral-600">
-          <p>
-            <span className="font-semibold text-neutral-800">
-              Бүртгэлээ олсны дараа
-            </span>{" "}
-            төлбөрийн төлөв, бүртгүүлсэн хүмүүс, төлбөр төлөгдсөн бол хүн бүрийн
-            QR тасалбар харагдана.
-          </p>
-          <p>
-            Тасалбар зөвхөн энэ хуудсанд байрлана — утасны дугаараараа
-            хайгаад хэдийд ч дахин нээж болно.
-          </p>
-        </div>
+        </section>
       )}
     </div>
   );

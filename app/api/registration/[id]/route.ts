@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 
 import { httpErrorFor, logServerError } from "@/lib/errors";
 import { getRegistrationDetail, withIssuedTickets } from "@/lib/registration/detail";
-import { reconcilePendingRegistration } from "@/lib/registration/settle";
+import { reconcileThrottled } from "@/lib/registration/settle";
 
 export const dynamic = "force-dynamic";
+
+// Byl's webhook normally lands within seconds of paying; asking Byl
+// ourselves before then just spends requests to learn the same thing.
+const WEBHOOK_GRACE_MS = 30_000;
 
 // Public, but guarded by the registration's unguessable id. Contact details
 // are masked in getRegistrationDetail before they get here.
@@ -22,9 +26,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     // asking Byl what really happened costs a round trip, so it belongs here
     // on the poll instead. A payment the webhook never delivered settles on
     // the next tick rather than blocking first paint.
-    if (registration.status === "pending") {
+    if (registration.status === "pending" && Date.now() - Date.parse(registration.createdAt) > WEBHOOK_GRACE_MS) {
       try {
-        if (await reconcilePendingRegistration(id)) {
+        if (await reconcileThrottled(id)) {
           registration = (await getRegistrationDetail(id)) ?? registration;
         }
       } catch (error) {
@@ -36,7 +40,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
     registration = await withIssuedTickets(registration);
 
-    return NextResponse.json({ registration });
+    return NextResponse.json({ registration }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const { code, status } = httpErrorFor(error);
     logServerError("registration.detail", error, { registrationId: id });

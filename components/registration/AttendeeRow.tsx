@@ -1,10 +1,10 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 import * as React from "react";
 import { useFormContext } from "react-hook-form";
 
-import { Button } from "@/components/ui/button";
+import { FIELD_CLASS, LABEL_CLASS } from "@/components/registration/FormStep";
 import {
   FormControl,
   FormField,
@@ -22,35 +22,23 @@ import {
 } from "@/components/ui/select";
 import { GRADE_CHOICES, gradeChoiceLabel } from "@/lib/registration/grade";
 import type { RegistrationFormValues } from "@/lib/registration/schema";
+import { cn } from "@/lib/utils";
 
-function onlyDigits(value: string) {
-  return value.replace(/\D/g, "");
-}
+export const onlyDigits = (value: string) => value.replace(/\D/g, "").slice(0, 8);
 
-/**
- * One attendee's fields. Church is asked once for the whole registration, so
- * a person is just name + grade + phone — cheap enough that a leader can add
- * ten of them without despair.
- *
- * `phoneRequired` is true only for a lone registrant, whose own number
- * doubles as the payer phone the status lookup keys on. `showIndex` is off
- * for that same lone registrant — "1-р хүн" distinguishes them from nobody.
- */
 export function AttendeeRow({
   index,
-  phoneRequired,
-  showIndex,
+  self,
   onRemove,
   autoFocus = false,
 }: {
   index: number;
-  phoneRequired: boolean;
-  showIndex: boolean;
+  self: boolean;
   onRemove?: () => void;
   autoFocus?: boolean;
 }) {
   const { control } = useFormContext<RegistrationFormValues>();
-  const namePrefix = `attendees.${index}` as const;
+  const prefix = `attendees.${index}` as const;
 
   const nameRef = React.useRef<HTMLInputElement>(null);
   const phoneRef = React.useRef<HTMLInputElement>(null);
@@ -61,58 +49,61 @@ export function AttendeeRow({
   }, [autoFocus]);
 
   return (
-    <div className="grid gap-3">
-      {showIndex && (
+    <div
+      role="group"
+      aria-label={self ? "Таны мэдээлэл" : `${index + 1}-р хүн`}
+      className={cn("grid gap-4", !self && "rounded-xl border border-black/10 p-4")}
+    >
+      {!self && (
         <div className="flex items-center justify-between">
-          <p className="text-[13px] font-bold text-neutral-500">
-            {index + 1}-р хүн
-          </p>
-          {onRemove && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              onClick={onRemove}
-              aria-label={`${index + 1}-р хүнийг хасах`}
-            >
-              <Trash2 className="size-4 text-destructive" />
-            </Button>
-          )}
+            <span className="text-sm font-semibold text-ink/60">{index + 1}-р хүн</span>
+            {onRemove && (
+              <button
+                type="button"
+                onClick={onRemove}
+                className="-my-1 -mr-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-medium text-ink/60 hover:bg-red-50 hover:text-red-700 focus-visible:outline-2 focus-visible:outline-ink"
+              >
+                <X className="size-4" />
+                Хасах
+              </button>
+            )}
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-7">
-        <FormField
-          control={control}
-          name={`${namePrefix}.fullName`}
-          render={({ field }) => (
-            <FormItem className="sm:col-span-3">
-              <FormLabel>Бүтэн нэр</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  ref={nameRef}
-                  placeholder="Бат-Эрдэнэ Ганбаяр"
-                  autoComplete="off"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      gradeRef.current?.focus();
-                    }
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <FormField
+        control={control}
+        name={`${prefix}.fullName`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className={LABEL_CLASS}>{self ? "Таны нэр" : "Нэр"}</FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                ref={nameRef}
+                className={FIELD_CLASS}
+                placeholder="Жишээ нь: Ганбаярын Тэмүүлэн"
+                autoComplete={self ? "name" : "off"}
+                enterKeyHint="next"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    gradeRef.current?.focus();
+                  }
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
+      <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           control={control}
-          name={`${namePrefix}.grade`}
+          name={`${prefix}.grade`}
           render={({ field }) => (
-            <FormItem className="sm:col-span-2">
-              <FormLabel>Анги</FormLabel>
+            <FormItem>
+              <FormLabel className={LABEL_CLASS}>Анги</FormLabel>
               <Select
                 value={field.value ?? undefined}
                 onValueChange={(v) => {
@@ -121,13 +112,13 @@ export function AttendeeRow({
                 }}
               >
                 <FormControl>
-                  <SelectTrigger ref={gradeRef} className="w-full">
-                    <SelectValue placeholder="Сонгох" />
+                  <SelectTrigger ref={gradeRef} className={cn(FIELD_CLASS, "w-full data-[size=default]:h-12")}>
+                    <SelectValue placeholder="Сонгоно уу" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {GRADE_CHOICES.map((choice) => (
-                    <SelectItem key={choice} value={choice}>
+                    <SelectItem key={choice} value={choice} className="py-2.5 text-base">
                       {gradeChoiceLabel(choice)}
                     </SelectItem>
                   ))}
@@ -140,28 +131,25 @@ export function AttendeeRow({
 
         <FormField
           control={control}
-          name={`${namePrefix}.phone`}
+          name={`${prefix}.phone`}
           render={({ field }) => (
-            <FormItem className="sm:col-span-2">
-              <FormLabel>
-                Утас{" "}
-                {!phoneRequired && (
-                  <span className="font-normal text-muted-foreground">
-                    (заавал биш)
-                  </span>
-                )}
+            <FormItem>
+              <FormLabel className={LABEL_CLASS}>
+                Утас
+                {!self && <span className="font-normal text-ink/50">(заавал биш)</span>}
               </FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   ref={phoneRef}
                   value={(field.value as string | undefined) ?? ""}
-                  inputMode="tel"
+                  className={FIELD_CLASS}
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete={self ? "tel-national" : "off"}
                   maxLength={8}
-                  placeholder="99112233"
-                  onChange={(e) =>
-                    field.onChange(onlyDigits(e.target.value).slice(0, 8))
-                  }
+                  placeholder="8 оронтой дугаар"
+                  onChange={(e) => field.onChange(onlyDigits(e.target.value))}
                 />
               </FormControl>
               <FormMessage />

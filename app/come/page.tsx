@@ -3,20 +3,21 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { InviteAnswer } from "@/components/come/InviteAnswer";
+import { Fingerprint } from "@/components/come/Fingerprint";
+import { RegisterLink } from "@/components/come/RegisterLink";
 import { ShareInvite } from "@/components/come/ShareInvite";
 import { cleanFriendName, comePath } from "@/lib/come/friendName";
+import { EVENT } from "@/lib/event";
+import { formatMnt } from "@/lib/registration/pricing";
+import { DEFAULT_SETTINGS, getRegistrationSettings } from "@/lib/registration/settings";
 
-const DESCRIPTION =
-  "2026.10.10, 09:00–17:00 · Хурууны хээ өсвөрийн чуулган. Хамтдаа явъя — бүртгэл нээлттэй!";
+const DESCRIPTION = `${EVENT.dateLong}, ${EVENT.time}. ${EVENT.audience}-д зориулсан чуулган. Бүртгэл нээлттэй.`;
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export async function generateMetadata({
-  searchParams,
-}: Props): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const to = cleanFriendName((await searchParams).to);
   const title = to
     ? `${to}, надтай хамт хурууны хээд явна ингсэнүүдээ?~`
@@ -25,9 +26,7 @@ export async function generateMetadata({
   // The card greets the friend by name, so it's a route rather than an
   // opengraph-image file — those never see the query string.
   const image = {
-    url: to
-      ? `/api/og/come?to=${encodeURIComponent(to)}`
-      : "/api/og/come",
+    url: to ? `/api/og/come?to=${encodeURIComponent(to)}` : "/api/og/come",
     width: 1200,
     height: 630,
     alt: title,
@@ -45,122 +44,91 @@ export async function generateMetadata({
       description: DESCRIPTION,
       images: [image],
     },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description: DESCRIPTION,
-      images: [image],
-    },
+    twitter: { card: "summary_large_image", title, description: DESCRIPTION, images: [image] },
   };
 }
 
-function Sticker({
-  src,
-  className,
-  priority,
-}: {
-  src: string;
-  className: string;
-  priority?: boolean;
-}) {
+async function price(): Promise<number> {
+  try {
+    return (await getRegistrationSettings()).pricing.pricePerAttendeeMnt;
+  } catch {
+    return DEFAULT_SETTINGS.pricing.pricePerAttendeeMnt;
+  }
+}
+
+function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <Image
-      src={src}
-      alt=""
-      width={120}
-      height={120}
-      unoptimized
-      priority={priority}
-      className={className}
-    />
+    <div className="grid grid-cols-[5.5rem_1fr] gap-3 py-3 first:pt-0 last:pb-0">
+      <dt className="text-[15px] text-ink/55">{label}</dt>
+      <dd className="text-[15px] leading-snug font-medium text-ink">{children}</dd>
+    </div>
   );
 }
 
-export default async function ComeWithMePage({ searchParams }: Props) {
+export default async function ComePage({ searchParams }: Props) {
   const to = cleanFriendName((await searchParams).to);
+  const pricePerAttendee = await price();
 
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-[#F2EDE1] text-[#14161A]">
-      <div
-        aria-hidden
-        className="come-drift pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-[#37A8C4]"
-      />
-      <div
-        aria-hidden
-        className="come-drift pointer-events-none absolute top-[38%] -right-12 size-28 rounded-full bg-[#E04434] [animation-delay:-3s]"
-      />
-      <div
-        aria-hidden
-        className="come-drift pointer-events-none absolute -bottom-32 -left-28 size-80 rounded-full bg-[#F7C948] [animation-delay:-6s]"
-      />
+    <div className="event-ui min-h-dvh bg-mist">
+      <header className="mx-auto flex h-14 max-w-md items-center px-4">
+        <Link href="/" className="rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand">
+          <Image src="/logo6.png" alt="Finger Print" width={537} height={113} priority className="h-6 w-auto" />
+        </Link>
+      </header>
 
-      <div className="relative mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-4 px-4 pt-14 pb-4 short:gap-3 short:pt-10 short:pb-3">
-        <section className="relative rounded-[2rem] border-2 border-[#14161A] bg-white px-5 pt-12 pb-4 text-center shadow-[6px_6px_0_#14161A] short:pt-9 short:pb-3">
-          <div className="absolute inset-x-0 -top-12 flex justify-center short:-top-9">
-            <Sticker
-              src="/come/love-letter.gif"
-              priority
-              className="come-bob size-24 short:size-[72px]"
-            />
-          </div>
-          <Sticker
-            src="/come/sparkles.gif"
-            className="absolute top-3 right-4 size-8 short:size-7"
-          />
-          <Sticker
-            src="/come/popper.gif"
-            className="absolute top-4 left-4 size-8 -scale-x-100 short:size-7"
-          />
+      <main className="mx-auto grid w-full max-w-md gap-4 px-4 pt-2 pb-12">
+        <article className="overflow-hidden rounded-3xl bg-white shadow-[0_1px_2px_rgba(21,23,28,0.06)]">
+          <div className="relative overflow-hidden bg-brand px-6 pt-7 pb-8">
+            <Fingerprint className="pointer-events-none absolute -top-6 -right-14 h-64 text-ink/15" />
 
-          <p className="inline-flex max-w-full items-center rounded-full bg-[#F2EDE1] px-4 py-1 text-sm font-bold short:text-xs">
-            {to ? (
-              <span className="truncate">
-                Хөөе, <span className="text-[#F98C01]">{to}</span>! 👋
-              </span>
-            ) : (
-              "Хөөе! 👋"
-            )}
-          </p>
-
-          <h1 className="mt-3 text-[2.6rem] leading-[0.95] font-black tracking-tight text-balance short:mt-2 short:text-[2.15rem]">
-            Надтай хамт{" "}
-            <span className="inline-flex items-center gap-1 text-[#37A8C4]">
-              явах уу?
-              <Sticker
-                src="/come/pleading.gif"
-                priority
-                className="size-11 short:size-9"
-              />
-            </span>
-          </h1>
-
-          <p className="mt-2 text-sm text-neutral-600 short:mt-1.5 short:text-[13px]">
-            Чи <b className="text-[#14161A]">Хурууны хээ 2026</b>-д
-            урилгатай шүүү! 🎉
-          </p>
-
-          <div className="mt-3 flex flex-wrap justify-center gap-2 text-sm font-bold short:mt-2 short:text-xs">
-            <span className="rounded-full border-2 border-[#14161A] px-3 py-0.5">
-              📅 10.10 · Бямба
-            </span>
-            <span className="rounded-full border-2 border-[#14161A] px-3 py-0.5">
-              ⏰ 09:00–17:00
-            </span>
+            <p className="relative max-w-[15rem] text-[17px] leading-snug font-medium text-ink">
+              {to ? (
+                <>
+                  <span className="font-semibold">{to}</span>, чамайг урьж байна
+                </>
+              ) : (
+                "Чамайг урьж байна"
+              )}
+            </p>
+            <h1 className="relative mt-3 font-display text-[2.6rem] leading-[1.02] font-extrabold tracking-tight text-ink">
+              Хурууны
+              <br />
+              хээ 2026
+            </h1>
+            <p className="relative mt-3 text-[15px] text-ink/75">Өсвөр үеийнхний чуулган</p>
           </div>
 
-          <InviteAnswer />
-        </section>
+          <div className="px-6 pt-6 pb-6">
+            <dl className="divide-y divide-black/5">
+              <Fact label="Хэзээ">
+                {EVENT.dateLong}, {EVENT.weekday}
+              </Fact>
+              <Fact label="Цаг">{EVENT.time}</Fact>
+              <Fact label="Хэнд">{EVENT.audience}</Fact>
+              <Fact label="Хураамж">{formatMnt(pricePerAttendee)}</Fact>
+            </dl>
+
+            <RegisterLink className="mt-6" />
+            <Link
+              href="/"
+              className="mt-2 flex h-11 items-center justify-center rounded-full text-[15px] font-semibold text-ink/70 hover:bg-mist focus-visible:outline-2 focus-visible:outline-ink"
+            >
+              Чуулганы тухай дэлгэрэнгүй
+            </Link>
+          </div>
+        </article>
 
         <ShareInvite />
 
         <Link
           href="/event/status"
-          className="mx-auto inline-flex h-9 items-center gap-1.5 rounded-full border-2 border-[#14161A] bg-white px-4 text-sm font-bold shadow-[2px_2px_0_#14161A] transition-transform active:translate-y-0.5 short:h-8 short:text-xs"
+          className="mx-auto mt-2 inline-flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-medium text-ink/70 hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-ink"
         >
           <TicketCheck className="size-4" />
-          Бүртгэлээ шалгах
+          Бүртгүүлсэн үү? Тасалбараа шалгах
         </Link>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

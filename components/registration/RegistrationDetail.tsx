@@ -24,8 +24,16 @@ import { formatGrade } from "@/lib/registration/grade";
 import { formatMnt } from "@/lib/registration/pricing";
 import { cn } from "@/lib/utils";
 
-const POLL_INTERVAL_MS = 3000;
-const MAX_POLLS = 20;
+// Quick at first — the webhook usually lands within seconds of paying — then
+// easing off, so a page left open on a pending bank transfer isn't a steady
+// stream of requests. A hidden tab doesn't poll at all.
+const POLL_DELAYS_MS = [2000, 3000, 3000, 4000, 5000, 5000, 8000, 8000, 10000, 15000];
+const SLOW_AFTER_POLLS = 12;
+const MAX_POLLS = 40;
+
+function pollDelay(count: number): number {
+  return POLL_DELAYS_MS[Math.min(count, POLL_DELAYS_MS.length - 1)];
+}
 
 // Pinned to Ulaanbaatar and assembled by hand. Locale formatting differs
 // between the server's ICU and the browser's, which made this row a
@@ -193,7 +201,7 @@ function Receipt({ detail }: { detail: Detail }) {
             <dt className="text-neutral-500">
               {detail.attendeeCount} хүн × {formatMnt(detail.pricePerAttendeeMnt)}
             </dt>
-            <dd className="font-bold text-[#F98C01]">
+            <dd className="font-bold text-brand-ink">
               {formatMnt(detail.totalMnt)}
             </dd>
           </div>
@@ -223,7 +231,7 @@ function StatusPanel({ detail }: { detail: Detail }) {
         title: "Төлбөр хараахан хийгдээгүй байна",
         body: "Таны бүртгэл хадгалагдсан ч төлбөр хараахан төлөгдөөгүй байна. Үргэлжлүүлэн төлбөрөө хийх үү? Төлсний дараа энэ хуудас автоматаар шинэчлэгдэнэ.",
         action: (
-          <Button asChild className="mt-2 h-11 bg-[#F98C01] hover:bg-[#e07d00]">
+          <Button asChild className="mt-2 h-12 rounded-full px-6 text-base">
             <a href={detail.paymentUrl} target="_blank" rel="noreferrer">
               Төлбөрөө үргэлжлүүлэх
             </a>
@@ -299,8 +307,15 @@ export function RegistrationDetail({ initial }: { initial: Detail }) {
   // Right after checkout the webhook usually hasn't landed yet, so a pending
   // registration re-checks itself for about a minute rather than making the
   // registrant reload the page by hand.
+  const [visible, setVisible] = React.useState(true);
   React.useEffect(() => {
-    if (detail.status !== "pending") return;
+    const onChange = () => setVisible(document.visibilityState === "visible");
+    document.addEventListener("visibilitychange", onChange);
+    return () => document.removeEventListener("visibilitychange", onChange);
+  }, []);
+
+  React.useEffect(() => {
+    if (detail.status !== "pending" || !visible || polls >= MAX_POLLS) return;
 
     let cancelled = false;
 
@@ -318,19 +333,19 @@ export function RegistrationDetail({ initial }: { initial: Detail }) {
       } catch {
         // A failed poll is not worth surfacing — the next tick retries.
       }
-    }, POLL_INTERVAL_MS);
+    }, pollDelay(polls));
 
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [detail]);
+  }, [detail, visible, polls]);
 
   const paid = detail.status === "paid";
   const stillWaiting =
     detail.status === "pending" &&
     !detail.awaitingVerification &&
-    polls >= MAX_POLLS;
+    polls >= SLOW_AFTER_POLLS;
 
   const currentTicket = detail.attendees[current]?.ticketCode;
 

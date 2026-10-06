@@ -7,6 +7,7 @@ import {
   createSessionToken,
   isValidAdminPassword,
 } from "@/lib/admin/auth";
+import { rateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/server/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,10 @@ const loginSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  // The code is short and numeric, so guesses have to be expensive.
+  const limited = await rateLimit(request, RATE_LIMITS.adminLogin);
+  if (!limited.ok) return tooManyRequests(limited.retryAfterSec);
+
   const body = await request.json().catch(() => null);
   const parsed = loginSchema.safeParse(body);
 

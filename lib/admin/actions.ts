@@ -5,8 +5,11 @@ import type {
   CheckInAttendee,
   CheckInResponse,
   DoorCounts,
+  DoorSearchHit,
 } from "@/lib/admin/checkIn";
 import type { ManualStatus } from "@/lib/admin/manage";
+import type { AdminSettingsResponse } from "@/app/api/admin/settings/route";
+import type { SettingsPatch } from "@/lib/registration/settings";
 
 // Plain wording for everything the management endpoints can refuse.
 export const MANAGE_MESSAGE: Record<string, string> = {
@@ -24,11 +27,12 @@ export const MANAGE_MESSAGE: Record<string, string> = {
   database_error: "Хадгалахад алдаа гарлаа. Дахин оролдоно уу.",
   service_unavailable: "Систем түр сааталтай байна. Хэдхэн минутын дараа оролдоно уу.",
   network_error: "Интернэт холболтоо шалгана уу.",
+  rate_limited: "Хэт олон удаа оролдлоо. Түр хүлээнэ үү.",
 };
 
 export type AdminResult<T = unknown> =
   | { ok: true; data: T }
-  | { ok: false; message: string };
+  | { ok: false; message: string; offline?: boolean };
 
 async function send<T>(
   url: string,
@@ -44,7 +48,7 @@ async function send<T>(
       body: body ? JSON.stringify(body) : undefined,
     });
   } catch {
-    return { ok: false, message: MANAGE_MESSAGE.network_error };
+    return { ok: false, message: MANAGE_MESSAGE.network_error, offline: true };
   }
 
   const data = (await res.json().catch(() => null)) as
@@ -97,6 +101,12 @@ export const runCleanup = (ids: string[]) =>
 export const scanTicket = (code: string) =>
   send<CheckInResponse>("/api/admin/check-in", "POST", { code });
 
+export const checkInAttendee = (attendeeId: string) =>
+  send<CheckInResponse>("/api/admin/check-in", "POST", { attendeeId });
+
+export const searchDoor = (query: string) =>
+  send<{ hits: DoorSearchHit[] }>(`/api/admin/check-in?q=${encodeURIComponent(query)}`, "GET");
+
 export const loadDoorState = () =>
   send<{ counts: DoorCounts; recent: CheckInAttendee[] }>("/api/admin/check-in", "GET");
 
@@ -105,3 +115,9 @@ export const undoCheckIn = (attendeeId: string) =>
     `/api/admin/check-in?attendeeId=${encodeURIComponent(attendeeId)}`,
     "DELETE",
   );
+
+export const loadRegistrationSettings = () =>
+  send<AdminSettingsResponse>("/api/admin/settings", "GET");
+
+export const saveRegistrationSettings = (patch: SettingsPatch) =>
+  send<AdminSettingsResponse>("/api/admin/settings", "PATCH", patch);

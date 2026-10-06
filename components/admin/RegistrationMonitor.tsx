@@ -13,6 +13,7 @@ import { HelpStrip } from "@/components/admin/HelpStrip";
 import { ChurchView } from "@/components/admin/ChurchView";
 import { MonitorControls, type SortOption, type ViewMode } from "@/components/admin/MonitorControls";
 import { MonitorStats } from "@/components/admin/MonitorStats";
+import { RegistrationControls } from "@/components/admin/RegistrationControls";
 import { RegistrationView } from "@/components/admin/RegistrationView";
 import { Button } from "@/components/ui/button";
 import {
@@ -185,7 +186,8 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
   }, [load]);
 
   React.useEffect(() => {
-    load();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- load() sets state only after its fetch resolves
+    void load();
   }, [load]);
 
   React.useEffect(() => {
@@ -535,6 +537,8 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
         <HelpStrip />
 
         <MonitorStats stats={stats} />
+
+        <RegistrationControls refreshKey={generatedAt} />
 
         <MonitorControls
           view={view}

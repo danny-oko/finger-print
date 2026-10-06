@@ -9,6 +9,14 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-unbounded), var(--font-onest), sans-serif;
+  --font-ui: var(--font-onest), sans-serif;
+  --color-ink: #15171c;
+  --color-mist: #f1f3f5;
+  --color-brand: #f98c01;
+  --color-brand-strong: #e57f00;
+  --color-brand-ink: #9a5200;
+  --color-brand-soft: #fff4e5;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -176,38 +184,32 @@ html {
   background-clip: padding-box;
 }
 
-/* /come invitation page */
-@keyframes come-bob {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-6deg);
-  }
-  50% {
-    transform: translateY(-10px) rotate(6deg);
-  }
-}
-
-@keyframes come-drift {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(-14px, 12px) scale(1.04);
+/* Public event pages: /come, registration, status, tickets. Scoped to
+   .event-ui so the marketing site keeps its own type. */
+@layer base {
+  .event-ui {
+    font-family: var(--font-onest), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-.come-bob {
-  animation: come-bob 3.2s ease-in-out infinite;
+@keyframes ridge-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
-.come-drift {
-  animation: come-drift 9s ease-in-out infinite;
+.ridge-draw path {
+  stroke-dasharray: 1;
+  animation: ridge-draw 1.6s cubic-bezier(0.3, 0.6, 0.2, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .come-bob,
-  .come-drift {
+  .ridge-draw path {
     animation: none;
   }
 }

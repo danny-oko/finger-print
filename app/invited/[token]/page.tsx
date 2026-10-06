@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { EventPageTitle, EventShell } from "@/components/event/EventShell";
 import { InviteRegistrationForm } from "@/components/registration/InviteRegistrationForm";
+import { EVENT } from "@/lib/event";
 import { isValidInviteToken } from "@/lib/registration/invite";
 
 export const metadata: Metadata = {
-  title: "Урилга | Хурууны хээ 2026",
+  title: `Урилга | ${EVENT.name}`,
   robots: { index: false, follow: false },
   // The token is the whole secret; don't hand it to whatever page is next.
   referrer: "no-referrer",
@@ -23,23 +25,14 @@ export default async function InvitedRegistrationPage({
   if (!isValidInviteToken(token)) notFound();
 
   return (
-    <main className="min-h-dvh bg-neutral-50">
-      <div className="mx-auto w-full max-w-md px-4 pt-8 pb-10">
-        <div className="pb-5 text-center">
-          <p className="text-xs font-semibold text-[#F98C01] sm:text-sm">
-            2026.10.10 · Хурууны хээ
-          </p>
-          <h1 className="mt-1 text-2xl font-black text-neutral-900">
-            Урилгаар бүртгүүлэх
-          </h1>
-          <p className="mt-2 text-[13px] text-balance text-neutral-500">
-            Та урилгатай тул төлбөр төлөх шаардлагагүй. Мэдээллээ бөглөөд
-            тасалбараа шууд аваарай.
-          </p>
-        </div>
-
-        <InviteRegistrationForm token={token} />
-      </div>
-    </main>
+    <EventShell width="sm">
+      <EventPageTitle title="Урилгаар бүртгүүлэх">
+        <p>
+          Та урилгатай тул төлбөр төлөхгүй. Мэдээллээ бөглөөд QR тасалбараа шууд аваарай.
+          Чуулган {EVENT.dateLong}, {EVENT.weekday} гарагт {EVENT.time} цагт болно.
+        </p>
+      </EventPageTitle>
+      <InviteRegistrationForm token={token} />
+    </EventShell>
   );
 }

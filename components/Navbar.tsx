@@ -2,7 +2,6 @@
 
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
 import { InviteFriendLink } from "@/components/come/InviteFriendLink";
@@ -16,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import type { Lang } from "@/lib/translations";
+import { useLanguage } from "@/components/LanguageProvider";
 import { useTranslation } from "@/lib/useTranslation";
 
 const navConfig = [
@@ -31,30 +31,9 @@ const LANG_LABEL: Record<Lang, string> = {
   ko: "KR",
 };
 
-function withLang(href: string, lang: Lang) {
-  const [path, hash = ""] = href.split("#");
-  const u = new URL(
-    path || "/",
-    typeof window !== "undefined" ? window.location.origin : "http://localhost",
-  );
-  u.searchParams.set("lang", lang);
-  return `${u.pathname}${u.search}${hash ? `#${hash}` : ""}`;
-}
-
 export default function Navbar({ className }: { className?: string }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const lang = (searchParams.get("lang") as Lang | null) ?? "en";
+  const { lang, setLang } = useLanguage();
   const { t } = useTranslation();
-
-  const setLang = (next: Lang) => {
-    const current = `${pathname}${
-      searchParams.toString() ? `?${searchParams.toString()}` : ""
-    }`;
-    router.push(withLang(current, next), { scroll: false });
-  };
 
   const handleClickToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -71,7 +50,7 @@ export default function Navbar({ className }: { className?: string }) {
     const [, hash] = href.split("#");
     const id = hash || "";
 
-    router.push(withLang(`#${id}`, lang), { scroll: false });
+    window.history.replaceState(null, "", `#${id}`);
 
     const el = document.getElementById(id);
     if (!el) return;
@@ -109,12 +88,6 @@ export default function Navbar({ className }: { className?: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // The registration/status flow and the admin dashboard are dedicated,
-  // standalone pages — they shouldn't carry the marketing site's navbar.
-  if (pathname?.startsWith("/event") || pathname?.startsWith("/admin") || pathname?.startsWith("/invited") || pathname === "/come") {
-    return null;
-  }
-
   return (
     <>
       {/* Desktop navbar */}
@@ -133,7 +106,7 @@ export default function Navbar({ className }: { className?: string }) {
           >
             <Link
               onClick={handleClickToTop}
-              href={withLang("/", lang)}
+              href={"/"}
               className="flex items-center shrink-0"
             >
               <img src="/logo6.png" alt="Finger Print" className="h-8 w-auto" />
@@ -144,7 +117,7 @@ export default function Navbar({ className }: { className?: string }) {
                 {navConfig.map((item) => (
                   <a
                     key={item.href}
-                    href={withLang(item.href, lang)}
+                    href={item.href}
                     onClick={(e) => handleNavigate(e, item.href)}
                     className="text-sm font-medium text-foreground/80 hover:text-foreground transition"
                   >
@@ -152,7 +125,7 @@ export default function Navbar({ className }: { className?: string }) {
                   </a>
                 ))}
                 <a
-                  href={withLang("#footer", lang)}
+                  href={"#footer"}
                   onClick={(e) => handleNavigate(e, "#footer")}
                   className="text-sm font-medium text-foreground/80 hover:text-foreground transition"
                 >
@@ -179,7 +152,7 @@ export default function Navbar({ className }: { className?: string }) {
               </DropdownMenu>
 
               <InviteFriendLink
-                className="size-9 bg-secondary hover:bg-secondary/80"
+                className="size-9 bg-secondary text-foreground hover:bg-secondary/80"
                 tooltipSide="bottom"
               />
 
@@ -197,7 +170,7 @@ export default function Navbar({ className }: { className?: string }) {
           <nav className="flex h-16 items-center justify-between rounded-full bg-background/90 px-4 shadow-[0_14px_30px_rgba(0,0,0,0.18)] backdrop-blur">
             {/* LEFT: Logo */}
             <Link
-              href={withLang("/", lang)}
+              href={"/"}
               onClick={() => {
                 setIsMobileOpen(false);
                 handleClickToTop();
@@ -315,7 +288,7 @@ export default function Navbar({ className }: { className?: string }) {
                 {navConfig.map((item) => (
                   <a
                     key={item.href}
-                    href={withLang(item.href, lang)}
+                    href={item.href}
                     onClick={(e) => handleMobileNavigate(e, item.href)}
                     className={cn(
                       "group flex items-center justify-between",
@@ -351,7 +324,7 @@ export default function Navbar({ className }: { className?: string }) {
               </Button>
               <Button variant="ghost" className="w-full rounded-2xl py-6" asChild>
                 <Link
-                  href={withLang("#footer", lang)}
+                  href={"#footer"}
                   onClick={() => setIsMobileOpen(false)}
                 >
                   {t("nav.getInTouch")}
