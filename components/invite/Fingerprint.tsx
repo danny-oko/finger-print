@@ -1,4 +1,4 @@
-import { fingerprintRidges, RIDGE_VIEWBOX } from "@/lib/come/ridges";
+import { fingerprintRidges, RIDGE_VIEWBOX } from "@/lib/invite/ridges";
 import { cn } from "@/lib/utils";
 
 export function Fingerprint({ className }: { className?: string }) {

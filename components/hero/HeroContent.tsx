@@ -4,7 +4,7 @@ import { Play, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { InviteFriendLink } from "@/components/come/InviteFriendLink";
+import { InviteFriendLink } from "@/components/invite/InviteFriendLink";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/useTranslation";
 import HeroVideoDialog from "./HeroVideoDialog";
@@ -88,7 +88,7 @@ export default function HeroContent({
             <Link href="#about">{t("hero.ctaSecondary")}</Link>
           </Button> */}
 
-          <InviteFriendLink className="size-11 border border-white/40 bg-black/30 backdrop-blur hover:bg-black/60" />
+          <InviteFriendLink className="size-11 border text-white border-white/40 bg-black/30 backdrop-blur hover:bg-black/60" />
 
           <button
             type="button"

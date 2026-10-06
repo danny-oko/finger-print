@@ -184,7 +184,7 @@ html {
   background-clip: padding-box;
 }
 
-/* Public event pages: /come, registration, status, tickets. Scoped to
+/* Public event pages: /invite, registration, status, tickets. Scoped to
    .event-ui so the marketing site keeps its own type. */
 @layer base {
   .event-ui {

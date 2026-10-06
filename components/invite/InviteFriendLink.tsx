@@ -29,7 +29,7 @@ export function InviteFriendLink({
       <Tooltip>
         <TooltipTrigger asChild>
           <Link
-            href="/come"
+            href="/invite"
             onClick={onClick}
             aria-label={label}
             className={cn(

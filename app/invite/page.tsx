@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Fingerprint } from "@/components/come/Fingerprint";
-import { RegisterLink } from "@/components/come/RegisterLink";
-import { ShareInvite } from "@/components/come/ShareInvite";
-import { cleanFriendName, comePath } from "@/lib/come/friendName";
+import { Fingerprint } from "@/components/invite/Fingerprint";
+import { RegisterLink } from "@/components/invite/RegisterLink";
+import { ShareInvite } from "@/components/invite/ShareInvite";
+import { cleanFriendName, invitePath } from "@/lib/invite/friendName";
 import { EVENT } from "@/lib/event";
 import { formatMnt } from "@/lib/registration/pricing";
 import { DEFAULT_SETTINGS, getRegistrationSettings } from "@/lib/registration/settings";
@@ -26,7 +26,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   // The card greets the friend by name, so it's a route rather than an
   // opengraph-image file — those never see the query string.
   const image = {
-    url: to ? `/api/og/come?to=${encodeURIComponent(to)}` : "/api/og/come",
+    url: to ? `/api/og/invite?to=${encodeURIComponent(to)}` : "/api/og/invite",
     width: 1200,
     height: 630,
     alt: title,
@@ -39,7 +39,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       type: "website",
       siteName: "Finger Print",
       locale: "mn_MN",
-      url: comePath(to),
+      url: invitePath(to),
       title,
       description: DESCRIPTION,
       images: [image],
@@ -98,7 +98,7 @@ export default async function ComePage({ searchParams }: Props) {
               <br />
               хээ 2026
             </h1>
-            <p className="relative mt-2 text-sm text-ink/75">Өсвөр үеийнхний чуулган</p>
+            <p className="relative mt-2 text-sm text-ink/75">Өсвөрийн конференц</p>
           </div>
 
           <div className="px-6 pt-4 pb-5 short:pt-3 short:pb-4">

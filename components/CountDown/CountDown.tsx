@@ -3,7 +3,7 @@
 import Link from "next/link";
 import * as React from "react";
 
-import { InviteFriendLink } from "@/components/come/InviteFriendLink";
+import { InviteFriendLink } from "@/components/invite/InviteFriendLink";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/useTranslation";
 import { cn } from "@/lib/utils";

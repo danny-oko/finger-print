@@ -3,9 +3,9 @@
 import { Copy, Send } from "lucide-react";
 import * as React from "react";
 
-import { showShareToast } from "@/components/come/ShareToast";
+import { showShareToast } from "@/components/invite/ShareToast";
 import { trackEvent } from "@/lib/analytics/client";
-import { cleanFriendName, comePath, FRIEND_NAME_MAX } from "@/lib/come/friendName";
+import { cleanFriendName, invitePath, FRIEND_NAME_MAX } from "@/lib/invite/friendName";
 import { EVENT } from "@/lib/event";
 
 function shareText(to: string | null): string {
@@ -54,7 +54,7 @@ export function ShareInvite() {
   );
 
   const to = cleanFriendName(name);
-  const link = () => `${window.location.origin}${comePath(to)}`;
+  const link = () => `${window.location.origin}${invitePath(to)}`;
 
   const copy = async () => {
     const url = link();

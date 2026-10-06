@@ -20,6 +20,6 @@ export function cleanFriendName(
   return name || null;
 }
 
-export function comePath(to: string | null): string {
-  return to ? `/come?to=${encodeURIComponent(to)}` : "/come";
+export function invitePath(to: string | null): string {
+  return to ? `/invite?to=${encodeURIComponent(to)}` : "/invite";
 }

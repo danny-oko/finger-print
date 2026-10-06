@@ -1,8 +1,8 @@
 import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
 
-import { cleanFriendName } from "@/lib/come/friendName";
-import { fingerprintSvg } from "@/lib/come/ridges";
+import { cleanFriendName } from "@/lib/invite/friendName";
+import { fingerprintSvg } from "@/lib/invite/ridges";
 import { EVENT } from "@/lib/event";
 import { INK, OG_SIZE, ORANGE, ogFonts } from "@/lib/og/card";
 
