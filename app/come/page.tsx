@@ -58,31 +58,33 @@ async function price(): Promise<number> {
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[5.5rem_1fr] gap-3 py-3 first:pt-0 last:pb-0">
-      <dt className="text-[15px] text-ink/55">{label}</dt>
-      <dd className="text-[15px] leading-snug font-medium text-ink">{children}</dd>
+    <div>
+      <dt className="text-[13px] text-ink/55">{label}</dt>
+      <dd className="mt-0.5 text-[15px] leading-snug font-medium text-ink">{children}</dd>
     </div>
   );
 }
 
+// One screen, no scrolling: it's opened from a chat on a phone, and
+// everything worth knowing should be visible before the thumb moves.
 export default async function ComePage({ searchParams }: Props) {
   const to = cleanFriendName((await searchParams).to);
   const pricePerAttendee = await price();
 
   return (
-    <div className="event-ui min-h-dvh bg-mist">
-      <header className="mx-auto flex h-14 max-w-md items-center px-4">
+    <div className="event-ui flex h-dvh flex-col overflow-y-auto bg-mist">
+      <header className="mx-auto flex h-12 w-full max-w-md shrink-0 items-center px-4">
         <Link href="/" className="rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand">
-          <Image src="/logo6.png" alt="Finger Print" width={537} height={113} priority className="h-6 w-auto" />
+          <Image src="/logo6.png" alt="Finger Print" width={537} height={113} priority className="h-5 w-auto" />
         </Link>
       </header>
 
-      <main className="mx-auto grid w-full max-w-md gap-4 px-4 pt-2 pb-12">
+      <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-3 px-4 pb-4 short:gap-2 short:pb-3">
         <article className="overflow-hidden rounded-3xl bg-white shadow-[0_1px_2px_rgba(21,23,28,0.06)]">
-          <div className="relative overflow-hidden bg-brand px-6 pt-7 pb-8">
-            <Fingerprint className="pointer-events-none absolute -top-6 -right-14 h-64 text-ink/15" />
+          <div className="relative overflow-hidden bg-brand px-6 pt-5 pb-5 short:pt-4 short:pb-4">
+            <Fingerprint className="pointer-events-none absolute -top-8 -right-14 h-56 text-ink/15" />
 
-            <p className="relative max-w-[15rem] text-[17px] leading-snug font-medium text-ink">
+            <p className="relative max-w-[15rem] text-base leading-snug font-medium text-ink">
               {to ? (
                 <>
                   <span className="font-semibold">{to}</span>, чамайг урьж байна
@@ -91,31 +93,25 @@ export default async function ComePage({ searchParams }: Props) {
                 "Чамайг урьж байна"
               )}
             </p>
-            <h1 className="relative mt-3 font-display text-[2.6rem] leading-[1.02] font-extrabold tracking-tight text-ink">
+            <h1 className="relative mt-2 font-display text-[2.3rem] leading-[1.02] font-extrabold tracking-tight text-ink short:text-[1.9rem]">
               Хурууны
               <br />
               хээ 2026
             </h1>
-            <p className="relative mt-3 text-[15px] text-ink/75">Өсвөр үеийнхний чуулган</p>
+            <p className="relative mt-2 text-sm text-ink/75">Өсвөр үеийнхний чуулган</p>
           </div>
 
-          <div className="px-6 pt-6 pb-6">
-            <dl className="divide-y divide-black/5">
+          <div className="px-6 pt-4 pb-5 short:pt-3 short:pb-4">
+            <dl className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-3 short:gap-y-2">
               <Fact label="Хэзээ">
-                {EVENT.dateLong}, {EVENT.weekday}
+                {EVENT.dateShort}, {EVENT.weekday}
               </Fact>
               <Fact label="Цаг">{EVENT.time}</Fact>
               <Fact label="Хэнд">{EVENT.audience}</Fact>
               <Fact label="Хураамж">{formatMnt(pricePerAttendee)}</Fact>
             </dl>
 
-            <RegisterLink className="mt-6" />
-            <Link
-              href="/"
-              className="mt-2 flex h-11 items-center justify-center rounded-full text-[15px] font-semibold text-ink/70 hover:bg-mist focus-visible:outline-2 focus-visible:outline-ink"
-            >
-              Чуулганы тухай дэлгэрэнгүй
-            </Link>
+            <RegisterLink className="mt-4 short:mt-3" />
           </div>
         </article>
 
@@ -123,9 +119,9 @@ export default async function ComePage({ searchParams }: Props) {
 
         <Link
           href="/event/status"
-          className="mx-auto mt-2 inline-flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-medium text-ink/70 hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-ink"
+          className="flex h-12 shrink-0 items-center justify-center gap-2 rounded-full border border-black/15 bg-white text-[15px] font-semibold text-ink shadow-[0_1px_2px_rgba(21,23,28,0.06)] transition-colors hover:border-ink/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink short:h-11"
         >
-          <TicketCheck className="size-4" />
+          <TicketCheck className="size-5" />
           Бүртгүүлсэн үү? Тасалбараа шалгах
         </Link>
       </main>

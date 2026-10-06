@@ -48,7 +48,7 @@ export function useRegistrationDraft(
           // Drafts saved before the form asked "yourself or a group" carry
           // no mode; their attendee count answers it the way the old form did.
           const mode = draft.mode ?? (draft.attendees.length > 1 ? "group" : "self");
-          form.reset({ ...form.getValues(), ...draft, mode });
+          form.reset({ ...form.getValues(), ...draft, mode } as RegistrationFormValues);
           trackEvent("registration_draft_restored", {
             attendees: draft.attendees.length,
           });

@@ -11,7 +11,7 @@ export function RegisterLink({ className }: { className?: string }) {
       href="/event/registration"
       onClick={() => trackEvent("come_register_clicked", {})}
       className={cn(
-        "flex h-13 items-center justify-center rounded-full bg-ink text-base font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink",
+        "flex h-12 items-center justify-center rounded-full bg-ink text-base font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink",
         className,
       )}
     >

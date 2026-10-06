@@ -32,6 +32,29 @@ describe("registration form", () => {
     expect(result.error?.issues.map((i) => i.path[0])).toEqual(["payerName", "payerPhone"]);
   });
 
+  it("marks every empty field on the first submit, not one step at a time", () => {
+    const result = registrationFormSchema.safeParse({
+      mode: "group",
+      churchName: "",
+      payerName: "",
+      payerPhone: "",
+      attendees: [{ fullName: "", phone: "", grade: undefined }],
+    });
+    expect(result.error?.issues.map((i) => i.path.join("."))).toEqual(
+      expect.arrayContaining(["churchName", "payerName", "payerPhone", "attendees.0.fullName", "attendees.0.grade"]),
+    );
+  });
+
+  it("asks for the phone itself, not its format, when it's empty", () => {
+    const result = registrationFormSchema.safeParse({
+      mode: "self",
+      churchName: "",
+      attendees: [{ fullName: "", phone: "", grade: undefined }],
+    });
+    const phone = result.error?.issues.find((i) => i.path.join(".") === "attendees.0.phone");
+    expect(phone?.message).toBe("Утасны дугаараа оруулна уу");
+  });
+
   it("flags the same phone used twice", () => {
     const result = registrationFormSchema.safeParse({
       mode: "group",

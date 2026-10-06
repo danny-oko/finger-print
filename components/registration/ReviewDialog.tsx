@@ -61,7 +61,7 @@ export function ReviewDialog({
         {values && (
           <div className="flex max-h-[92dvh] flex-col">
             <DialogHeader className="px-6 pt-6 pb-4 text-left">
-              <DialogTitle className="font-display text-lg font-bold text-ink">
+              <DialogTitle className="text-xl font-bold text-ink">
                 Мэдээллээ шалгана уу
               </DialogTitle>
               <DialogDescription className="text-[15px] text-ink/60">

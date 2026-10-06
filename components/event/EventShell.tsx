@@ -31,7 +31,7 @@ export function EventShell({
           {link && (
             <Link
               href={link.href}
-              className="rounded-full px-3 py-1.5 text-sm font-medium text-ink/70 transition-colors hover:bg-mist hover:text-ink focus-visible:outline-2 focus-visible:outline-brand"
+              className="inline-flex h-10 items-center rounded-full border border-black/15 bg-white px-4 text-sm font-semibold text-ink transition-colors hover:border-ink/40 hover:bg-mist focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             >
               {link.label}
             </Link>
@@ -55,7 +55,7 @@ export function EventShell({
 export function EventPageTitle({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
     <div className="mb-8">
-      <h1 className="font-display text-[1.75rem] leading-[1.15] font-bold tracking-tight text-ink sm:text-[2rem]">
+      <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight text-ink sm:text-[2rem]">
         {title}
       </h1>
       {children && <div className="mt-3 max-w-prose text-[15px] leading-relaxed text-ink/70">{children}</div>}

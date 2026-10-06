@@ -171,6 +171,9 @@ export function RegistrationForm() {
   function changeMode(next: RegistrationMode) {
     if (next === mode) return;
     form.setValue("mode", next, { shouldDirty: true });
+    // The rules differ by mode (a lone registrant's phone is required, an
+    // attendee's in a group isn't), so old messages would point at the wrong rule.
+    form.clearErrors();
 
     // Going back to "just me" keeps the first person and sets the others
     // aside — undoable, since a mis-tap shouldn't cost ten typed names.
@@ -383,7 +386,7 @@ export function RegistrationForm() {
           <>
             <FormStep
               step={3}
-              title="Таны мэдээлэл"
+              title="Бүртгэл үүсгэж буй хүний мэдээлэл"
               hint="Бүх тасалбарыг дараа нь энэ утасны дугаараар хайж олно."
             >
               <div className="grid gap-4 sm:grid-cols-2">

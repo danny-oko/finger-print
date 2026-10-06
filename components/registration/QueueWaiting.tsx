@@ -28,7 +28,7 @@ export function QueueWaiting({ view, onLeave }: { view: QueueView; onLeave: () =
     <div className="grid gap-4 py-2" role="status" aria-live="polite">
       <div>
         <p className="text-sm font-medium text-ink/60">Олон хүн зэрэг бүртгүүлж байна</p>
-        <p className="mt-1 font-display text-2xl font-bold text-ink tabular-nums">
+        <p className="mt-1 text-2xl font-bold text-ink tabular-nums">
           {ahead === 0 ? "Дараагийнх нь та" : `Таны өмнө ${ahead} хүн`}
         </p>
         <p className="mt-1 text-sm text-ink/60">Хүлээх хугацаа {formatEta(view.etaSec)}.</p>

@@ -75,13 +75,13 @@ export function ShareInvite() {
   };
 
   return (
-    <section className="rounded-3xl bg-white p-6 shadow-[0_1px_2px_rgba(21,23,28,0.06)]">
+    <section className="rounded-3xl bg-white px-6 py-5 shadow-[0_1px_2px_rgba(21,23,28,0.06)] short:py-4">
       <h2 className="text-[17px] font-semibold text-ink">Найзаа урих</h2>
-      <p className="mt-1 text-[15px] leading-relaxed text-ink/60">
+      <p className="mt-0.5 text-sm leading-snug text-ink/60 short:hidden">
         Найзынхаа нэрийг бичвэл урилга дээр нь нэр нь гарна.
       </p>
 
-      <label className="mt-4 block">
+      <label className="mt-3 block">
         <span className="sr-only">Найзын нэр</span>
         <input
           value={name}
@@ -90,16 +90,16 @@ export function ShareInvite() {
           placeholder="Найзын нэр (заавал биш)"
           autoComplete="off"
           enterKeyHint="done"
-          className="h-12 w-full rounded-xl border border-black/15 bg-white px-4 text-base outline-none placeholder:text-ink/40 focus:border-ink focus:ring-[3px] focus:ring-ink/10"
+          className="h-11 w-full rounded-xl border border-black/15 bg-white px-4 text-base outline-none placeholder:text-ink/40 focus:border-ink focus:ring-[3px] focus:ring-ink/10"
         />
       </label>
 
-      <div className="mt-3 flex gap-2">
+      <div className="mt-2 flex gap-2">
         {canShare && (
           <button
             type="button"
             onClick={share}
-            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-ink text-[15px] font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-ink text-[15px] font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             <Send className="size-4" />
             Илгээх
@@ -108,7 +108,7 @@ export function ShareInvite() {
         <button
           type="button"
           onClick={copy}
-          className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full border border-black/15 text-[15px] font-semibold whitespace-nowrap text-ink hover:bg-mist focus-visible:outline-2 focus-visible:outline-ink"
+          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-black/15 text-[15px] font-semibold whitespace-nowrap text-ink hover:bg-mist focus-visible:outline-2 focus-visible:outline-ink"
         >
           <Copy className="size-4" />
           Холбоос хуулах

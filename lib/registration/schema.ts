@@ -17,7 +17,7 @@ export const phoneSchema = z
 // whole registration (everyone in one submission comes from one church), so
 // adding a second teen costs three fields, not seven.
 export const attendeeSchema = z.object({
-  fullName: z.string().trim().min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
+  fullName: z.string().trim().min(1, "Нэрээ оруулна уу").min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
   phone: z
     .union([phoneSchema, z.literal("")])
     .optional()
@@ -109,67 +109,48 @@ export type CreateRegistrationInput = z.infer<typeof createRegistrationSchema>;
 export const REGISTRATION_MODES = ["self", "group"] as const;
 export type RegistrationMode = (typeof REGISTRATION_MODES)[number];
 
-/**
- * What the form itself holds. It deliberately differs from the API contract
- * above: a lone registrant never sees payer fields — those are derived by
- * `toCreateRegistrationInput` on submit. Keeping them out of the form means
- * a validation error can never land on a field that isn't on screen.
- *
- * `mode` is the first thing the form asks: registering yourself, or a group
- * you're responsible for. It decides which fields exist and who the contact
- * person is.
- */
+const requiredPhone = (emptyMessage: string) =>
+  z
+    .string()
+    .trim()
+    .min(1, emptyMessage)
+    .regex(/^[5-9]\d{7}$/, "8 оронтой утасны дугаар оруулна уу");
+
+const churchField = z.string().trim().min(2, "Хамаарах цуглаанаа сонгоно уу").max(160);
+
+// Each mode is its own object so every required field is checked on the
+// first submit — a refinement on a shared object only runs once everything
+// else already passes, which left empty contact fields unmarked.
+// Keys are declared in screen order: the form scrolls to the first failure.
+const selfFormSchema = z.object({
+  mode: z.literal("self"),
+  churchName: churchField,
+  payerName: z.string().optional(),
+  payerPhone: z.string().optional(),
+  attendees: z
+    .array(attendeeSchema.extend({ phone: requiredPhone("Утасны дугаараа оруулна уу") }))
+    .length(1),
+});
+
+const groupFormSchema = z.object({
+  mode: z.literal("group"),
+  churchName: churchField,
+  payerName: z
+    .string()
+    .trim()
+    .min(1, "Нэрээ оруулна уу")
+    .min(2, "Нэрээ бүтнээр нь оруулна уу")
+    .max(120),
+  payerPhone: requiredPhone("Утасны дугаараа оруулна уу"),
+  attendees: z
+    .array(attendeeSchema)
+    .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
+    .max(50, "Нэг удаад 50 хүртэл хүн бүртгэнэ"),
+});
+
 export const registrationFormSchema = z
-  .object({
-    mode: z.enum(REGISTRATION_MODES),
-    // Declared in the order the fields appear on screen. Zod reports issues
-    // in key order, so this is what makes "the first field that failed" —
-    // the one the form scrolls to, and the one reported to analytics — mean
-    // the topmost one rather than an arbitrary one.
-    churchName: z.string().trim().min(2, "Хамаарах цуглаанаа сонгоно уу").max(160),
-    payerName: z.string().trim().max(120).optional(),
-    payerPhone: z
-      .union([phoneSchema, z.literal("")])
-      .optional()
-      .transform((v) => (v ? v : undefined)),
-    attendees: z
-      .array(attendeeSchema)
-      .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
-      .max(50, "Нэг удаад 50 хүртэл хүн бүртгэнэ"),
-  })
-  .superRefine((data, ctx) => {
-    checkDuplicatePhones(data.attendees, ctx);
-
-    if (data.mode === "group") {
-      // Someone is registering on others' behalf, so they have to identify
-      // themselves — tickets are found again by this phone number.
-      if (!data.payerName || data.payerName.length < 2) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["payerName"],
-          message: "Нэрээ бүтнээр нь оруулна уу",
-        });
-      }
-      if (!data.payerPhone) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["payerPhone"],
-          message: "8 оронтой утасны дугаар оруулна уу",
-        });
-      }
-      return;
-    }
-
-    // A lone registrant is their own payer, so their phone is what the
-    // status lookup and any follow-up call will use — it can't be blank.
-    if (!data.attendees[0]?.phone) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["attendees", 0, "phone"],
-        message: "Утасны дугаараа оруулна уу",
-      });
-    }
-  });
+  .discriminatedUnion("mode", [selfFormSchema, groupFormSchema])
+  .superRefine((data, ctx) => checkDuplicatePhones(data.attendees, ctx));
 
 /** Validated form values (after zod coercion). */
 export type RegistrationFormOutput = z.output<typeof registrationFormSchema>;
@@ -211,9 +192,9 @@ export function normalizePhone(raw: string): string {
 // The phone is required: it's how they find their ticket again on
 // /event/status, and the only way to tell two invitees with the same name apart.
 export const invitedRegistrationFormSchema = z.object({
-  churchName: z.string().trim().min(2, "Хамаарах сүмээ сонгоно уу").max(160),
-  fullName: z.string().trim().min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
-  phone: phoneSchema,
+  churchName: churchField,
+  fullName: z.string().trim().min(1, "Нэрээ оруулна уу").min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
+  phone: requiredPhone("Утасны дугаараа оруулна уу"),
   grade: z.enum(GRADE_CHOICES, { error: "Ангиа сонгоно уу" }),
 });
 

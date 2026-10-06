@@ -5,17 +5,12 @@ import { User, Users } from "lucide-react";
 import type { RegistrationMode } from "@/lib/registration/schema";
 import { cn } from "@/lib/utils";
 
-const OPTIONS: { value: RegistrationMode; title: string; body: string; Icon: typeof User }[] = [
-  {
-    value: "self",
-    title: "Өөрийгөө",
-    body: "Би өөрөө оролцоно.",
-    Icon: User,
-  },
+const OPTIONS: { value: RegistrationMode; title: string; body?: string; Icon: typeof User }[] = [
+  { value: "self", title: "Ганцаараа бүртгүүлэх", Icon: User },
   {
     value: "group",
-    title: "Бүлгээрээ",
-    body: "Ахлагч эсвэл эцэг эх — хэд хэдэн хүнийг нэг дор бүртгэж, нэг удаа төлнө.",
+    title: "Хамтдаа бүртгүүлэх",
+    body: "Цуглааныхаа ахлагч болон өсвөрийн найзуудтайгаа хамтдаа бүртгүүлэх",
     Icon: Users,
   },
 ];
@@ -39,7 +34,7 @@ export function ModeChoice({
             aria-checked={selected}
             onClick={() => onChange(option)}
             className={cn(
-              "flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink",
+              "flex items-center gap-3 rounded-xl border-2 p-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink",
               selected ? "border-ink bg-white" : "border-black/10 bg-mist/60 hover:border-black/25",
             )}
           >
@@ -53,7 +48,7 @@ export function ModeChoice({
             </span>
             <span className="min-w-0">
               <span className="block text-base font-semibold text-ink">{title}</span>
-              <span className="mt-0.5 block text-sm leading-snug text-ink/60">{body}</span>
+              {body && <span className="mt-0.5 block text-sm leading-snug text-ink/60">{body}</span>}
             </span>
           </button>
         );
