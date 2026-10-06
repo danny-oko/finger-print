@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import * as React from "react";
 import { useFormContext } from "react-hook-form";
 
+import { advanceOnFullPhone, focusNextField } from "@/components/registration/focusNextField";
 import { FIELD_CLASS, LABEL_CLASS } from "@/components/registration/FormStep";
 import {
   FormControl,
@@ -41,8 +42,8 @@ export function AttendeeRow({
   const prefix = `attendees.${index}` as const;
 
   const nameRef = React.useRef<HTMLInputElement>(null);
-  const phoneRef = React.useRef<HTMLInputElement>(null);
   const gradeRef = React.useRef<HTMLButtonElement>(null);
+  const advanceRef = React.useRef(false);
 
   React.useEffect(() => {
     if (autoFocus) nameRef.current?.focus();
@@ -108,7 +109,7 @@ export function AttendeeRow({
                 value={field.value ?? undefined}
                 onValueChange={(v) => {
                   field.onChange(v);
-                  phoneRef.current?.focus();
+                  advanceRef.current = true;
                 }}
               >
                 <FormControl>
@@ -116,7 +117,14 @@ export function AttendeeRow({
                     <SelectValue placeholder="Сонгоно уу" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent
+                  onCloseAutoFocus={(e) => {
+                    if (!advanceRef.current) return;
+                    advanceRef.current = false;
+                    e.preventDefault();
+                    focusNextField(gradeRef.current);
+                  }}
+                >
                   {GRADE_CHOICES.map((choice) => (
                     <SelectItem key={choice} value={choice} className="py-2.5 text-base">
                       {gradeChoiceLabel(choice)}
@@ -141,7 +149,6 @@ export function AttendeeRow({
               <FormControl>
                 <Input
                   {...field}
-                  ref={phoneRef}
                   value={(field.value as string | undefined) ?? ""}
                   className={FIELD_CLASS}
                   type="tel"
@@ -149,7 +156,11 @@ export function AttendeeRow({
                   autoComplete={self ? "tel-national" : "off"}
                   maxLength={8}
                   placeholder="8 оронтой дугаар"
-                  onChange={(e) => field.onChange(onlyDigits(e.target.value))}
+                  onChange={(e) => {
+                    const digits = onlyDigits(e.target.value);
+                    advanceOnFullPhone(field.value as string | undefined, digits, e.currentTarget);
+                    field.onChange(digits);
+                  }}
                 />
               </FormControl>
               <FormMessage />

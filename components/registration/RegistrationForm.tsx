@@ -17,6 +17,7 @@ import { v4 as uuid } from "uuid";
 import { AttendeeRow, onlyDigits } from "@/components/registration/AttendeeRow";
 import { AvailabilityNotice } from "@/components/registration/AvailabilityNotice";
 import { ChurchCombobox } from "@/components/registration/ChurchCombobox";
+import { advanceOnFullPhone } from "@/components/registration/focusNextField";
 import { FIELD_CLASS, FormStep, LABEL_CLASS } from "@/components/registration/FormStep";
 import { ModeChoice } from "@/components/registration/ModeChoice";
 import { PriceBar } from "@/components/registration/PriceBar";
@@ -419,7 +420,11 @@ export function RegistrationForm() {
                           autoComplete="tel-national"
                           maxLength={8}
                           placeholder="8 оронтой дугаар"
-                          onChange={(e) => field.onChange(onlyDigits(e.target.value))}
+                          onChange={(e) => {
+                            const digits = onlyDigits(e.target.value);
+                            advanceOnFullPhone(field.value as string | undefined, digits, e.currentTarget);
+                            field.onChange(digits);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />

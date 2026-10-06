@@ -3,6 +3,7 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 
+import { focusNextField } from "@/components/registration/focusNextField";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,6 +78,18 @@ export const ChurchCombobox = React.forwardRef<
   const [search, setSearch] = React.useState("");
   const [pendingCreate, setPendingCreate] = React.useState<string | null>(null);
 
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+  const advanceRef = React.useRef(false);
+
+  // Radix hands focus back to the trigger on close; after a pick, move on to
+  // the next field instead.
+  function onCloseAutoFocus(e: Event) {
+    if (!advanceRef.current) return;
+    advanceRef.current = false;
+    e.preventDefault();
+    focusNextField(triggerRef.current);
+  }
+
   const trimmed = search.trim();
   const normalizedTrimmed = normalizeChurchName(trimmed);
 
@@ -112,6 +125,7 @@ export const ChurchCombobox = React.forwardRef<
   const showCreateOption = trimmed.length > 1 && !exactMatch;
 
   function selectChurch(church: string) {
+    advanceRef.current = true;
     onChange(church);
     setOpen(false);
     setSearch("");
@@ -119,6 +133,7 @@ export const ChurchCombobox = React.forwardRef<
   }
 
   function createChurch(name: string) {
+    advanceRef.current = true;
     onChange(name);
     onCreate?.(name);
     setOpen(false);
@@ -208,7 +223,11 @@ export const ChurchCombobox = React.forwardRef<
         <PopoverTrigger asChild>
           <Button
             {...aria}
-            ref={ref}
+            ref={(el) => {
+              triggerRef.current = el;
+              if (typeof ref === "function") ref(el);
+              else if (ref) ref.current = el;
+            }}
             type="button"
             variant="outline"
             role="combobox"
@@ -227,6 +246,7 @@ export const ChurchCombobox = React.forwardRef<
           align="start"
           sideOffset={6}
           collisionPadding={12}
+          onCloseAutoFocus={onCloseAutoFocus}
         >
           {picker}
         </PopoverContent>
@@ -239,6 +259,7 @@ export const ChurchCombobox = React.forwardRef<
           side="bottom"
           className="h-[85dvh] gap-0 rounded-t-3xl px-2 pb-[env(safe-area-inset-bottom)] [&_[data-slot=command-input-wrapper]]:mx-2 [&_[data-slot=command-input-wrapper]]:h-12 [&_[data-slot=command-input-wrapper]]:rounded-xl [&_[data-slot=command-input-wrapper]]:border [&_[data-slot=command-input-wrapper]]:border-black/10 [&_[data-slot=command-input-wrapper]]:bg-black/[0.03]"
           onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={onCloseAutoFocus}
         >
           <div className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-black/15" />
           <SheetTitle className="px-4 pt-3 pb-3 text-lg">Цуглаа сонгох</SheetTitle>
@@ -251,7 +272,7 @@ export const ChurchCombobox = React.forwardRef<
         open={pendingCreate !== null}
         onOpenChange={(next) => !next && setPendingCreate(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent onCloseAutoFocus={onCloseAutoFocus}>
           <AlertDialogHeader>
             <AlertDialogTitle>Ижил төстэй сүм олдлоо</AlertDialogTitle>
             <AlertDialogDescription>

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { v4 as uuid } from "uuid";
 
 import { ChurchCombobox } from "@/components/registration/ChurchCombobox";
+import { advanceOnFullPhone } from "@/components/registration/focusNextField";
 import { FIELD_CLASS, LABEL_CLASS } from "@/components/registration/FormStep";
 import {
   Form,
@@ -295,9 +296,11 @@ export function InviteRegistrationForm({ token }: { token: string }) {
                         autoComplete="tel-national"
                         maxLength={8}
                         placeholder="8 оронтой дугаар"
-                        onChange={(e) =>
-                          field.onChange(e.target.value.replace(/\D/g, "").slice(0, 8))
-                        }
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+                          advanceOnFullPhone(field.value, digits, e.currentTarget);
+                          field.onChange(digits);
+                        }}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
