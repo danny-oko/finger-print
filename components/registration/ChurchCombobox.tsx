@@ -54,7 +54,9 @@ function useIsDesktop() {
   );
 }
 
-const ITEM = "rounded-lg py-2.5 text-[15px] sm:py-2";
+// Hairline between rows, inset to the text and hidden around the highlighted row.
+const ITEM =
+  "rounded-lg py-2.5 text-[15px] sm:py-2 after:pointer-events-none after:absolute after:left-8 after:right-2 after:bottom-0 after:h-px after:bg-black/[0.06] last:after:hidden data-[selected=true]:after:hidden [&:has(+[data-selected=true])]:after:hidden";
 
 export const ChurchCombobox = React.forwardRef<
   HTMLButtonElement,
