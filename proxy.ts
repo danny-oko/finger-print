@@ -37,6 +37,6 @@ export function proxy(request: NextRequest) {
 // invite and admin pages are Mongolian-only, so they skip this entirely.
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api/|admin/|event/|invited/|come|.*opengraph-image|.*twitter-image|.*\\.(?:ico|png|jpg|jpeg|gif|webp|svg|woff2?|mp4)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/|admin/|event/|invited/|invite|come|.*opengraph-image|.*twitter-image|.*\\.(?:ico|png|jpg|jpeg|gif|webp|svg|woff2?|mp4)$).*)",
   ],
 };

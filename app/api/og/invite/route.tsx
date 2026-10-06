@@ -46,6 +46,11 @@ export async function GET(request: NextRequest) {
         </div>
       </div>
     ),
-    { ...OG_SIZE, fonts },
+    {
+      ...OG_SIZE,
+      fonts,
+      // Chat apps fetch the card once with a short timeout; serve it from the CDN.
+      headers: { "Cache-Control": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400" },
+    },
   );
 }

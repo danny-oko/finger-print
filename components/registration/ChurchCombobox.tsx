@@ -1,5 +1,5 @@
 "use client";
-  
+
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 
@@ -28,11 +28,33 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
   findCloseChurchNames,
   isSameChurchName,
   normalizeChurchName,
 } from "@/lib/registration/churchName";
 import { cn } from "@/lib/utils";
+
+const DESKTOP = "(min-width: 640px)";
+
+function useIsDesktop() {
+  return React.useSyncExternalStore(
+    (onChange) => {
+      const mq = window.matchMedia(DESKTOP);
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia(DESKTOP).matches,
+    () => false,
+  );
+}
+
+const ITEM = "rounded-lg py-2.5 text-[15px] sm:py-2";
 
 export const ChurchCombobox = React.forwardRef<
   HTMLButtonElement,
@@ -50,6 +72,7 @@ export const ChurchCombobox = React.forwardRef<
     "aria-describedby"?: string;
   }
 >(({ value, onChange, onSelected, onCreate, churches, className, ...aria }, ref) => {
+  const isDesktop = useIsDesktop();
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [pendingCreate, setPendingCreate] = React.useState<string | null>(null);
@@ -112,9 +135,76 @@ export const ChurchCombobox = React.forwardRef<
     }
   }
 
+  const picker = (
+    <Command shouldFilter={false} className="min-h-0 flex-1">
+      <CommandInput
+        placeholder="Хайх эсвэл шинээр үүсгэх"
+        className="h-12 text-base"
+        value={search}
+        onValueChange={setSearch}
+      />
+      <CommandList className="max-h-none flex-1 overscroll-contain sm:max-h-[min(20rem,calc(var(--radix-popover-content-available-height)-3.5rem))]">
+        <CommandEmpty>Олдсонгүй</CommandEmpty>
+        <CommandGroup>
+          {results.slice(0, 30).map((church) => (
+            <CommandItem
+              key={church}
+              value={church}
+              onSelect={() => selectChurch(church)}
+              className={ITEM}
+            >
+              <Check
+                className={cn(
+                  "size-4",
+                  value === church ? "opacity-100" : "opacity-0",
+                )}
+              />
+              {church}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+
+        {closeMatches.length > 0 && (
+          <CommandGroup heading="Ойролцоо нэртэй цуглаанууд">
+            {closeMatches.map((church) => (
+              <CommandItem
+                key={church}
+                value={`suggestion-${church}`}
+                onSelect={() => selectChurch(church)}
+                className={ITEM}
+              >
+                <Check
+                  className={cn(
+                    "size-4",
+                    value === church ? "opacity-100" : "opacity-0",
+                  )}
+                />
+                {church}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+
+        {showCreateOption && (
+          <CommandGroup>
+            <CommandItem
+              value={`create-${trimmed}`}
+              onSelect={handleCreateRequest}
+              className={ITEM}
+            >
+              <span className="font-semibold text-brand-ink">
+                + &quot;{trimmed}&quot; нэмэх
+              </span>
+            </CommandItem>
+          </CommandGroup>
+        )}
+      </CommandList>
+    </Command>
+  );
+
   return (
     <>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open && isDesktop} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             {...aria}
@@ -132,74 +222,30 @@ export const ChurchCombobox = React.forwardRef<
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0 [&_[data-slot=command-input-wrapper]]:h-12"
+          className="flex w-[var(--radix-popover-trigger-width)] flex-col overflow-hidden rounded-2xl p-0 shadow-[0_12px_40px_rgba(21,23,28,0.14)] [&_[data-slot=command-input-wrapper]]:h-12"
+          side="bottom"
           align="start"
+          sideOffset={6}
+          collisionPadding={12}
         >
-          <Command shouldFilter={false}>
-            <CommandInput
-              placeholder="Хайх эсвэл шинээр үүсгэх"
-              className="text-base"
-              value={search}
-              onValueChange={setSearch}
-            />
-            <CommandList className="max-h-[min(60vh,26rem)]">
-              <CommandEmpty>Олдсонгүй</CommandEmpty>
-              <CommandGroup>
-                {results.slice(0, 30).map((church) => (
-                  <CommandItem
-                    key={church}
-                    value={church}
-                    onSelect={() => selectChurch(church)}
-                    className="py-3 text-base"
-                  >
-                    <Check
-                      className={cn(
-                        "size-4",
-                        value === church ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                    {church}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-
-              {closeMatches.length > 0 && (
-                <CommandGroup heading="Ойролцоо нэртэй цуглаанууд">
-                  {closeMatches.map((church) => (
-                    <CommandItem
-                      key={church}
-                      value={`suggestion-${church}`}
-                      onSelect={() => selectChurch(church)}
-                      className="py-3 text-base"
-                    >
-                      <Check
-                        className={cn(
-                          "size-4",
-                          value === church ? "opacity-100" : "opacity-0",
-                        )}
-                      />
-                      {church}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-
-              {showCreateOption && (
-                <CommandGroup>
-                  <CommandItem
-                    value={`create-${trimmed}`}
-                    onSelect={handleCreateRequest}
-                  >
-                    <span className="font-semibold text-brand-ink">
-                      + &quot;{trimmed}&quot; нэмэх
-                    </span>
-                  </CommandItem>
-                </CommandGroup>
-              )}
-            </CommandList>
-          </Command>
+          {picker}
         </PopoverContent>
       </Popover>
+
+      {/* On a phone a popover fights the keyboard and covers the form, so the
+          list opens as a sheet instead. The keyboard waits until they tap search. */}
+      <Sheet open={open && !isDesktop} onOpenChange={setOpen}>
+        <SheetContent
+          side="bottom"
+          className="h-[85dvh] gap-0 rounded-t-3xl px-2 pb-[env(safe-area-inset-bottom)] [&_[data-slot=command-input-wrapper]]:mx-2 [&_[data-slot=command-input-wrapper]]:h-12 [&_[data-slot=command-input-wrapper]]:rounded-xl [&_[data-slot=command-input-wrapper]]:border [&_[data-slot=command-input-wrapper]]:border-black/10 [&_[data-slot=command-input-wrapper]]:bg-black/[0.03]"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
+          <div className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-black/15" />
+          <SheetTitle className="px-4 pt-3 pb-3 text-lg">Цуглаа сонгох</SheetTitle>
+          <SheetDescription className="sr-only">Цуглааныхаа нэрээр хайж сонгоно уу.</SheetDescription>
+          {picker}
+        </SheetContent>
+      </Sheet>
 
       <AlertDialog
         open={pendingCreate !== null}
