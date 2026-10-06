@@ -1,6 +1,18 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import { createLimiter } from "@/lib/server/limiter";
+
 const DEFAULT_BASE_URL = "https://byl.mn/api/v1";
+
+// A hung payment call would otherwise hold its function (and the registrant)
+// for the platform's full timeout. Capped per instance so a rush doesn't hit
+// Byl with every checkout at the same instant.
+const TIMEOUT_MS = 12_000;
+const limit = createLimiter(6);
+
+function bylFetch(url: string, init: RequestInit): Promise<Response> {
+  return limit(() => fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) }));
+}
 
 function getConfig() {
   const baseUrl = process.env.BYL_API_BASE_URL ?? DEFAULT_BASE_URL;
@@ -73,7 +85,7 @@ export async function createCheckout(
     );
   }
 
-  const res = await fetch(`${baseUrl}/projects/${projectId}/checkouts`, {
+  const res = await bylFetch(`${baseUrl}/projects/${projectId}/checkouts`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -118,7 +130,7 @@ export async function retrieveCheckout(
 ): Promise<BylCheckout> {
   const { baseUrl, projectId, token } = getConfig();
 
-  const res = await fetch(
+  const res = await bylFetch(
     `${baseUrl}/projects/${projectId}/checkouts/${checkoutId}`,
     {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
@@ -174,7 +186,7 @@ export async function createInvoice(
     );
   }
 
-  const res = await fetch(`${baseUrl}/projects/${projectId}/invoices`, {
+  const res = await bylFetch(`${baseUrl}/projects/${projectId}/invoices`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,

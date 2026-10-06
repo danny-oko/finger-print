@@ -32,7 +32,15 @@ export type CheckInResult =
 
 export type DoorCounts = { expected: number; checkedIn: number };
 
-export type CheckInResponse = { result: CheckInResult; counts: DoorCounts };
+/** Null counts mean the scan never reached the database (an unreadable QR). */
+export type CheckInResponse = { result: CheckInResult; counts: DoorCounts | null };
+
+/** Someone found by name or phone at the door, rather than by their QR. */
+export type DoorSearchHit = Omit<CheckInAttendee, "checkedInAt"> & {
+  checkedInAt: string | null;
+  paid: boolean;
+  phoneTail: string | null;
+};
 
 /**
  * Accepts what a camera or a tired thumb actually produces: the bare code,

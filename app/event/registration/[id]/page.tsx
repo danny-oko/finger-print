@@ -36,7 +36,7 @@ export default async function RegistrationDetailPage({
     const { title, hint } = userMessage("service_unavailable");
 
     return (
-      <main className="min-h-dvh bg-neutral-50">
+      <main className="event-ui min-h-dvh bg-mist">
         <div className="mx-auto grid w-full max-w-md justify-items-center gap-3 px-4 py-16 text-center">
           <h1 className="text-xl font-black text-neutral-900">{title}</h1>
           <p className="max-w-sm text-sm text-neutral-500">{hint}</p>
@@ -57,7 +57,7 @@ export default async function RegistrationDetailPage({
   registration = await withIssuedTickets(registration);
 
   return (
-    <main className="flex h-dvh items-center justify-center overflow-hidden bg-neutral-50 p-4 print:block print:h-auto print:overflow-visible print:p-0">
+    <main className="event-ui flex h-dvh items-center justify-center overflow-hidden bg-mist p-4 print:block print:h-auto print:overflow-visible print:p-0">
       <RegistrationDetail initial={registration} />
     </main>
   );

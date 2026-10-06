@@ -1,4 +1,4 @@
-import { d1Query } from "@/lib/d1";
+import { d1Query } from "@/lib/db/d1";
 
 /**
  * Which of these phones already belong to somebody attending. Only paid

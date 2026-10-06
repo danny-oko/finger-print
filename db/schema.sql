@@ -10,7 +10,12 @@ CREATE TABLE IF NOT EXISTS settings (
 INSERT OR IGNORE INTO settings (key, value) VALUES
   ('price_per_attendee_mnt', '15000'),
   ('tax_rate_percent', '0'),
-  ('currency', 'MNT');
+  ('currency', 'MNT'),
+  ('registration_state', 'open'),
+  ('capacity', ''),
+  ('queue_mode', 'auto'),
+  ('queue_admit_per_minute', '20'),
+  ('queue_burst', '10');
 
 CREATE TABLE IF NOT EXISTS churches (
   id TEXT PRIMARY KEY,
@@ -41,6 +46,11 @@ CREATE TABLE IF NOT EXISTS registrations (
   paid_at TEXT,
   awaiting_verification_at TEXT,
   tickets_issued_at TEXT,
+  -- One per submission attempt, so a retried request finds the row it
+  -- already made. See migration 0007.
+  idempotency_key TEXT UNIQUE,
+  -- How long an unpaid registration holds its seats. See migration 0007.
+  expires_at TEXT,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
@@ -78,6 +88,7 @@ CREATE INDEX IF NOT EXISTS idx_attendees_parent_phone ON attendees (parent_phone
 CREATE INDEX IF NOT EXISTS idx_attendees_church_name ON attendees (church_name);
 CREATE INDEX IF NOT EXISTS idx_attendees_role ON attendees (role);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_attendees_ticket_code ON attendees (ticket_code);
+CREATE INDEX IF NOT EXISTS idx_attendees_checked_in_at ON attendees (checked_in_at);
 
 CREATE TABLE IF NOT EXISTS payment_events (
   id TEXT PRIMARY KEY,

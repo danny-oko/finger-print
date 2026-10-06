@@ -59,8 +59,13 @@ function checkDuplicatePhones(
 export const PAYMENT_METHODS = ["checkout", "invoice"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
+// One per submission attempt, minted by the form. Lets the server recognise
+// the same submission arriving twice and answer with what it already made.
+const idempotencyKeySchema = z.uuid().optional();
+
 export const createRegistrationSchema = z
   .object({
+    idempotencyKey: idempotencyKeySchema,
     paymentMethod: z.enum(PAYMENT_METHODS).default("checkout"),
     // Derived from the attendee count rather than picked by the user: one
     // person means they're registering themselves, more than one means
@@ -101,36 +106,43 @@ export const createRegistrationSchema = z
 // Output type (after zod coercion) — what the API route works with.
 export type CreateRegistrationInput = z.infer<typeof createRegistrationSchema>;
 
+export const REGISTRATION_MODES = ["self", "group"] as const;
+export type RegistrationMode = (typeof REGISTRATION_MODES)[number];
+
 /**
  * What the form itself holds. It deliberately differs from the API contract
- * above: nobody picks a registrant type, and a lone registrant never sees
- * payer fields — those are derived by `toCreateRegistrationInput` on submit.
- * Keeping them out of the form means a validation error can never land on a
- * field that isn't on screen.
+ * above: a lone registrant never sees payer fields — those are derived by
+ * `toCreateRegistrationInput` on submit. Keeping them out of the form means
+ * a validation error can never land on a field that isn't on screen.
+ *
+ * `mode` is the first thing the form asks: registering yourself, or a group
+ * you're responsible for. It decides which fields exist and who the contact
+ * person is.
  */
 export const registrationFormSchema = z
   .object({
+    mode: z.enum(REGISTRATION_MODES),
     // Declared in the order the fields appear on screen. Zod reports issues
     // in key order, so this is what makes "the first field that failed" —
     // the one the form scrolls to, and the one reported to analytics — mean
     // the topmost one rather than an arbitrary one.
-    churchName: z.string().trim().min(2, "Хамаарах сүмээ сонгоно уу").max(160),
-    attendees: z
-      .array(attendeeSchema)
-      .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
-      .max(50),
+    churchName: z.string().trim().min(2, "Хамаарах цуглаанаа сонгоно уу").max(160),
     payerName: z.string().trim().max(120).optional(),
     payerPhone: z
       .union([phoneSchema, z.literal("")])
       .optional()
       .transform((v) => (v ? v : undefined)),
+    attendees: z
+      .array(attendeeSchema)
+      .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
+      .max(50, "Нэг удаад 50 хүртэл хүн бүртгэнэ"),
   })
   .superRefine((data, ctx) => {
     checkDuplicatePhones(data.attendees, ctx);
 
-    if (data.attendees.length > 1) {
+    if (data.mode === "group") {
       // Someone is registering on others' behalf, so they have to identify
-      // themselves — none of the attendees is the payer.
+      // themselves — tickets are found again by this phone number.
       if (!data.payerName || data.payerName.length < 2) {
         ctx.addIssue({
           code: "custom",
@@ -166,30 +178,28 @@ export type RegistrationFormOutput = z.output<typeof registrationFormSchema>;
 export type RegistrationFormValues = z.input<typeof registrationFormSchema>;
 
 /**
- * Fills in the fields the form never asks for. One attendee means they
- * registered themselves and their own name and phone are the payer's; more
- * than one means whoever filled the payer block is organising for a church.
+ * Fills in the fields the form never asks for. Registering yourself makes
+ * your own name and phone the payer's; registering a group makes whoever
+ * filled the contact block the church leader who paid.
  */
 export function toCreateRegistrationInput(
   values: RegistrationFormOutput,
   paymentMethod: PaymentMethod = "checkout",
+  idempotencyKey?: string,
 ): CreateRegistrationInput {
-  const isGroup = values.attendees.length > 1;
+  const isGroup = values.mode === "group";
   const first = values.attendees[0];
 
   return {
+    idempotencyKey,
     paymentMethod,
     registrantType: isGroup ? "church_leader" : "individual",
     churchName: values.churchName,
     payerName: isGroup ? (values.payerName ?? "") : first.fullName,
     payerPhone: isGroup ? (values.payerPhone ?? "") : (first.phone ?? ""),
-    attendees: values.attendees,
+    attendees: isGroup ? values.attendees : [first],
   };
 }
-
-export const lookupSchema = z.object({
-  phone: phoneSchema,
-});
 
 export function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D/g, "");
@@ -212,6 +222,7 @@ export type InvitedRegistrationFormOutput = z.output<typeof invitedRegistrationF
 
 export const createInvitedRegistrationSchema = invitedRegistrationFormSchema.extend({
   token: z.string().min(1).max(200),
+  idempotencyKey: idempotencyKeySchema,
 });
 
 export type CreateInvitedRegistrationInput = z.infer<typeof createInvitedRegistrationSchema>;

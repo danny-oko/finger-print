@@ -1,15 +1,16 @@
 "use client";
 
 import { Copy, Send } from "lucide-react";
-import Image from "next/image";
 import * as React from "react";
+
 import { showShareToast } from "@/components/come/ShareToast";
 import { trackEvent } from "@/lib/analytics/client";
 import { cleanFriendName, comePath, FRIEND_NAME_MAX } from "@/lib/come/friendName";
+import { EVENT } from "@/lib/event";
 
 function shareText(to: string | null): string {
-  const invite = "чи надтай хамт Хурууны хээ-д урилгатай шүүү! 🥺💌";
-  return to ? `${to}, ${invite}` : `Хөөе, ${invite}`;
+  const invite = `${EVENT.name} чуулганд хамт явъя. ${EVENT.dateLong}, ${EVENT.time}.`;
+  return to ? `${to}, ${invite}` : invite;
 }
 
 const subscribeNever = () => () => {};
@@ -64,7 +65,7 @@ export function ShareInvite() {
   const share = async () => {
     const url = link();
     try {
-      await navigator.share({ title: "Хурууны хээ 2026", text: shareText(to), url });
+      await navigator.share({ title: EVENT.name, text: shareText(to), url });
       showShareToast("shared", url);
       trackEvent("come_shared", { method: "native", named: Boolean(to) });
     } catch (error) {
@@ -74,45 +75,31 @@ export function ShareInvite() {
   };
 
   return (
-    <section className="relative rounded-[1.75rem] border-2 border-dashed border-[#14161A]/40 bg-white/60 p-4 backdrop-blur-sm short:py-3">
-      <div className="flex items-center gap-3">
-        <Image
-          src="/come/heart-hands.gif"
-          alt=""
-          width={48}
-          height={48}
-          unoptimized
-          className="size-10 shrink-0 short:size-8"
-        />
-        <div className="min-w-0">
-          <h2 className="leading-tight font-black">Найзаа дагуулаад ир!</h2>
-          <p className="mt-0.5 truncate text-xs text-neutral-600">
-            {to
-              ? `${to} өөрийн нэртэй урилга авна 💌`
-              : "Найзынхаа нэрийг бичээд илгээ."}
-          </p>
-        </div>
-      </div>
+    <section className="rounded-3xl bg-white p-6 shadow-[0_1px_2px_rgba(21,23,28,0.06)]">
+      <h2 className="text-[17px] font-semibold text-ink">Найзаа урих</h2>
+      <p className="mt-1 text-[15px] leading-relaxed text-ink/60">
+        Найзынхаа нэрийг бичвэл урилга дээр нь нэр нь гарна.
+      </p>
 
-      <label className="mt-3 block short:mt-2">
+      <label className="mt-4 block">
         <span className="sr-only">Найзын нэр</span>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={FRIEND_NAME_MAX}
-          placeholder="Найзынхаа нэр (жишээ нь: Болд)"
+          placeholder="Найзын нэр (заавал биш)"
           autoComplete="off"
           enterKeyHint="done"
-          className="h-11 w-full rounded-2xl border-2 border-[#14161A] bg-white px-4 text-base font-semibold outline-none placeholder:font-normal placeholder:text-neutral-400 focus:ring-4 focus:ring-[#37A8C4]/30 short:h-10"
+          className="h-12 w-full rounded-xl border border-black/15 bg-white px-4 text-base outline-none placeholder:text-ink/40 focus:border-ink focus:ring-[3px] focus:ring-ink/10"
         />
       </label>
 
-      <div className="mt-2.5 flex gap-2 short:mt-2">
+      <div className="mt-3 flex gap-2">
         {canShare && (
           <button
             type="button"
             onClick={share}
-            className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full border-2 border-[#14161A] bg-[#37A8C4] font-black text-white shadow-[3px_3px_0_#14161A] transition-transform active:translate-y-0.5 short:h-10"
+            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-ink text-[15px] font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             <Send className="size-4" />
             Илгээх
@@ -121,10 +108,10 @@ export function ShareInvite() {
         <button
           type="button"
           onClick={copy}
-          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full border-2 border-[#14161A] bg-white font-black whitespace-nowrap shadow-[3px_3px_0_#14161A] transition-transform active:translate-y-0.5 short:h-10"
+          className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full border border-black/15 text-[15px] font-semibold whitespace-nowrap text-ink hover:bg-mist focus-visible:outline-2 focus-visible:outline-ink"
         >
           <Copy className="size-4" />
-          {canShare ? "Хуулах" : "Холбоос хуулах"}
+          Холбоос хуулах
         </button>
       </div>
     </section>

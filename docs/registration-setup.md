@@ -144,6 +144,37 @@ monitor, the registration page (`/event/registration/<id>`), the ticket page
 database error until the migration runs. Running it early is harmless: the
 current code never reads the column and new public rows get the default.
 
+## 5e. Add seat limits and duplicate-submit protection
+
+Skip this if you just created the database in step 1. Adds
+`registrations.idempotency_key` (so a retried submission finds the
+registration it already made), `registrations.expires_at` (how long an unpaid
+registration holds its seats) and the settings the admin monitor's
+**Бүртгэлийн тохиргоо** panel edits:
+
+```bash
+bunx wrangler d1 execute finger-print-2026 --remote \
+  --file=./db/migrations/0007_registration_capacity_and_idempotency.sql
+```
+
+Additive only. **Apply it before deploying this version of the code** —
+creating a registration writes both new columns.
+
+## 5f. Add Upstash Redis for the waiting room
+
+The waiting room and the per-IP rate limits keep state that every server
+instance must share. In the Vercel dashboard: **Storage → Marketplace →
+Upstash → Redis**, connect it to this project — Vercel adds
+`KV_REST_API_URL` and `KV_REST_API_TOKEN`. Then set a signing secret:
+
+```
+QUEUE_SECRET=<openssl rand -hex 32>
+```
+
+Without Redis, registration still works, but the waiting room stays off in
+production and nothing smooths out a rush. The free tier is enough for a
+registration day; the waiting room uses one Redis call per poll.
+
 ## 6. Set the real registration price
 
 The price and tax rate are stored in D1, not hardcoded, so they can be
@@ -280,10 +311,12 @@ so only counts, enum values and field *names* are ever sent.
 | `registration_invalid` | browser | **Which field blocks a submit** — the topmost failing one |
 | `registration_submitted` | browser | Intent, before the redirect to Byl |
 | `registration_created` | `POST /api/registration` | Row + checkout both exist (the reliable funnel top) |
-| `registration_create_failed` | `POST /api/registration`, `POST /api/registration/invited` | Split by `database_error` / `payment_error` |
+| `registration_create_failed` | `POST /api/registration`, `POST /api/registration/invited` | Split by reason: `phone_taken`, `sold_out`, `registration_closed`, `database_error`, `payment_error`, … |
 | `registration_invited` | `POST /api/registration/invited` | Free registrations through the invite link |
 | `registration_awaiting_verification` | Byl webhook | Bank transfers waiting on a human |
 | `registration_paid` | Byl webhook | Actual conversions |
+| `come_register_clicked` | browser, `/come` | Invites that turned into a visit to the form |
+| `come_shared` | browser, `/come` | How the invite is passed on (native share vs copied link) |
 
 The funnel to watch is
 `view → started → submitted → created → paid`, with `registration_invalid`

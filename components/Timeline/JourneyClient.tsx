@@ -65,7 +65,7 @@ const CONTAINER = "mx-auto w-full max-w-[1200px] px-4 sm:px-6";
 export default function JourneyClient({ className }: { className?: string }) {
   const sectionRef = React.useRef<HTMLElement | null>(null);
 
-  const { lang, t } = useTranslation();
+  const { lang } = useTranslation();
   const tr = getTranslations(lang);
 
   const defaultItems: JourneyCardItem[] = [

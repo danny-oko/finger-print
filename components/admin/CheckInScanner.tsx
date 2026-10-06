@@ -2,11 +2,12 @@
 
 import {
   Camera,
+  CloudOff,
   Flashlight,
-  Keyboard,
   ListChecks,
   LogOut,
   ScanLine,
+  Search,
   Table2,
   TriangleAlert,
 } from "lucide-react";
@@ -14,26 +15,23 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
+import { DoorSearch } from "@/components/admin/DoorSearch";
 import { RecentCheckIns } from "@/components/admin/RecentCheckIns";
-import { ScanOutcomeCard } from "@/components/admin/ScanOutcomeCard";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { ScanOutcomeCard, toneOf, type DoorResult } from "@/components/admin/ScanOutcomeCard";
+import { useOfflineScans, type PendingScan } from "@/hooks/use-offline-scans";
 import { useQrScanner } from "@/hooks/use-qr-scanner";
-import { loadDoorState, scanTicket, undoCheckIn } from "@/lib/admin/actions";
 import {
-  OUTCOME_TONE,
-  parseTicketCode,
+  checkInAttendee,
+  loadDoorState,
+  scanTicket,
+  undoCheckIn,
+} from "@/lib/admin/actions";
+import {
+  OUTCOME_TITLE,
   type CheckInAttendee,
-  type CheckInResult,
+  type CheckInResponse,
   type DoorCounts,
+  type DoorSearchHit,
   type OutcomeTone,
 } from "@/lib/admin/checkIn";
 import { armScanSound, playScanFeedback } from "@/lib/admin/scanFeedback";
@@ -43,38 +41,66 @@ import { cn } from "@/lib/utils";
 // the last code down for a few seconds is what stops one person walking in
 // and generating a screenful of "already checked in".
 const SAME_CODE_COOLDOWN_MS = 6000;
-
-const FLASH_MS = 450;
-const SUCCESS_CLEAR_MS = 5000;
-const REFRESH_MS = 45_000;
+const SUCCESS_CLEAR_MS = 2500;
+const REFRESH_MS = 30_000;
 const RECENT_LIMIT = 25;
 
-const FLASH_CLASS: Record<OutcomeTone, string> = {
-  success: "bg-emerald-400/30",
-  warning: "bg-amber-400/30",
-  danger: "bg-red-500/30",
+type Tab = "scan" | "search" | "recent";
+
+const FLASH: Record<OutcomeTone, string> = {
+  success: "ring-emerald-400",
+  warning: "ring-amber-400",
+  danger: "ring-red-500",
 };
 
 export function CheckInScanner({ unprotected = false }: { unprotected?: boolean }) {
   const router = useRouter();
 
+  const [tab, setTab] = React.useState<Tab>("scan");
   const [counts, setCounts] = React.useState<DoorCounts>({ expected: 0, checkedIn: 0 });
   const [recent, setRecent] = React.useState<CheckInAttendee[]>([]);
-  const [result, setResult] = React.useState<CheckInResult | null>(null);
-  const [flash, setFlash] = React.useState<OutcomeTone | null>(null);
+  const [result, setResult] = React.useState<DoorResult | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [undoingId, setUndoingId] = React.useState<string | null>(null);
-  const [manualOpen, setManualOpen] = React.useState(false);
-  const [manualCode, setManualCode] = React.useState("");
+  const [checkingId, setCheckingId] = React.useState<string | null>(null);
+  // Offline scans that came back as a problem once the network returned.
+  const [flagged, setFlagged] = React.useState<{ scan: PendingScan; title: string }[]>([]);
 
   const busyRef = React.useRef(false);
   const lastCode = React.useRef<{ text: string; at: number } | null>(null);
 
-  const pulse = React.useCallback((tone: OutcomeTone) => {
-    setFlash(tone);
-    window.setTimeout(() => setFlash((current) => (current === tone ? null : current)), FLASH_MS);
+  const remember = React.useCallback((attendee: CheckInAttendee) => {
+    setRecent((rows) =>
+      [attendee, ...rows.filter((row) => row.attendeeId !== attendee.attendeeId)].slice(0, RECENT_LIMIT),
+    );
   }, []);
+
+  const apply = React.useCallback(
+    (data: CheckInResponse) => {
+      setResult(data.result);
+      if (data.counts) setCounts(data.counts);
+      if (data.result.outcome === "checked_in") remember(data.result.attendee);
+      playScanFeedback(toneOf(data.result));
+    },
+    [remember],
+  );
+
+  const { pending, enqueue, flush } = useOfflineScans(
+    React.useCallback(
+      (data: CheckInResponse, scan: PendingScan) => {
+        if (data.counts) setCounts(data.counts);
+        if (data.result.outcome === "checked_in") {
+          remember(data.result.attendee);
+          return;
+        }
+        if (data.result.outcome === "already") return;
+        setFlagged((list) => [...list, { scan, title: OUTCOME_TITLE[data.result.outcome] }]);
+        playScanFeedback("danger");
+      },
+      [remember],
+    ),
+  );
 
   const submit = React.useCallback(
     async (text: string) => {
@@ -86,29 +112,19 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
         const response = await scanTicket(text);
 
         if (!response.ok) {
+          if (response.offline) {
+            enqueue(text.trim().toUpperCase());
+            setResult({ outcome: "offline", code: text.trim().toUpperCase() });
+            playScanFeedback("warning");
+            return;
+          }
           setError(response.message);
           playScanFeedback("danger");
-          pulse("danger");
           return;
         }
 
         setError(null);
-        setResult(response.data.result);
-        setCounts(response.data.counts);
-
-        const tone = OUTCOME_TONE[response.data.result.outcome];
-        playScanFeedback(tone);
-        pulse(tone);
-
-        if (response.data.result.outcome === "checked_in") {
-          const { attendee } = response.data.result;
-          setRecent((rows) =>
-            [attendee, ...rows.filter((row) => row.attendeeId !== attendee.attendeeId)].slice(
-              0,
-              RECENT_LIMIT,
-            ),
-          );
-        }
+        apply(response.data);
       } finally {
         // Restamped on the answer, not on the read, so the cooldown covers
         // the time the staff spends looking at the result.
@@ -117,25 +133,24 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
         setBusy(false);
       }
     },
-    [pulse],
+    [apply, enqueue],
   );
 
   const handleDecode = React.useCallback(
     (text: string) => {
       const last = lastCode.current;
       if (last && last.text === text && Date.now() - last.at < SAME_CODE_COOLDOWN_MS) return;
-
       lastCode.current = { text, at: Date.now() };
       void submit(text);
     },
     [submit],
   );
 
-  const { videoRef, status, insecure, retry, torchAvailable, torchOn, toggleTorch } =
-    useQrScanner({
-      onDecode: handleDecode,
-      paused: busy || manualOpen,
-    });
+  const { videoRef, status, insecure, retry, torchAvailable, torchOn, toggleTorch } = useQrScanner({
+    onDecode: handleDecode,
+    // The camera stays warm on the other tabs; it just stops reading.
+    paused: busy || tab !== "scan" || (result !== null && toneOf(result) !== "success"),
+  });
 
   React.useEffect(() => {
     window.addEventListener("pointerdown", armScanSound, { once: true });
@@ -150,19 +165,18 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
   }, []);
 
   React.useEffect(() => {
-    // Loads asynchronously, so nothing is set during the effect itself — but
-    // the door does need its counts on open rather than a refresh later.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async load, nothing set synchronously
     void refresh();
-    const timer = setInterval(() => void refresh(), REFRESH_MS);
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") void refresh();
+    }, REFRESH_MS);
     return () => clearInterval(timer);
   }, [refresh]);
 
-  // A green card that never leaves looks the same as a green card for the
-  // person still standing there, so success clears itself back to the
-  // viewfinder. Anything that needs a decision stays put.
+  // Green clears itself back to the viewfinder; anything that needs a
+  // decision stays until someone taps "next".
   React.useEffect(() => {
-    if (result?.outcome !== "checked_in") return;
+    if (!result || toneOf(result) !== "success") return;
     const timer = setTimeout(() => setResult(null), SUCCESS_CLEAR_MS);
     return () => clearTimeout(timer);
   }, [result]);
@@ -180,23 +194,29 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
     setCounts(response.data.counts);
     setRecent((rows) => rows.filter((row) => row.attendeeId !== attendee.attendeeId));
     setResult((current) =>
-      current && "attendee" in current && current.attendee.attendeeId === attendee.attendeeId
-        ? null
-        : current,
+      current && "attendee" in current && current.attendee.attendeeId === attendee.attendeeId ? null : current,
     );
-    // Let the same ticket be scanned again immediately rather than waiting
-    // out a cooldown for a check-in that no longer exists.
+    // Let the same ticket be scanned again straight away.
     lastCode.current = null;
     toast.success(`${attendee.fullName} — ирсэн бүртгэл цуцлагдлаа`);
   }
 
-  function handleManualSubmit() {
-    const code = parseTicketCode(manualCode);
-    if (!code) return;
+  async function handleManualCheckIn(hit: DoorSearchHit) {
+    setCheckingId(hit.attendeeId);
+    const response = await checkInAttendee(hit.attendeeId);
+    setCheckingId(null);
 
-    setManualOpen(false);
-    setManualCode("");
+    if (!response.ok) {
+      toast.error(response.message);
+      return;
+    }
+    apply(response.data);
+    setTab("scan");
+  }
+
+  function handleCode(code: string) {
     lastCode.current = { text: code, at: Date.now() };
+    setTab("scan");
     void submit(code);
   }
 
@@ -207,239 +227,209 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
 
   const remaining = Math.max(counts.expected - counts.checkedIn, 0);
   const progress = counts.expected > 0 ? (counts.checkedIn / counts.expected) * 100 : 0;
-  const manualValid = parseTicketCode(manualCode) !== null;
+  const tone = result ? toneOf(result) : null;
 
   return (
-    <main className="min-h-dvh bg-neutral-950 pb-10 text-white">
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-neutral-950/95 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center gap-2 px-4 py-3">
+    <main className="event-ui flex h-dvh flex-col bg-neutral-950 text-white">
+      <header className="shrink-0 border-b border-white/10 px-4 pt-3 pb-3">
+        <div className="mx-auto flex w-full max-w-lg items-center gap-1">
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-base font-black">Хаалганы бүртгэл</h1>
-            <p className="truncate text-[11px] text-white/50">
-              QR-г камерт харуулмагц бүртгэгдэнэ
+            <p className="text-2xl leading-none font-black tabular-nums">
+              {counts.checkedIn}
+              <span className="text-base font-semibold text-white/40"> / {counts.expected} ирсэн</span>
             </p>
+            <p className="mt-1 text-xs text-white/50">{remaining} хүн ирээгүй байна</p>
           </div>
 
-          {torchAvailable && (
-            <Button
+          {torchAvailable && tab === "scan" && (
+            <button
               type="button"
-              variant="ghost"
-              size="icon"
               onClick={() => void toggleTorch()}
               aria-pressed={torchOn}
               aria-label="Гэрэл"
-              title="Гэрэл"
               className={cn(
-                "text-white/70 hover:bg-white/10 hover:text-white",
-                torchOn && "bg-white/15 text-[#F98C01]",
+                "grid size-11 place-items-center rounded-full text-white/70 hover:bg-white/10",
+                torchOn && "bg-white/15 text-brand",
               )}
             >
-              <Flashlight className="size-4" />
-            </Button>
+              <Flashlight className="size-5" />
+            </button>
           )}
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => setManualOpen(true)}
-            aria-label="Кодыг гараар оруулах"
-            title="Кодыг гараар оруулах"
-            className="text-white/70 hover:bg-white/10 hover:text-white"
-          >
-            <Keyboard className="size-4" />
-          </Button>
-
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
+          <a
+            href="/admin/registration-monitor"
             aria-label="Бүртгэлийн хяналт"
-            title="Бүртгэлийн хяналт"
-            className="text-white/70 hover:bg-white/10 hover:text-white"
+            className="grid size-11 place-items-center rounded-full text-white/70 hover:bg-white/10"
           >
-            <a href="/admin/registration-monitor">
-              <Table2 className="size-4" />
-            </a>
-          </Button>
-
+            <Table2 className="size-5" />
+          </a>
           {!unprotected && (
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              size="icon"
               onClick={handleSignOut}
               aria-label="Гарах"
-              title="Гарах"
-              className="text-white/70 hover:bg-white/10 hover:text-white"
+              className="grid size-11 place-items-center rounded-full text-white/70 hover:bg-white/10"
             >
-              <LogOut className="size-4" />
-            </Button>
+              <LogOut className="size-5" />
+            </button>
           )}
         </div>
-
-        <div className="mx-auto w-full max-w-lg px-4 pb-3">
-          <div className="flex items-end justify-between gap-3">
-            <p className="text-2xl font-black tabular-nums">
-              {counts.checkedIn}
-              <span className="text-base font-bold text-white/40"> / {counts.expected}</span>
-            </p>
-            <p className="pb-1 text-xs text-white/50">{remaining} хүн хүлээгдэж байна</p>
-          </div>
-          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-[#F98C01] transition-[width] duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+        <div className="mx-auto mt-2.5 h-1.5 w-full max-w-lg overflow-hidden rounded-full bg-white/10">
+          <div className="h-full rounded-full bg-brand transition-[width] duration-500" style={{ width: `${progress}%` }} />
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-lg gap-4 px-4 pt-4">
-        <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-black">
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            autoPlay
+      {(pending.length > 0 || flagged.length > 0 || error) && (
+        <div className="mx-auto grid w-full max-w-lg shrink-0 gap-2 px-4 pt-3">
+          {pending.length > 0 && (
+            <button
+              type="button"
+              onClick={() => void flush()}
+              className="flex items-center gap-2 rounded-xl bg-amber-400/15 px-4 py-2.5 text-left text-sm text-amber-100"
+            >
+              <CloudOff className="size-4 shrink-0" />
+              Сүлжээгүй үед уншуулсан {pending.length} тасалбар хүлээгдэж байна. Дарж дахин оролдох.
+            </button>
+          )}
+          {flagged.map(({ scan, title }) => (
+            <div key={scan.code + scan.scannedAt} className="flex items-start gap-2 rounded-xl bg-red-500/20 px-4 py-2.5 text-sm text-red-100">
+              <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+              <span className="flex-1">
+                <span className="font-mono">{scan.code}</span> — {title}. Сүлжээгүй үед оруулсан хүнийг шалгана уу.
+              </span>
+              <button
+                type="button"
+                onClick={() => setFlagged((list) => list.filter((f) => f.scan !== scan))}
+                className="font-semibold underline"
+              >
+                Ойлголоо
+              </button>
+            </div>
+          ))}
+          {error && (
+            <div className="flex items-start gap-2 rounded-xl bg-red-500/20 px-4 py-2.5 text-sm text-red-100">
+              <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+              <span className="flex-1">{error}</span>
+              <button type="button" onClick={() => window.location.reload()} className="font-semibold underline">
+                Шинэчлэх
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col px-4 pt-3 pb-3">
+        <div className={cn("relative min-h-0 flex-1", tab !== "scan" && "hidden")}>
+          <div
             className={cn(
-              "size-full object-cover transition-opacity",
-              status === "live" ? "opacity-100" : "opacity-0",
+              "absolute inset-0 overflow-hidden rounded-3xl bg-black ring-4 ring-transparent transition-shadow",
+              tone && FLASH[tone],
             )}
-          />
-
-          {status === "live" && (
-            <>
-              <div className="pointer-events-none absolute inset-[15%] rounded-2xl border-2 border-white/40" />
-              <p className="pointer-events-none absolute inset-x-0 bottom-3 text-center text-xs font-medium text-white/70">
-                {busy ? "Шалгаж байна..." : "QR-г хүрээн дотор барина уу"}
-              </p>
-            </>
-          )}
-
-          {flash && (
-            <div
-              className={cn(
-                "pointer-events-none absolute inset-0 animate-pulse",
-                FLASH_CLASS[flash],
-              )}
+          >
+            <video
+              ref={videoRef}
+              playsInline
+              muted
+              autoPlay
+              className={cn("size-full object-cover transition-opacity", status === "live" ? "opacity-100" : "opacity-0")}
             />
-          )}
 
-          {status !== "live" && (
-            <div className="absolute inset-0 grid content-center justify-items-center gap-3 px-6 text-center">
-              {status === "starting" ? (
-                <>
-                  <ScanLine className="size-8 animate-pulse text-white/50" />
-                  <p className="text-sm text-white/60">Камер асааж байна...</p>
-                </>
-              ) : (
-                <>
-                  <Camera className="size-8 text-white/40" />
-                  <p className="text-sm font-semibold text-white">
-                    {status === "denied"
-                      ? "Камер ашиглах зөвшөөрөл өгөөгүй байна"
-                      : "Камер нээгдсэнгүй"}
-                  </p>
-                  <p className="text-xs leading-relaxed text-white/50">
-                    {insecure
-                      ? "Хаяг https:// байх шаардлагатай. Хаягаа шалгаад дахин оролдоно уу."
-                      : status === "denied"
-                        ? "Хөтчийн тохиргооноос энэ сайтад камерын зөвшөөрөл өгөөд дахин оролдоно уу."
-                        : "Өөр програм камерыг ашиглаж байгаа эсэхийг шалгана уу."}
-                  </p>
-                  <div className="mt-1 flex flex-wrap justify-center gap-2">
-                    <Button type="button" size="sm" onClick={retry}>
-                      Дахин оролдох
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setManualOpen(true)}
-                      className="border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
-                    >
-                      Кодыг гараар оруулах
-                    </Button>
-                  </div>
-                </>
-              )}
+            {status === "live" && !result && (
+              <>
+                <div className="pointer-events-none absolute top-1/2 left-1/2 aspect-square w-[62%] -translate-x-1/2 -translate-y-1/2 rounded-3xl border-[3px] border-white/70" />
+                <p className="pointer-events-none absolute inset-x-0 bottom-4 text-center text-sm font-medium text-white/80">
+                  {busy ? "Шалгаж байна…" : "QR-г хүрээн дотор барина уу"}
+                </p>
+              </>
+            )}
+
+            {status !== "live" && (
+              <div className="absolute inset-0 grid content-center justify-items-center gap-3 px-6 text-center">
+                {status === "starting" ? (
+                  <>
+                    <ScanLine className="size-8 animate-pulse text-white/50" />
+                    <p className="text-sm text-white/60">Камер асааж байна…</p>
+                  </>
+                ) : (
+                  <>
+                    <Camera className="size-8 text-white/40" />
+                    <p className="font-semibold">
+                      {status === "denied" ? "Камерын зөвшөөрөл өгөөгүй байна" : "Камер нээгдсэнгүй"}
+                    </p>
+                    <p className="text-sm leading-relaxed text-white/60">
+                      {insecure
+                        ? "Хаяг https:// байх шаардлагатай."
+                        : status === "denied"
+                          ? "Хөтчийн тохиргооноос энэ сайтад камерын зөвшөөрөл өгөөд дахин оролдоно уу."
+                          : "Өөр програм камерыг ашиглаж байгаа эсэхийг шалгана уу."}
+                    </p>
+                    <div className="mt-1 flex flex-wrap justify-center gap-2">
+                      <button type="button" onClick={retry} className="h-11 rounded-full bg-white px-5 text-sm font-semibold text-neutral-950">
+                        Дахин оролдох
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTab("search")}
+                        className="h-11 rounded-full border border-white/25 px-5 text-sm font-semibold"
+                      >
+                        Нэр, кодоор хайх
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          {result && (
+            <div className="absolute inset-x-0 bottom-0 p-2">
+              <ScanOutcomeCard
+                result={result}
+                undoing={"attendee" in result && undoingId === result.attendee.attendeeId}
+                onUndo={"attendee" in result ? () => void handleUndo(result.attendee) : undefined}
+                onDismiss={() => setResult(null)}
+              />
             </div>
           )}
         </div>
 
-        {error && (
-          <div className="flex items-start gap-2 rounded-xl border border-red-400/40 bg-red-500/15 p-3">
-            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-red-300" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm text-red-100">{error}</p>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => window.location.reload()}
-                className="mt-2 border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
-              >
-                Хуудсыг шинэчлэх
-              </Button>
-            </div>
+        {tab === "search" && (
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <DoorSearch onCheckIn={handleManualCheckIn} onCode={handleCode} busyId={checkingId} />
           </div>
         )}
 
-        {result ? (
-          <ScanOutcomeCard
-            result={result}
-            undoing={"attendee" in result && undoingId === result.attendee.attendeeId}
-            onUndo={
-              "attendee" in result ? () => void handleUndo(result.attendee) : undefined
-            }
-          />
-        ) : (
-          <p className="rounded-2xl border border-dashed border-white/15 py-6 text-center text-sm text-white/40">
-            Дараагийн хүний QR-г уншуулна уу.
-          </p>
+        {tab === "recent" && (
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <RecentCheckIns rows={recent} onUndo={handleUndo} undoingId={undoingId} />
+          </div>
         )}
-
-        <section className="grid gap-2">
-          <h2 className="flex items-center gap-1.5 text-xs font-semibold tracking-wider text-white/40 uppercase">
-            <ListChecks className="size-3.5" />
-            Сүүлд орсон
-          </h2>
-          <RecentCheckIns rows={recent} onUndo={handleUndo} undoingId={undoingId} />
-        </section>
       </div>
 
-      <Dialog open={manualOpen} onOpenChange={setManualOpen}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Кодыг гараар оруулах</DialogTitle>
-            <DialogDescription>
-              Тасалбар дээрх кодыг бичнэ үү. Зураас, том жижиг үсэг хамаагүй.
-            </DialogDescription>
-          </DialogHeader>
-
-          <Input
-            value={manualCode}
-            onChange={(event) => setManualCode(event.target.value.toUpperCase())}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && manualValid) handleManualSubmit();
-            }}
-            placeholder="FP-XXXX-XXXX"
-            aria-label="Тасалбарын код"
-            autoFocus
-            autoCapitalize="characters"
-            autoCorrect="off"
-            spellCheck={false}
-            className="h-12 text-center font-mono text-lg tracking-widest"
-          />
-
-          <DialogFooter>
-            <Button type="button" onClick={handleManualSubmit} disabled={!manualValid}>
-              Бүртгэх
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <nav className="shrink-0 border-t border-white/10 pb-[env(safe-area-inset-bottom)]" aria-label="Хэсгүүд">
+        <div className="mx-auto grid w-full max-w-lg grid-cols-3">
+          {(
+            [
+              { id: "scan", label: "Уншуулах", Icon: ScanLine },
+              { id: "search", label: "Хайх", Icon: Search },
+              { id: "recent", label: "Сүүлд орсон", Icon: ListChecks },
+            ] as const
+          ).map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              aria-current={tab === id ? "page" : undefined}
+              className={cn(
+                "flex h-16 flex-col items-center justify-center gap-1 text-xs font-semibold transition-colors",
+                tab === id ? "text-white" : "text-white/45 hover:text-white/70",
+              )}
+            >
+              <Icon className="size-5" />
+              {label}
+            </button>
+          ))}
+        </div>
+      </nav>
     </main>
   );
 }

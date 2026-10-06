@@ -28,7 +28,7 @@ export default async function TicketPage({ params }: { params: Promise<{ code: s
   if (!ticket) notFound();
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4 py-10">
+    <main className="event-ui flex min-h-dvh items-center justify-center bg-mist px-4 py-10">
       <div className="grid w-full max-w-sm gap-4 md:max-w-2xl">
         <div className="grid justify-items-center gap-1 text-center">
           <p className="text-xs font-semibold text-[#F98C01]">2026.10.10 · FINGER PRINT</p>

@@ -9,17 +9,22 @@ import {
   verifyWebhookSignature,
   type BylWebhookEvent,
 } from "@/lib/byl";
-import { d1Query } from "@/lib/d1";
+import { d1Batch, d1Run, type D1Statement } from "@/lib/db/d1";
+import { logServerError } from "@/lib/errors";
+import { invalidateSeats } from "@/lib/registration/availability";
 import { issueTickets } from "@/lib/registration/issueTickets";
 
 export const runtime = "nodejs";
 
-/**
- * Byl expects a 2xx within 5 seconds, and retries with exponential backoff
- * on anything else — so every branch below either finishes fast or
- * deliberately swallows a non-critical failure rather than letting it turn
- * into a retry loop.
- */
+async function recordAnd(audit: D1Statement, change: D1Statement): Promise<void> {
+  try {
+    await d1Batch([audit, change]);
+  } catch (error) {
+    logServerError("byl.webhook", error, { step: "audit_with_change" });
+    await d1Run(change.sql, change.params);
+  }
+}
+
 export async function POST(request: Request) {
   const rawBody = await request.text();
   const signatureHeader = readSignatureHeader(request.headers);
@@ -33,29 +38,30 @@ export async function POST(request: Request) {
   }
 
   const registrationId = event?.data?.object?.client_reference_id ?? null;
+  const now = new Date().toISOString();
 
-  // Best-effort audit log — a logging failure must never block signature
-  // validation or the status update below.
-  try {
-    await d1Query(
-      `INSERT INTO payment_events (id, registration_id, event_type, status, signature_valid, received_signature, raw_payload, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        uuid(),
-        registrationId,
-        event?.type ?? "UNKNOWN",
-        event?.data?.object?.status ?? null,
-        signatureValid ? 1 : 0,
-        signatureHeader,
-        rawBody,
-        new Date().toISOString(),
-      ],
+  const audit: D1Statement = {
+    sql: `INSERT INTO payment_events (id, registration_id, event_type, status, signature_valid, received_signature, raw_payload, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    params: [
+      uuid(),
+      registrationId,
+      event?.type ?? "UNKNOWN",
+      event?.data?.object?.status ?? null,
+      signatureValid ? 1 : 0,
+      signatureHeader,
+      rawBody,
+      now,
+    ],
+  };
+
+  const auditOnly = () =>
+    d1Run(audit.sql, audit.params).catch((error) =>
+      logServerError("byl.webhook", error, { step: "audit" }),
     );
-  } catch (error) {
-    console.error("Failed to log Byl webhook event", error);
-  }
 
   if (!signatureValid) {
+    await auditOnly();
     // Presence and length only. That's still enough to tell a missing
     // header from a wrong secret or an unparsed signature format, without
     // writing a value derived from our webhook secret — or the request's
@@ -69,10 +75,9 @@ export async function POST(request: Request) {
   }
 
   if (!event || !registrationId) {
+    await auditOnly();
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
-
-  const now = new Date().toISOString();
 
   // Byl reports a claimed-but-unconfirmed bank transfer separately from an
   // actual payment. The registration stays 'pending' until a merchant
@@ -80,13 +85,13 @@ export async function POST(request: Request) {
   // the admin monitor surfaces so nobody's transfer sits unnoticed.
   if (event.type === "payment.awaiting_verification") {
     try {
-      await d1Query(
-        `UPDATE registrations SET awaiting_verification_at = ?, updated_at = ?
-         WHERE id = ? AND status = 'pending'`,
-        [now, now, registrationId],
-      );
+      await recordAnd(audit, {
+        sql: `UPDATE registrations SET awaiting_verification_at = ?, updated_at = ?
+              WHERE id = ? AND status = 'pending'`,
+        params: [now, now, registrationId],
+      });
     } catch (error) {
-      console.error("Failed to flag registration awaiting verification", error);
+      logServerError("byl.webhook", error, { step: "flag_awaiting", registrationId });
       return NextResponse.json({ error: "update_failed" }, { status: 500 });
     }
 
@@ -95,15 +100,14 @@ export async function POST(request: Request) {
         totalMnt: parseBylAmount(event.data.object.amount_total),
       }),
     );
-
     return NextResponse.json({ ok: true });
   }
 
   // A checkout and an invoice are two ways to be paid for the same
   // registration, so both settle it the same way.
   if (event.type !== "checkout.completed" && event.type !== "invoice.paid") {
-    // Not a payment outcome we act on (subscription/stock/etc.) —
-    // acknowledge so Byl doesn't retry it indefinitely.
+    // Not a payment outcome we act on — acknowledge so Byl doesn't retry it.
+    await auditOnly();
     return NextResponse.json({ ok: true, ignored: true });
   }
 
@@ -115,36 +119,37 @@ export async function POST(request: Request) {
       : null;
 
   try {
-    await d1Query(
-      `UPDATE registrations
-       SET status = 'paid',
-           byl_checkout_id = COALESCE(?, byl_checkout_id),
-           paid_at = COALESCE(paid_at, ?),
-           awaiting_verification_at = NULL,
-           updated_at = ?
-       WHERE id = ?`,
-      [checkoutId, now, now, registrationId],
-    );
+    await recordAnd(audit, {
+      sql: `UPDATE registrations
+               SET status = 'paid',
+                   byl_checkout_id = COALESCE(?, byl_checkout_id),
+                   paid_at = COALESCE(paid_at, ?),
+                   awaiting_verification_at = NULL,
+                   updated_at = ?
+             WHERE id = ?`,
+      params: [checkoutId, now, now, registrationId],
+    });
   } catch (error) {
-    console.error("Failed to mark registration paid from Byl webhook", error);
+    logServerError("byl.webhook", error, { step: "mark_paid", registrationId });
     return NextResponse.json({ error: "update_failed" }, { status: 500 });
   }
 
-  // The amount comes off the webhook payload rather than a fresh SELECT —
-  // Byl expects a 2xx within 5 seconds, and the admin monitor is already the
-  // authoritative place for revenue, read straight from D1.
+  invalidateSeats();
+
+  // The amount comes off the payload rather than a fresh SELECT — Byl wants
+  // its answer within 5 seconds.
   waitUntil(
     trackServerEvent("registration_paid", {
       totalMnt: parseBylAmount(event.data.object.amount_total),
     }),
   );
 
-  // Best-effort — the payment itself is already recorded above, so a
-  // ticket-issuing failure here must not turn into a Byl retry loop.
+  // Best-effort — the payment itself is recorded above, and the ticket page
+  // retries issuing on its next load.
   try {
     await issueTickets(registrationId);
   } catch (error) {
-    console.error("Failed to issue tickets / send ticket email", error);
+    logServerError("byl.webhook", error, { step: "issue_tickets", registrationId });
   }
 
   return NextResponse.json({ ok: true });

@@ -13,20 +13,6 @@ import { TARGET_ISO, getTimeLeft, pad2, type TimeLeft } from "./utils";
 
 const CONTAINER = "mx-auto w-full md:w-[min(calc(100%-2rem),80vw,1200px)]";
 
-function useIsMdUp() {
-  const [mdUp, setMdUp] = React.useState(false);
-
-  React.useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const onChange = () => setMdUp(mq.matches);
-    onChange();
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
-  return mdUp;
-}
-
 export default function CountDown() {
   const { t } = useTranslation();
   // Starts at all-zeros so server and client render identically before
@@ -126,7 +112,7 @@ export default function CountDown() {
               <Button className="h-11 rounded-full px-8 text-black" asChild>
                 <Link href="/event/registration">{t("register.button")}</Link>
               </Button>
-              <InviteFriendLink className="size-11 bg-white/10 ring-1 ring-white/20 hover:bg-white/20" />
+              <InviteFriendLink className="size-11 bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20" />
             </div>
           </div>
         </div>

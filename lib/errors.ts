@@ -13,6 +13,11 @@ export type AppErrorCode =
   | "service_unavailable"
   | "payment_error"
   | "network_error"
+  | "rate_limited"
+  | "registration_closed"
+  | "registration_paused"
+  | "sold_out"
+  | "queue_required"
   | "unknown";
 
 export type UserMessage = { title: string; hint?: string };
@@ -50,6 +55,26 @@ const MESSAGES: Record<AppErrorCode, UserMessage> = {
     title: "Интернэт холболт тасарлаа",
     hint: "Холболтоо шалгаад дахин оролдоно уу.",
   },
+  rate_limited: {
+    title: "Хэт олон удаа оролдлоо",
+    hint: "Түр хүлээгээд дахин оролдоно уу.",
+  },
+  registration_closed: {
+    title: "Бүртгэл хаагдсан байна",
+    hint: "Энэ жилийн бүртгэл дууссан. Асуух зүйл байвал зохион байгуулагчтай холбогдоно уу.",
+  },
+  registration_paused: {
+    title: "Бүртгэл түр зогссон байна",
+    hint: "Удахгүй дахин нээгдэнэ. Мэдээлэл тань энэ төхөөрөмжид хадгалагдсан.",
+  },
+  sold_out: {
+    title: "Суудал дүүрсэн байна",
+    hint: "Үлдсэн суудлаас олон хүн бүртгэх гэж байна. Хүний тоогоо цөөлөөд дахин оролдоно уу.",
+  },
+  queue_required: {
+    title: "Дараалалд дахин орно уу",
+    hint: "Таны ээлжийн хугацаа дууссан байна. Дахин дарахад шинэ ээлж авна.",
+  },
   unknown: {
     title: "Алдаа гарлаа",
     hint: "Дахин оролдоно уу.",
@@ -70,6 +95,7 @@ export function userMessageText(code: string | null | undefined): string {
 export function codeFromStatus(status: number): AppErrorCode {
   if (status === 404) return "not_found";
   if (status === 409) return "phone_taken";
+  if (status === 429) return "rate_limited";
   if (status === 503) return "service_unavailable";
   if (status === 502) return "payment_error";
   if (status === 400 || status === 422) return "invalid_input";

@@ -42,13 +42,14 @@ export const ChurchCombobox = React.forwardRef<
     onSelected?: () => void;
     onCreate?: (name: string) => void;
     churches: string[];
+    className?: string;
     // Handed down by FormControl so the label, error text and red border
     // reach the trigger.
     id?: string;
     "aria-invalid"?: React.AriaAttributes["aria-invalid"];
     "aria-describedby"?: string;
   }
->(({ value, onChange, onSelected, onCreate, churches, ...aria }, ref) => {
+>(({ value, onChange, onSelected, onCreate, churches, className, ...aria }, ref) => {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [pendingCreate, setPendingCreate] = React.useState<string | null>(null);
@@ -122,10 +123,10 @@ export const ChurchCombobox = React.forwardRef<
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between font-normal"
+            className={cn("w-full justify-between font-normal", className)}
           >
             <span className={cn("truncate", !value && "text-muted-foreground")}>
-              {value || "Цуглааныхаа нэр хайх эсвэл сонгох"}
+              {value || "Цуглааны нэрээр хайх"}
             </span>
             <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
           </Button>
@@ -189,7 +190,7 @@ export const ChurchCombobox = React.forwardRef<
                     value={`create-${trimmed}`}
                     onSelect={handleCreateRequest}
                   >
-                    <span className="text-[#F98C01]">
+                    <span className="font-semibold text-brand-ink">
                       + &quot;{trimmed}&quot; нэмэх
                     </span>
                   </CommandItem>
