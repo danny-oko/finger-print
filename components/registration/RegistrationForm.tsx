@@ -17,7 +17,7 @@ import { v4 as uuid } from "uuid";
 import { AttendeeRow, onlyDigits } from "@/components/registration/AttendeeRow";
 import { AvailabilityNotice } from "@/components/registration/AvailabilityNotice";
 import { ChurchCombobox } from "@/components/registration/ChurchCombobox";
-import { advanceOnFullPhone } from "@/components/registration/focusNextField";
+import { advanceOnFullPhone, focusNextField } from "@/components/registration/focusNextField";
 import { FIELD_CLASS, FormStep, LABEL_CLASS } from "@/components/registration/FormStep";
 import { ModeChoice } from "@/components/registration/ModeChoice";
 import { PriceBar } from "@/components/registration/PriceBar";
@@ -398,7 +398,19 @@ export function RegistrationForm() {
                     <FormItem>
                       <FormLabel className={LABEL_CLASS}>Таны нэр</FormLabel>
                       <FormControl>
-                        <Input {...field} className={FIELD_CLASS} placeholder="Овог, нэр" autoComplete="name" />
+                        <Input
+                          {...field}
+                          className={FIELD_CLASS}
+                          placeholder="Овог, нэр"
+                          autoComplete="name"
+                          enterKeyHint="next"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              focusNextField(e.currentTarget);
+                            }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
