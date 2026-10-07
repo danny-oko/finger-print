@@ -16,6 +16,7 @@ import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
 
+import { TransferDetails } from "@/components/registration/TransferDetails";
 import { EventTicket } from "@/components/ticket/EventTicket";
 import { Button } from "@/components/ui/button";
 import { clearRegistrationDraft } from "@/hooks/use-registration-draft";
@@ -30,6 +31,12 @@ import { cn } from "@/lib/utils";
 const POLL_DELAYS_MS = [2000, 3000, 3000, 4000, 5000, 5000, 8000, 8000, 10000, 15000];
 const SLOW_AFTER_POLLS = 12;
 const MAX_POLLS = 40;
+
+// A transfer waits on a person checking the bank, which takes minutes to
+// hours, so the page only looks in once a minute — and again whenever it's
+// brought back to the front.
+const AWAITING_POLL_MS = 60_000;
+const AWAITING_MAX_POLLS = 60;
 
 function pollDelay(count: number): number {
   return POLL_DELAYS_MS[Math.min(count, POLL_DELAYS_MS.length - 1)];
@@ -216,12 +223,42 @@ function Receipt({ detail }: { detail: Detail }) {
 
 /** Everything that isn't a paid ticket: waiting, verifying, or failed. */
 function StatusPanel({ detail }: { detail: Detail }) {
-  const panel = (() => {
+  const panel: {
+    icon: React.ReactNode;
+    title: string;
+    body: string;
+    action?: React.ReactNode;
+    details?: React.ReactNode;
+  } = (() => {
     if (detail.status === "pending" && detail.awaitingVerification) {
       return {
         icon: <Landmark className="size-12 text-sky-600" />,
         title: "Шилжүүлгийг шалгаж байна",
-        body: "Таны банкны шилжүүлгийг хүлээн авлаа. Зохион байгуулагч баталгаажуулмагц тасалбар энэ хуудсанд гарч ирнэ — холбоосоо хадгална уу.",
+        body: "Хүсэлт тань ирлээ. Ажилтан дансаа шалгаж баталгаажуулмагц тасалбар энэ хуудсанд гарна. Дараа нь утасны дугаараараа «Бүртгэлээ шалгах» хэсгээс ч харж болно.",
+        // Byl's own bank transfers went to Byl, not to this account.
+        details: detail.paymentUrl ? null : (
+          <details className="mt-3 w-full max-w-xs text-left">
+            <summary className="cursor-pointer list-none text-center text-[13px] font-medium text-neutral-500 underline underline-offset-4 marker:hidden hover:text-neutral-900">
+              Шилжүүлээгүй бол дансны мэдээлэл
+            </summary>
+            <div className="mt-2">
+              <TransferDetails totalMnt={detail.totalMnt} onWhite={false} />
+            </div>
+          </details>
+        ),
+      };
+    }
+
+    if (detail.status === "cancelled" && detail.awaitingVerification) {
+      return {
+        icon: <XCircle className="size-12 text-destructive" />,
+        title: "Шилжүүлэг баталгаажсангүй",
+        body: "Таны шилжүүлэг дансанд орсон нь олдоогүй тул хүсэлтийг цуцаллаа. Шилжүүлсэн бол зохион байгуулагчтай холбогдоно уу.",
+        action: (
+          <Button asChild className="mt-2 h-11">
+            <Link href="/event/registration">Дахин бүртгүүлэх</Link>
+          </Button>
+        ),
       };
     }
 
@@ -271,6 +308,7 @@ function StatusPanel({ detail }: { detail: Detail }) {
         {panel.body}
       </p>
       {panel.action}
+      {panel.details}
 
       <ul className="mt-5 grid max-h-40 w-full max-w-xs gap-1.5 overflow-y-auto text-left">
         {detail.attendees.map((attendee) => (
@@ -309,13 +347,21 @@ export function RegistrationDetail({ initial }: { initial: Detail }) {
   // registrant reload the page by hand.
   const [visible, setVisible] = React.useState(true);
   React.useEffect(() => {
-    const onChange = () => setVisible(document.visibilityState === "visible");
+    const onChange = () => {
+      const nowVisible = document.visibilityState === "visible";
+      setVisible(nowVisible);
+      // Coming back from the bank app is exactly when to look again.
+      if (nowVisible) setPolls(0);
+    };
     document.addEventListener("visibilitychange", onChange);
     return () => document.removeEventListener("visibilitychange", onChange);
   }, []);
 
+  const awaiting = detail.status === "pending" && detail.awaitingVerification;
+
   React.useEffect(() => {
-    if (detail.status !== "pending" || !visible || polls >= MAX_POLLS) return;
+    const maxPolls = awaiting ? AWAITING_MAX_POLLS : MAX_POLLS;
+    if (detail.status !== "pending" || !visible || polls >= maxPolls) return;
 
     let cancelled = false;
 
@@ -333,13 +379,13 @@ export function RegistrationDetail({ initial }: { initial: Detail }) {
       } catch {
         // A failed poll is not worth surfacing — the next tick retries.
       }
-    }, pollDelay(polls));
+    }, awaiting ? (polls === 0 ? 2000 : AWAITING_POLL_MS) : pollDelay(polls));
 
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [detail, visible, polls]);
+  }, [detail, visible, polls, awaiting]);
 
   const paid = detail.status === "paid";
   const stillWaiting =

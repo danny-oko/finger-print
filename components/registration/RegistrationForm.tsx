@@ -40,6 +40,7 @@ import {
   PHONE_TAKEN_MESSAGE,
   registrationFormSchema,
   toCreateRegistrationInput,
+  type PaymentMethod,
   type RegistrationFormOutput,
   type RegistrationFormValues,
   type RegistrationMode,
@@ -219,7 +220,11 @@ export function RegistrationForm() {
     setReview(null);
   }
 
-  async function post(values: RegistrationFormOutput, pass: string | null): Promise<Response> {
+  async function post(
+    values: RegistrationFormOutput,
+    method: PaymentMethod,
+    pass: string | null,
+  ): Promise<Response> {
     return fetch("/api/registration", {
       method: "POST",
       headers: {
@@ -227,26 +232,26 @@ export function RegistrationForm() {
         ...(pass ? { "X-Queue-Pass": pass } : {}),
       },
       body: JSON.stringify(
-        toCreateRegistrationInput(values, "checkout", idempotencyKey.current ?? undefined),
+        toCreateRegistrationInput(values, method, idempotencyKey.current ?? undefined),
       ),
     });
   }
 
-  async function confirmAndPay() {
+  async function confirmAndPay(method: PaymentMethod) {
     if (!review) return;
     const values = review;
 
     trackEvent("registration_submitted", {
       attendees: values.attendees.length,
       registrantType: values.mode === "group" ? "church_leader" : "individual",
-      paymentMethod: "checkout",
+      paymentMethod: method,
     });
 
     let res: Response;
     try {
       let pass = await queue.acquire();
       setSaving(true);
-      res = await post(values, pass);
+      res = await post(values, method, pass);
 
       // The pass ran out while they waited on the dialog — one fresh turn.
       if (res.status === 428) {
@@ -254,7 +259,7 @@ export function RegistrationForm() {
         setSaving(false);
         pass = await queue.acquire();
         setSaving(true);
-        res = await post(values, pass);
+        res = await post(values, method, pass);
       }
     } catch (error) {
       setSaving(false);
@@ -270,7 +275,8 @@ export function RegistrationForm() {
       const data = (await res.json().catch(() => null)) as { paymentUrl?: string } | null;
       if (data?.paymentUrl) {
         // The draft survives the handoff on purpose: an abandoned payment
-        // brings people back here. The ticket page clears it once paid.
+        // brings people back here. The ticket page clears it once paid. A
+        // transfer lands on the registration page, which says it's being checked.
         window.location.href = data.paymentUrl;
         return;
       }
@@ -304,6 +310,23 @@ export function RegistrationForm() {
         setReview(null);
         void reloadBootstrap();
         toast.error(title, { description: hint, duration: 10000 });
+        return;
+      case "transfer_pending":
+        // This person already sent a transfer that staff haven't checked.
+        // A second registration would ask them to pay twice.
+        setReview(null);
+        toast(title, {
+          description: hint,
+          duration: 12000,
+          action: body.registrationId
+            ? {
+                label: "Бүртгэлээ харах",
+                onClick: () => {
+                  window.location.href = `/event/registration/${body.registrationId}`;
+                },
+              }
+            : undefined,
+        });
         return;
       case "payment_error":
         // The registration did save. Pointing at it is better than "try

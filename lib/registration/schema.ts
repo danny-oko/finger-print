@@ -53,10 +53,11 @@ function checkDuplicatePhones(
   });
 }
 
-// Two ways to be paid for the same registration: Byl's hosted checkout
-// (card / QPay, with a redirect back to the ticket page) or a Byl invoice,
-// which carries a description we choose onto the payer's bank statement.
-export const PAYMENT_METHODS = ["checkout", "invoice"] as const;
+// Byl's hosted checkout (card / QPay, with a redirect back to the ticket
+// page), a Byl invoice, which carries a description we choose onto the
+// payer's bank statement, or a plain transfer to our account that staff
+// confirm by hand.
+export const PAYMENT_METHODS = ["checkout", "invoice", "transfer"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 // One per submission attempt, minted by the form. Lets the server recognise

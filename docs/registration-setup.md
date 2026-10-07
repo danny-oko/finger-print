@@ -68,6 +68,10 @@ The app subscribes to two events:
 | `checkout.completed` | Registration → `paid`, QR tickets issued |
 | `payment.awaiting_verification` | Stays `pending`, flagged in the admin monitor as a bank transfer a human still needs to confirm |
 
+Bank transfers straight to the conference's own account don't go through
+Byl at all: the account number lives in `lib/registration/transfer.ts`, and
+staff confirm each one by hand from the admin monitor.
+
 Byl expects a `2xx` within 5 seconds and retries with exponential backoff
 otherwise, so the webhook route logs and acknowledges rather than letting a
 slow write turn into a retry loop.

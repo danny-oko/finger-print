@@ -536,7 +536,13 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
 
         <HelpStrip />
 
-        <MonitorStats stats={stats} />
+        <MonitorStats
+          stats={stats}
+          onShowAwaiting={() => {
+            setView("registrations");
+            setFilters({ ...EMPTY_FILTERS, state: "awaiting" });
+          }}
+        />
 
         <RegistrationControls refreshKey={generatedAt} />
 

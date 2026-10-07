@@ -11,7 +11,7 @@ import {
 } from "@/lib/registration/availability";
 import { formatGrade, toGradeColumns } from "@/lib/registration/grade";
 import { invoiceDescription, paymentReference } from "@/lib/registration/invoice";
-import { findTakenPhones } from "@/lib/registration/phones";
+import { findAwaitingRegistration, findTakenPhones } from "@/lib/registration/phones";
 import { computePricing, type PricingBreakdown } from "@/lib/registration/pricing";
 import type {
   CreateInvitedRegistrationInput,
@@ -29,7 +29,8 @@ import { generateTicketCode } from "@/lib/registration/ticketCode";
 export type Rejection =
   | { error: "phone_taken"; phones: string[] }
   | { error: "registration_closed" | "registration_paused" }
-  | { error: "sold_out"; seatsLeft: number };
+  | { error: "sold_out"; seatsLeft: number }
+  | { error: "transfer_pending"; registrationId: string };
 
 export type CreateResult =
   | { ok: true; registrationId: string; paymentUrl: string }
@@ -46,6 +47,7 @@ type RegistrationRow = {
   source: "public" | "invite";
   idempotencyKey: string | null;
   expiresAt: string | null;
+  awaitingVerificationAt: string | null;
   now: string;
 };
 
@@ -53,10 +55,14 @@ function guardedRegistrationInsert(
   row: RegistrationRow,
   rules: { phones: string[]; capacity: number | null },
 ): D1Statement {
+  // A transfer still waiting on staff counts as taken too: that person has
+  // most likely already sent the money.
   const phoneRule = rules.phones.length
     ? `AND NOT EXISTS (
          SELECT 1 FROM attendees a JOIN registrations r ON r.id = a.registration_id
-          WHERE r.status = 'paid' AND a.phone IN (${placeholders(rules.phones.length)}))`
+          WHERE (r.status = 'paid'
+                 OR (r.status = 'pending' AND r.awaiting_verification_at IS NOT NULL))
+            AND a.phone IN (${placeholders(rules.phones.length)}))`
     : "";
 
   const { pricing } = row;
@@ -66,9 +72,9 @@ function guardedRegistrationInsert(
             id, registrant_type, payer_name, payer_phone, attendee_count,
             price_per_attendee_mnt, tax_rate_percent, subtotal_mnt, tax_mnt, total_mnt,
             currency, status, source, byl_client_reference_id, idempotency_key, expires_at,
-            paid_at, created_at, updated_at
+            awaiting_verification_at, paid_at, created_at, updated_at
           )
-          SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
            WHERE (? IS NULL OR (${LIVE_SEATS_SQL}) + ? <= ?)
            ${phoneRule}
           ON CONFLICT DO NOTHING`,
@@ -89,6 +95,7 @@ function guardedRegistrationInsert(
       row.id,
       row.idempotencyKey,
       row.expiresAt,
+      row.awaitingVerificationAt,
       row.status === "paid" ? row.now : null,
       row.now,
       row.now,
@@ -145,6 +152,9 @@ async function explainRejection(phones: string[], seatsWanted: number): Promise<
   const taken = await findTakenPhones(phones);
   if (taken.length > 0) return { error: "phone_taken", phones: taken };
 
+  const awaiting = await findAwaitingRegistration(phones);
+  if (awaiting) return { error: "transfer_pending", registrationId: awaiting };
+
   invalidateSeats();
   const availability = await getAvailability();
   if (availability.seatsLeft !== null && availability.seatsLeft < seatsWanted) {
@@ -154,17 +164,44 @@ async function explainRejection(phones: string[], seatsWanted: number): Promise<
   return null;
 }
 
-type ExistingRow = { id: string; status: string; byl_checkout_url: string | null };
+type ExistingRow = {
+  id: string;
+  status: string;
+  byl_checkout_url: string | null;
+  awaiting_verification_at: string | null;
+};
 
 function findByIdempotencyKey(key: string) {
   return d1QueryOne<ExistingRow>(
-    "SELECT id, status, byl_checkout_url FROM registrations WHERE idempotency_key = ?",
+    `SELECT id, status, byl_checkout_url, awaiting_verification_at
+       FROM registrations WHERE idempotency_key = ?`,
     [key],
   );
 }
 
 function siteUrl(origin: string): string {
   return (process.env.NEXT_PUBLIC_SITE_URL ?? origin).replace(/\/+$/, "");
+}
+
+function registrationPage(registrationId: string, origin: string): CreateResult {
+  return {
+    ok: true,
+    registrationId,
+    paymentUrl: `${siteUrl(origin)}/event/registration/${registrationId}`,
+  };
+}
+
+// Someone who started paying online and switched to a transfer in the same
+// review. The seats stay held until staff look at it, like any transfer.
+async function switchToTransfer(registrationId: string) {
+  const now = new Date().toISOString();
+  await d1Run(
+    `UPDATE registrations
+        SET awaiting_verification_at = COALESCE(awaiting_verification_at, ?),
+            expires_at = NULL, updated_at = ?
+      WHERE id = ? AND status = 'pending'`,
+    [now, now, registrationId],
+  );
 }
 
 async function startPayment(
@@ -265,18 +302,22 @@ async function resume(
   pricing: PricingBreakdown,
   origin: string,
 ): Promise<CreateResult> {
-  if (existing.status === "pending" && existing.byl_checkout_url) {
+  // Already paid, failed, or a transfer staff are checking: the
+  // registration page explains each, and none of them should start a payment.
+  if (existing.status !== "pending" || existing.awaiting_verification_at) {
+    return registrationPage(existing.id, origin);
+  }
+
+  if (input.paymentMethod === "transfer") {
+    await switchToTransfer(existing.id);
+    return registrationPage(existing.id, origin);
+  }
+
+  if (existing.byl_checkout_url) {
     return { ok: true, registrationId: existing.id, paymentUrl: existing.byl_checkout_url };
   }
 
-  if (existing.status === "pending") return paymentFor(existing.id, input, pricing, origin);
-
-  // Already paid (or failed): the registration page explains either.
-  return {
-    ok: true,
-    registrationId: existing.id,
-    paymentUrl: `${siteUrl(origin)}/event/registration/${existing.id}`,
-  };
+  return paymentFor(existing.id, input, pricing, origin);
 }
 
 export async function createRegistration(
@@ -293,6 +334,7 @@ export async function createRegistration(
   const registrationId = uuid();
   const now = new Date().toISOString();
   const key = input.idempotencyKey ?? null;
+  const transfer = input.paymentMethod === "transfer";
 
   const [inserted] = await d1Batch(
     [
@@ -306,7 +348,8 @@ export async function createRegistration(
           status: "pending",
           source: "public",
           idempotencyKey: key,
-          expiresAt: holdExpiry(input.paymentMethod),
+          expiresAt: input.paymentMethod === "transfer" ? null : holdExpiry(input.paymentMethod),
+          awaitingVerificationAt: transfer ? now : null,
           now,
         },
         { phones, capacity: settings.capacity },
@@ -334,6 +377,7 @@ export async function createRegistration(
   }
 
   invalidateSeats();
+  if (transfer) return registrationPage(registrationId, origin);
   return paymentFor(registrationId, input, pricing, origin);
 }
 
@@ -365,6 +409,7 @@ export async function createInvitedRegistration(
               source: "invite",
               idempotencyKey: key,
               expiresAt: null,
+              awaitingVerificationAt: null,
               now,
             },
             { phones: [input.phone], capacity: settings.capacity },

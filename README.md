@@ -114,6 +114,8 @@ is ever unreachable, both fail open rather than block registration.
 
 `/event/registration` asks first whether you're registering **yourself** or **a group** (a youth leader or parent paying once for several people), then the church, then the people — with the running total always above the pay button. A review dialog shows everything before the Byl-hosted checkout; if the waiting room is holding people, that dialog becomes their place in line. `/event/status` lets a registrant look up their registration and payment status by phone number.
 
+The review dialog also offers **Дансаар шилжүүлэх**: a plain transfer to the conference's account (set in [`lib/registration/transfer.ts`](lib/registration/transfer.ts)), with the account, a "name - church - phone" transfer description and the amount each one tap to copy. Sending the request saves the registration as *awaiting verification* — it holds its seats, shows "Шилжүүлгийг шалгаж байна" on its page and in the phone lookup, and blocks registering the same person again until staff act. In the monitor, staff match it against the bank statement and press **Төлбөр орсон** to issue the tickets, or **Цуцлах** if the money never arrived.
+
 Payment confirmation arrives asynchronously as a `checkout.completed` webhook at `/api/registration/byl-webhook`, which is what marks a registration paid and emails each attendee's QR ticket. Every delivery is verified against the `Byl-Signature` HMAC before it's trusted.
 
 Registration data lives in Cloudflare D1; pricing (price per attendee, tax rate) is stored in D1's `settings` table so it can be changed without a redeploy. See [`docs/registration-setup.md`](docs/registration-setup.md) for creating the D1 database, applying the schema, and getting Byl credentials.

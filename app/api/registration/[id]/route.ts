@@ -26,7 +26,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     // asking Byl what really happened costs a round trip, so it belongs here
     // on the poll instead. A payment the webhook never delivered settles on
     // the next tick rather than blocking first paint.
-    if (registration.status === "pending" && Date.now() - Date.parse(registration.createdAt) > WEBHOOK_GRACE_MS) {
+    // A plain transfer has nothing at Byl to ask about.
+    if (
+      registration.status === "pending" &&
+      registration.paymentUrl &&
+      Date.now() - Date.parse(registration.createdAt) > WEBHOOK_GRACE_MS
+    ) {
       try {
         if (await reconcileThrottled(id)) {
           registration = (await getRegistrationDetail(id)) ?? registration;

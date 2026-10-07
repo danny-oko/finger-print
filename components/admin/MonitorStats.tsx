@@ -9,6 +9,7 @@ type Tile = {
   value: string;
   hint?: string;
   tone?: "default" | "good" | "warn" | "info" | "invite";
+  onClick?: () => void;
 };
 
 const TONE_CLASS: Record<NonNullable<Tile["tone"]>, string> = {
@@ -19,12 +20,21 @@ const TONE_CLASS: Record<NonNullable<Tile["tone"]>, string> = {
   invite: "text-violet-700",
 };
 
+const TILE_CLASS =
+  "min-w-[8.5rem] rounded-xl border border-neutral-200 bg-white px-3 py-2.5 sm:min-w-0";
+
 /**
  * A horizontally scrollable strip on phones and a grid on wider screens —
  * the numbers stay one thumb-swipe away instead of pushing the actual list
  * off the first screenful.
  */
-export function MonitorStats({ stats }: { stats: Stats }) {
+export function MonitorStats({
+  stats,
+  onShowAwaiting,
+}: {
+  stats: Stats;
+  onShowAwaiting?: () => void;
+}) {
   const tiles: Tile[] = [
     {
       label: "Нийт хүн",
@@ -52,8 +62,9 @@ export function MonitorStats({ stats }: { stats: Stats }) {
     {
       label: "Шилжүүлэг шалгах",
       value: String(stats.awaiting),
-      hint: "гараар баталгаажуулна",
+      hint: stats.awaiting > 0 ? "дарж жагсаалтыг харах" : "гараар баталгаажуулна",
       tone: stats.awaiting > 0 ? "info" : "default",
+      onClick: stats.awaiting > 0 ? onShowAwaiting : undefined,
     },
     {
       label: "Сүм",
@@ -70,20 +81,34 @@ export function MonitorStats({ stats }: { stats: Stats }) {
   return (
     <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:overflow-visible sm:px-0">
       <div className="flex min-w-max gap-2 sm:grid sm:min-w-0 sm:grid-cols-4 sm:gap-3 lg:grid-cols-7">
-        {tiles.map((tile) => (
-          <div
-            key={tile.label}
-            className="min-w-[8.5rem] rounded-xl border border-neutral-200 bg-white px-3 py-2.5 sm:min-w-0"
-          >
-            <p className="truncate text-[11px] font-medium text-neutral-500">{tile.label}</p>
-            <p className={cn("mt-0.5 text-xl font-black", TONE_CLASS[tile.tone ?? "default"])}>
-              {tile.value}
-            </p>
-            {tile.hint && (
-              <p className="mt-0.5 truncate text-[11px] text-neutral-400">{tile.hint}</p>
-            )}
-          </div>
-        ))}
+        {tiles.map((tile) => {
+          const content = (
+            <>
+              <p className="truncate text-[11px] font-medium text-neutral-500">{tile.label}</p>
+              <p className={cn("mt-0.5 text-xl font-black", TONE_CLASS[tile.tone ?? "default"])}>
+                {tile.value}
+              </p>
+              {tile.hint && (
+                <p className="mt-0.5 truncate text-[11px] text-neutral-400">{tile.hint}</p>
+              )}
+            </>
+          );
+
+          return tile.onClick ? (
+            <button
+              key={tile.label}
+              type="button"
+              onClick={tile.onClick}
+              className={cn(TILE_CLASS, "border-sky-200 text-left transition-colors hover:bg-sky-50")}
+            >
+              {content}
+            </button>
+          ) : (
+            <div key={tile.label} className={TILE_CLASS}>
+              {content}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

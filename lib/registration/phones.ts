@@ -22,3 +22,26 @@ export async function findTakenPhones(phones: string[]): Promise<string[]> {
 
   return rows.map((r) => r.phone);
 }
+
+/**
+ * A registration for one of these people whose transfer staff haven't
+ * checked yet. Registering them again would ask the same family to pay twice.
+ */
+export async function findAwaitingRegistration(phones: string[]): Promise<string | null> {
+  const unique = [...new Set(phones.filter(Boolean))];
+  if (unique.length === 0) return null;
+
+  const placeholders = unique.map(() => "?").join(", ");
+  const rows = await d1Query<{ id: string }>(
+    `SELECT r.id
+       FROM attendees a
+       JOIN registrations r ON r.id = a.registration_id
+      WHERE a.phone IN (${placeholders})
+        AND r.status = 'pending' AND r.awaiting_verification_at IS NOT NULL
+      ORDER BY r.created_at DESC
+      LIMIT 1`,
+    unique,
+  );
+
+  return rows[0]?.id ?? null;
+}

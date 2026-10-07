@@ -13,6 +13,7 @@ export const runtime = "nodejs";
 const STATUS: Record<string, number> = {
   phone_taken: 409,
   sold_out: 409,
+  transfer_pending: 409,
   registration_closed: 403,
   registration_paused: 503,
   payment_error: 502,

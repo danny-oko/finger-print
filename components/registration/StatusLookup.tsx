@@ -41,7 +41,7 @@ function describe(reg: LookupRegistration) {
       tone: "wait" as Tone,
       Icon: Landmark,
       title: "Шилжүүлгийг шалгаж байна",
-      body: "Зохион байгуулагч таны шилжүүлгийг баталгаажуулмагц тасалбар гарна.",
+      body: "Ажилтан дансаа шалгаж байна. Баталгаажмагц тасалбар тань энд гарна.",
       action: "Дэлгэрэнгүй",
     };
   }
@@ -52,6 +52,15 @@ function describe(reg: LookupRegistration) {
       title: "Төлбөр төлөгдөөгүй",
       body: "Бүртгэл хадгалагдсан ч төлбөр хараахан ороогүй байна.",
       action: "Төлбөрөө төлөх",
+    };
+  }
+  if (reg.status === "cancelled" && reg.awaitingVerification) {
+    return {
+      tone: "bad" as Tone,
+      Icon: XCircle,
+      title: "Шилжүүлэг баталгаажсангүй",
+      body: "Шилжүүлэг дансанд орсон нь олдоогүй. Шилжүүлсэн бол зохион байгуулагчтай холбогдоно уу.",
+      action: "Дэлгэрэнгүй",
     };
   }
   return {

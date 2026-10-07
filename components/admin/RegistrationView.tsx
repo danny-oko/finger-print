@@ -2,6 +2,7 @@
 
 import {
   Ban,
+  CheckCircle2,
   ChevronDown,
   Mail,
   Phone,
@@ -27,6 +28,7 @@ import {
 import type { ManualStatus } from "@/lib/admin/manage";
 import type { MonitorRow } from "@/lib/admin/types";
 import { formatMnt } from "@/lib/registration/pricing";
+import { transferReference } from "@/lib/registration/transfer";
 import { cn } from "@/lib/utils";
 import { formatGrade } from "@/lib/registration/grade";
 
@@ -104,6 +106,39 @@ function RegistrationCard({
 
       {open && (
         <div className="grid gap-3 border-t border-neutral-100 bg-neutral-50/60 p-3">
+          {group.state === "awaiting" && (
+            <div className="grid gap-2 rounded-lg border border-sky-200 bg-sky-50 p-3 text-xs text-sky-900">
+              <p>
+                {group.bylCheckoutUrl
+                  ? "Byl-ээр банкны шилжүүлэг хийсэн гэж мэдэгдсэн."
+                  : "Манай данс руу шилжүүлсэн гэж хүсэлт илгээсэн."}{" "}
+                Хуулгаас <strong>{formatMnt(group.totalMnt)}</strong> орсон эсэхийг шалгана уу.
+              </p>
+              {!group.bylCheckoutUrl && (
+                <p>
+                  Гүйлгээний утга:{" "}
+                  <span className="font-semibold break-words">
+                    {transferReference({
+                      payerName: group.payerName,
+                      churchName: group.churches[0] ?? "",
+                      payerPhone: group.payerPhone,
+                    })}
+                  </span>
+                </p>
+              )}
+              <div>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => actions.onSetStatus(group.rows[0], "paid")}
+                >
+                  <CheckCircle2 className="size-3.5" />
+                  Төлбөр орсон — тасалбар олгох
+                </Button>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
             <a
               href={`tel:${group.payerPhone}`}

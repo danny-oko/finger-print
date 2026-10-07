@@ -17,6 +17,7 @@ export type AppErrorCode =
   | "registration_closed"
   | "registration_paused"
   | "sold_out"
+  | "transfer_pending"
   | "queue_required"
   | "unknown";
 
@@ -70,6 +71,10 @@ const MESSAGES: Record<AppErrorCode, UserMessage> = {
   sold_out: {
     title: "Суудал дүүрсэн байна",
     hint: "Үлдсэн суудлаас олон хүн бүртгэх гэж байна. Хүний тоогоо цөөлөөд дахин оролдоно уу.",
+  },
+  transfer_pending: {
+    title: "Таны шилжүүлгийг шалгаж байна",
+    hint: "Энэ хүний бүртгэлийн хүсэлт өмнө нь илгээгдсэн. Ажилтан баталгаажуулмагц тасалбар гарна.",
   },
   queue_required: {
     title: "Дараалалд дахин орно уу",

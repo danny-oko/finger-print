@@ -264,7 +264,8 @@ export type StaleRegistration = {
 /**
  * Checkouts and invoices that were opened and then abandoned. They're never
  * cleaned up on their own — nothing expires a pending registration — so they
- * pile up in the dashboard looking like people who are about to pay.
+ * pile up in the dashboard looking like people who are about to pay. A
+ * transfer awaiting verification isn't abandoned: someone says they paid.
  */
 export async function findStaleUnpaid(olderThanHours: number): Promise<StaleRegistration[]> {
   const cutoff = new Date(Date.now() - olderThanHours * 3600_000).toISOString();
@@ -278,7 +279,8 @@ export async function findStaleUnpaid(olderThanHours: number): Promise<StaleRegi
   }>(
     `SELECT id, payer_name, attendee_count, status, created_at
        FROM registrations
-      WHERE status IN ('pending', 'failed', 'expired', 'cancelled')
+      WHERE (status IN ('failed', 'expired', 'cancelled')
+             OR (status = 'pending' AND awaiting_verification_at IS NULL))
         AND created_at < ?
       ORDER BY created_at ASC`,
     [cutoff],
