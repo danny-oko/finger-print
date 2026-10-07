@@ -1,6 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+import { EVENT } from "@/lib/event";
+import { fingerprintSvg } from "@/lib/invite/ridges";
+
 // One card design, shared by every share preview. Chat apps render these
 // small — a Messenger card is a few hundred pixels wide on a phone — so this
 // is built around three or four big things, not a reproduction of the poster.
@@ -173,6 +176,42 @@ export function EventCard({
           {chips.map((chip) => (
             <Chip key={chip}>{chip}</Chip>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// The invite card's design: orange, fingerprint ridges, the event and its date.
+export function RidgesCard({ lead }: { lead: string }) {
+  const ridges = `data:image/svg+xml;base64,${Buffer.from(fingerprintSvg("rgba(20,22,26,0.16)", 3)).toString("base64")}`;
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        position: "relative",
+        background: ORANGE,
+        fontFamily: "Inter",
+        color: INK,
+        overflow: "hidden",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img alt="" src={ridges} width={620} height={744} style={{ position: "absolute", top: -60, right: -150 }} />
+
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 80px", width: 900 }}>
+        <div style={{ display: "flex", fontSize: 40, fontWeight: 400 }}>{lead}</div>
+        <div style={{ display: "flex", marginTop: 26, fontSize: 132, fontWeight: 800, lineHeight: 0.98, letterSpacing: -4 }}>
+          Хурууны
+        </div>
+        <div style={{ display: "flex", fontSize: 132, fontWeight: 800, lineHeight: 1.02, letterSpacing: -4 }}>
+          хээ 2026
+        </div>
+        <div style={{ display: "flex", marginTop: 34, fontSize: 36, opacity: 0.8 }}>
+          {`${EVENT.dateShort}, ${EVENT.weekday}, ${EVENT.time}`}
         </div>
       </div>
     </div>
