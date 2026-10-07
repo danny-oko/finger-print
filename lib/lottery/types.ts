@@ -11,7 +11,7 @@ export type LotteryWinner = {
 export type LotteryState = {
   /** Everyone checked in at the door with a paid ticket. */
   checkedIn: number;
-  /** Of those, the ones who haven't won yet — who the next draw picks from. */
+  /** Of those, the ones who can still win — who the next draw picks from. */
   pool: number;
   /** Newest first. */
   winners: LotteryWinner[];

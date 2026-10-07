@@ -1,12 +1,15 @@
 import { randomInt, randomUUID } from "node:crypto";
 
 import { d1Batch, type D1Statement } from "@/lib/db/d1";
+import { canWinLottery } from "@/lib/lottery/eligibility";
 import type { LotteryState, LotteryWinner } from "@/lib/lottery/types";
+import { YOUTH_LEADER } from "@/lib/registration/grade";
 
 // Only people a door scanner checked in can win, and nobody wins twice. The
 // pick happens here with a CSPRNG over the eligible ticket codes; the screen
 // just animates towards whatever this returns, so it can never land on a
-// code that isn't a real, present attendee.
+// code that isn't a real, present attendee. Youth leaders and the serving
+// teams in lib/lottery/eligibility.ts are never in the pool.
 
 type WinnerRow = {
   id: string;
@@ -26,12 +29,16 @@ const CHECKED_IN = `FROM attendees a
    AND a.ticket_code IS NOT NULL
    AND r.status = 'paid'`;
 
+// The church rule needs the fuzzy name match, so it's applied in code to
+// these rows; the role rule is plain enough to sit in the SQL as well.
 const ELIGIBLE = `${CHECKED_IN}
+   AND a.role != '${YOUTH_LEADER}'
    AND NOT EXISTS (SELECT 1 FROM lottery_winners w WHERE w.attendee_id = a.id)`;
 
-const COUNTS: D1Statement = {
-  sql: `SELECT COUNT(*) AS checked_in,
-               COALESCE(SUM(CASE WHEN w.id IS NULL THEN 1 ELSE 0 END), 0) AS pool
+type PresentRow = { id: string; role: string; church_name: string; won: number };
+
+const PRESENT: D1Statement = {
+  sql: `SELECT a.id, a.role, a.church_name, w.id IS NOT NULL AS won
           FROM attendees a
           JOIN registrations r ON r.id = a.registration_id
           LEFT JOIN lottery_winners w ON w.attendee_id = a.id
@@ -63,18 +70,21 @@ function toWinner(row: WinnerRow): LotteryWinner {
   };
 }
 
-function toState(counts: unknown[], winners: unknown[]): LotteryState {
-  const row = counts[0] as { checked_in?: number; pool?: number } | undefined;
+const eligible = (row: { role: string; church_name: string }) =>
+  canWinLottery({ role: row.role, churchName: row.church_name });
+
+function toState(present: unknown[], winners: unknown[]): LotteryState {
+  const rows = present as PresentRow[];
   return {
-    checkedIn: row?.checked_in ?? 0,
-    pool: row?.pool ?? 0,
+    checkedIn: rows.length,
+    pool: rows.filter((row) => !row.won && eligible(row)).length,
     winners: (winners as WinnerRow[]).map(toWinner),
   };
 }
 
 export async function getLotteryState(): Promise<LotteryState> {
-  const [counts, winners] = await d1Batch([COUNTS, WINNERS]);
-  return toState(counts.rows, winners.rows);
+  const [present, winners] = await d1Batch([PRESENT, WINNERS]);
+  return toState(present.rows, winners.rows);
 }
 
 // A pick only misses when someone else's draw, or an undone check-in, takes
@@ -85,17 +95,18 @@ export async function drawWinner(
   prize: string | null,
 ): Promise<{ winner: LotteryWinner; state: LotteryState }> {
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-    const [candidates] = await d1Batch<{ id: string }>([
-      { sql: `SELECT a.id ${ELIGIBLE} ORDER BY a.ticket_code` },
+    const [found] = await d1Batch<{ id: string; role: string; church_name: string }>([
+      { sql: `SELECT a.id, a.role, a.church_name ${ELIGIBLE} ORDER BY a.ticket_code` },
     ]);
-    if (candidates.rows.length === 0) throw new LotteryPoolEmptyError();
+    const candidates = found.rows.filter(eligible);
+    if (candidates.length === 0) throw new LotteryPoolEmptyError();
 
-    const pick = candidates.rows[randomInt(candidates.rows.length)];
+    const pick = candidates[randomInt(candidates.length)];
 
     // The eligibility check is repeated inside the INSERT, and the batch
     // runs as one transaction, so a stale pick inserts nothing rather than a
     // winner who is no longer eligible.
-    const [inserted, counts, winners] = await d1Batch([
+    const [inserted, present, winners] = await d1Batch([
       {
         sql: `INSERT OR IGNORE INTO lottery_winners (${WINNER_COLUMNS})
               SELECT ?, a.id, a.ticket_code, a.full_name, a.church_name, ?, ?
@@ -103,23 +114,23 @@ export async function drawWinner(
               RETURNING ${WINNER_COLUMNS}`,
         params: [randomUUID(), prize, new Date().toISOString(), pick.id],
       },
-      COUNTS,
+      PRESENT,
       WINNERS,
     ]);
 
     const row = inserted.rows[0] as WinnerRow | undefined;
-    if (row) return { winner: toWinner(row), state: toState(counts.rows, winners.rows) };
+    if (row) return { winner: toWinner(row), state: toState(present.rows, winners.rows) };
   }
 
   throw new Error("lottery draw kept losing its pick to concurrent changes");
 }
 
 export async function removeWinner(winnerId: string): Promise<LotteryState | null> {
-  const [removed, counts, winners] = await d1Batch([
+  const [removed, present, winners] = await d1Batch([
     { sql: "DELETE FROM lottery_winners WHERE id = ? RETURNING id", params: [winnerId] },
-    COUNTS,
+    PRESENT,
     WINNERS,
   ]);
   if (removed.rows.length === 0) return null;
-  return toState(counts.rows, winners.rows);
+  return toState(present.rows, winners.rows);
 }
