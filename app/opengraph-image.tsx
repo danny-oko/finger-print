@@ -7,7 +7,7 @@ export const size = OG_SIZE;
 export const contentType = "image/png";
 
 export default async function Image() {
-  return new ImageResponse(<RidgesCard lead="Өсвөрийн чуулган" />, {
+  return new ImageResponse(<RidgesCard lead="Өсвөрийн Конференц" />, {
     ...size,
     fonts: await ogFonts(),
   });
