@@ -102,3 +102,17 @@ CREATE TABLE IF NOT EXISTS payment_events (
 );
 
 CREATE INDEX IF NOT EXISTS idx_payment_events_registration_id ON payment_events (registration_id);
+
+-- Snapshot of each prize-draw winner. No foreign key on attendee_id on
+-- purpose; see migration 0008.
+CREATE TABLE IF NOT EXISTS lottery_winners (
+  id TEXT PRIMARY KEY,
+  attendee_id TEXT NOT NULL UNIQUE,
+  ticket_code TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  church_name TEXT NOT NULL,
+  prize TEXT,
+  drawn_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_lottery_winners_drawn_at ON lottery_winners (drawn_at);

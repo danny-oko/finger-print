@@ -1,26 +1,20 @@
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
-import { Courier_Prime } from "next/font/google";
 import * as React from "react";
 
+import { typewriter } from "@/lib/fonts";
 import { formatGrade, type AttendeeRole } from "@/lib/registration/grade";
 import { qrShapes } from "@/lib/ticket/qrSvg";
 import { TICKET_GRADIENT, TICKET_GRAIN } from "@/lib/ticket/texture";
 import { cn } from "@/lib/utils";
-
-const typewriter = Courier_Prime({
-  weight: ["400", "700"],
-  subsets: ["latin"],
-  fallback: ["Courier New", "Courier", "monospace"],
-});
 
 // Portrait is the landscape card turned a quarter clockwise: the left notch
 // moves to the top, the perforation to the top of the stub, the stub's
 // notch to the bottom. Notches are cut with masks, so they show whatever
 // page the ticket sits on.
 const TOOTH = 6;
-const SHAPES = {
+export const TICKET_SHAPES = {
   "--body-mask-v": "radial-gradient(circle at 50% 0, transparent 16px, #000 16.5px)",
   "--body-mask-h": "radial-gradient(circle at 0 50%, transparent 18px, #000 18.5px)",
   "--stub-mask-v": [
@@ -115,7 +109,7 @@ export function EventTicket({
       )}
     >
       <article
-        style={SHAPES}
+        style={TICKET_SHAPES}
         className={cn(
           "relative flex w-full flex-col [print-color-adjust:exact] @xl:flex-row print:break-inside-avoid",
           fill && "flex-1 @xl:flex-none print:flex-none",

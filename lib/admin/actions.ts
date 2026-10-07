@@ -8,6 +8,7 @@ import type {
   DoorSearchHit,
 } from "@/lib/admin/checkIn";
 import type { ManualStatus } from "@/lib/admin/manage";
+import type { DrawResponse, LotteryState } from "@/lib/lottery/types";
 import type { AdminSettingsResponse } from "@/app/api/admin/settings/route";
 import type { SettingsPatch } from "@/lib/registration/settings";
 
@@ -22,6 +23,9 @@ export const MANAGE_MESSAGE: Record<string, string> = {
   invite_status_locked:
     "Урилгаар бүртгүүлсэн хүний төлбөрийн төлөвийг өөрчлөх боломжгүй. Хэрэггүй бол бүртгэлийг устгана уу.",
   phone_taken: "Энэ дугаар өөр хүнд бүртгэлтэй байна.",
+  lottery_pool_empty:
+    "Сугалаанд оролцох хүн үлдсэнгүй. Хаалган дээр ирсэн бүртгэл хийгдсэн хүн л оролцоно.",
+  winner_not_found: "Энэ азтан олдсонгүй. Хуудсаа шинэчилнэ үү.",
   unauthorized: "Нэвтрэх хугацаа дууссан. Дахин нэвтэрнэ үү.",
   invalid_input: "Мэдээлэл дутуу эсвэл буруу байна.",
   database_error: "Хадгалахад алдаа гарлаа. Дахин оролдоно уу.",
@@ -121,3 +125,11 @@ export const loadRegistrationSettings = () =>
 
 export const saveRegistrationSettings = (patch: SettingsPatch) =>
   send<AdminSettingsResponse>("/api/admin/settings", "PATCH", patch);
+
+export const loadLottery = () => send<LotteryState>("/api/admin/lottery", "GET");
+
+export const drawLottery = (prize: string) =>
+  send<DrawResponse>("/api/admin/lottery", "POST", { prize });
+
+export const removeLotteryWinner = (winnerId: string) =>
+  send<LotteryState>(`/api/admin/lottery?id=${encodeURIComponent(winnerId)}`, "DELETE");
