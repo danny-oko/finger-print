@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { DoorSearch } from "@/components/admin/DoorSearch";
 import { RecentCheckIns } from "@/components/admin/RecentCheckIns";
 import { ScanOutcomeCard, toneOf, type DoorResult } from "@/components/admin/ScanOutcomeCard";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useOfflineScans, type PendingScan } from "@/hooks/use-offline-scans";
 import { useQrScanner } from "@/hooks/use-qr-scanner";
 import {
@@ -47,6 +48,12 @@ const RECENT_LIMIT = 25;
 
 type Tab = "scan" | "search" | "recent";
 
+// Phones get one section at a time behind the bottom tabs. From a tablet up
+// the camera stays on screen with search / recent beside it, or below it
+// when the screen is upright.
+const WIDE_QUERY = "(min-width: 768px)";
+const WIDTH = "max-w-lg md:max-w-6xl";
+
 const FLASH: Record<OutcomeTone, string> = {
   success: "ring-emerald-400",
   warning: "ring-amber-400",
@@ -56,6 +63,7 @@ const FLASH: Record<OutcomeTone, string> = {
 export function CheckInScanner({ unprotected = false }: { unprotected?: boolean }) {
   const router = useRouter();
 
+  const wide = useMediaQuery(WIDE_QUERY);
   const [tab, setTab] = React.useState<Tab>("scan");
   const [counts, setCounts] = React.useState<DoorCounts>({ expected: 0, checkedIn: 0 });
   const [recent, setRecent] = React.useState<CheckInAttendee[]>([]);
@@ -146,10 +154,10 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
     [submit],
   );
 
-  const { videoRef, status, insecure, retry, torchAvailable, torchOn, toggleTorch } = useQrScanner({
+  const { videoRef, status, insecure, retry, mirrored, torchAvailable, torchOn, toggleTorch } = useQrScanner({
     onDecode: handleDecode,
     // The camera stays warm on the other tabs; it just stops reading.
-    paused: busy || tab !== "scan" || (result !== null && toneOf(result) !== "success"),
+    paused: busy || (!wide && tab !== "scan") || (result !== null && toneOf(result) !== "success"),
   });
 
   React.useEffect(() => {
@@ -170,7 +178,20 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
     const timer = setInterval(() => {
       if (document.visibilityState === "visible") void refresh();
     }, REFRESH_MS);
-    return () => clearInterval(timer);
+
+    // Coming back to this screen (another tab, the monitor, the browser's
+    // back button) means someone may have changed the list meanwhile.
+    function onReturn() {
+      if (document.visibilityState === "visible") void refresh();
+    }
+    document.addEventListener("visibilitychange", onReturn);
+    window.addEventListener("pageshow", onReturn);
+
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onReturn);
+      window.removeEventListener("pageshow", onReturn);
+    };
   }, [refresh]);
 
   // Green clears itself back to the viewfinder; anything that needs a
@@ -228,11 +249,12 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
   const remaining = Math.max(counts.expected - counts.checkedIn, 0);
   const progress = counts.expected > 0 ? (counts.checkedIn / counts.expected) * 100 : 0;
   const tone = result ? toneOf(result) : null;
+  const panel = tab === "recent" ? "recent" : "search";
 
   return (
     <main className="event-ui flex h-dvh flex-col bg-neutral-950 text-white">
-      <header className="shrink-0 border-b border-white/10 px-4 pt-3 pb-3">
-        <div className="mx-auto flex w-full max-w-lg items-center gap-1">
+      <header className="shrink-0 border-b border-white/10 pt-3 pb-3">
+        <div className={cn("mx-auto flex w-full items-center gap-1 px-4", WIDTH)}>
           <div className="min-w-0 flex-1">
             <p className="text-2xl leading-none font-black tabular-nums">
               {counts.checkedIn}
@@ -241,7 +263,7 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
             <p className="mt-1 text-xs text-white/50">{remaining} хүн ирээгүй байна</p>
           </div>
 
-          {torchAvailable && tab === "scan" && (
+          {torchAvailable && (wide || tab === "scan") && (
             <button
               type="button"
               onClick={() => void toggleTorch()}
@@ -273,13 +295,15 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
             </button>
           )}
         </div>
-        <div className="mx-auto mt-2.5 h-1.5 w-full max-w-lg overflow-hidden rounded-full bg-white/10">
-          <div className="h-full rounded-full bg-brand transition-[width] duration-500" style={{ width: `${progress}%` }} />
+        <div className={cn("mx-auto mt-2.5 w-full px-4", WIDTH)}>
+          <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-brand transition-[width] duration-500" style={{ width: `${progress}%` }} />
+          </div>
         </div>
       </header>
 
       {(pending.length > 0 || flagged.length > 0 || error) && (
-        <div className="mx-auto grid w-full max-w-lg shrink-0 gap-2 px-4 pt-3">
+        <div className={cn("mx-auto grid w-full shrink-0 gap-2 px-4 pt-3", WIDTH)}>
           {pending.length > 0 && (
             <button
               type="button"
@@ -317,11 +341,19 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
         </div>
       )}
 
-      <div className="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col px-4 pt-3 pb-3">
-        <div className={cn("relative min-h-0 flex-1", tab !== "scan" && "hidden")}>
+      <div
+        className={cn(
+          "mx-auto flex min-h-0 w-full flex-1 flex-col px-4 pt-3 pb-3",
+          "md:grid md:grid-rows-[minmax(0,3fr)_minmax(0,2fr)] md:gap-4 md:pb-4",
+          "md:landscape:grid-cols-[minmax(0,1fr)_340px] md:landscape:grid-rows-[minmax(0,1fr)]",
+          "lg:landscape:grid-cols-[minmax(0,1fr)_400px] lg:landscape:gap-6",
+          WIDTH,
+        )}
+      >
+        <div className={cn("relative min-h-0 flex-1", tab !== "scan" && "hidden md:block")}>
           <div
             className={cn(
-              "absolute inset-0 overflow-hidden rounded-3xl bg-black ring-4 ring-transparent transition-shadow",
+              "absolute inset-0 overflow-hidden rounded-3xl bg-black ring-4 ring-transparent transition-shadow [container-type:size]",
               tone && FLASH[tone],
             )}
           >
@@ -330,12 +362,16 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
               playsInline
               muted
               autoPlay
-              className={cn("size-full object-cover transition-opacity", status === "live" ? "opacity-100" : "opacity-0")}
+              className={cn(
+                "size-full object-cover transition-opacity",
+                mirrored && "-scale-x-100",
+                status === "live" ? "opacity-100" : "opacity-0",
+              )}
             />
 
             {status === "live" && !result && (
               <>
-                <div className="pointer-events-none absolute top-1/2 left-1/2 aspect-square w-[62%] -translate-x-1/2 -translate-y-1/2 rounded-3xl border-[3px] border-white/70" />
+                <div className="pointer-events-none absolute top-1/2 left-1/2 size-[min(62cqw,62cqh)] -translate-x-1/2 -translate-y-1/2 rounded-3xl border-[3px] border-white/70" />
                 <p className="pointer-events-none absolute inset-x-0 bottom-4 text-center text-sm font-medium text-white/80">
                   {busy ? "Шалгаж байна…" : "QR-г хүрээн дотор барина уу"}
                 </p>
@@ -381,7 +417,7 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
           </div>
 
           {result && (
-            <div className="absolute inset-x-0 bottom-0 p-2">
+            <div className="absolute inset-x-0 bottom-0 p-2 md:mx-auto md:max-w-md md:p-4">
               <ScanOutcomeCard
                 result={result}
                 undoing={"attendee" in result && undoingId === result.attendee.attendeeId}
@@ -392,20 +428,50 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
           )}
         </div>
 
-        {tab === "search" && (
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <DoorSearch onCheckIn={handleManualCheckIn} onCode={handleCode} busyId={checkingId} />
-          </div>
-        )}
+        {(wide || tab !== "scan") && (
+          <section className="flex min-h-0 flex-1 flex-col gap-3 md:rounded-3xl md:border md:border-white/10 md:bg-white/[0.03] md:p-4">
+            {wide && (
+              <div className="grid shrink-0 grid-cols-2 gap-1 rounded-full bg-white/5 p-1" role="tablist">
+                {(
+                  [
+                    { id: "search", label: "Хайх" },
+                    { id: "recent", label: "Сүүлд орсон" },
+                  ] as const
+                ).map(({ id, label }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={panel === id}
+                    onClick={() => setTab(id)}
+                    className={cn(
+                      "h-10 rounded-full text-sm font-semibold transition-colors",
+                      panel === id ? "bg-white/15 text-white" : "text-white/50 hover:text-white/80",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
 
-        {tab === "recent" && (
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <RecentCheckIns rows={recent} onUndo={handleUndo} undoingId={undoingId} />
-          </div>
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              {panel === "recent" ? (
+                <RecentCheckIns rows={recent} onUndo={handleUndo} undoingId={undoingId} />
+              ) : (
+                <DoorSearch
+                  onCheckIn={handleManualCheckIn}
+                  onCode={handleCode}
+                  busyId={checkingId}
+                  autoFocus={!wide}
+                />
+              )}
+            </div>
+          </section>
         )}
       </div>
 
-      <nav className="shrink-0 border-t border-white/10 pb-[env(safe-area-inset-bottom)]" aria-label="Хэсгүүд">
+      <nav className="shrink-0 border-t border-white/10 pb-[env(safe-area-inset-bottom)] md:hidden" aria-label="Хэсгүүд">
         <div className="mx-auto grid w-full max-w-lg grid-cols-3">
           {(
             [

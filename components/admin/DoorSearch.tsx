@@ -11,10 +11,12 @@ export function DoorSearch({
   onCheckIn,
   onCode,
   busyId,
+  autoFocus = true,
 }: {
   onCheckIn: (hit: DoorSearchHit) => void;
   onCode: (code: string) => void;
   busyId: string | null;
+  autoFocus?: boolean;
 }) {
   const [query, setQuery] = React.useState("");
   const [hits, setHits] = React.useState<DoorSearchHit[]>([]);
@@ -61,7 +63,7 @@ export function DoorSearch({
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}
-          autoFocus
+          autoFocus={autoFocus}
           className="h-13 w-full rounded-2xl border border-white/15 bg-white/5 pr-12 pl-12 text-base text-white outline-none placeholder:text-white/35 focus:border-white/40"
         />
         {loading && (

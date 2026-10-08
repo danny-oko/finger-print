@@ -61,6 +61,7 @@ export function useQrScanner({
   const [torchAvailable, setTorchAvailable] = React.useState(false);
   const [insecure, setInsecure] = React.useState(false);
   const [torchOn, setTorchOn] = React.useState(false);
+  const [mirrored, setMirrored] = React.useState(false);
   const [attempt, setAttempt] = React.useState(0);
 
   const retry = React.useCallback(() => setAttempt((n) => n + 1), []);
@@ -175,7 +176,14 @@ export function useQrScanner({
       video.srcObject = stream;
       await video.play().catch(() => {});
 
-      const capabilities = stream.getVideoTracks()[0]?.getCapabilities?.() as
+      // A camera facing the person (a laptop webcam, a phone's front camera)
+      // feels backwards unless it's shown like a mirror. Laptop webcams often
+      // don't report a facing mode at all, so only a known rear camera stays
+      // as-is. This only flips the preview; frames are decoded unflipped.
+      const track = stream.getVideoTracks()[0];
+      setMirrored(track?.getSettings?.().facingMode !== "environment");
+
+      const capabilities = track?.getCapabilities?.() as
         | { torch?: boolean }
         | undefined;
       setTorchAvailable(Boolean(capabilities?.torch));
@@ -260,5 +268,5 @@ export function useQrScanner({
     }
   }, [torchOn]);
 
-  return { videoRef, status, insecure, retry, torchAvailable, torchOn, toggleTorch };
+  return { videoRef, status, insecure, retry, mirrored, torchAvailable, torchOn, toggleTorch };
 }
