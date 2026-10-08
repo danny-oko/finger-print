@@ -52,7 +52,7 @@ export function DoorSearch({
   }, [query]);
 
   return (
-    <div className="grid gap-3">
+    <div className="grid grid-cols-1 gap-3">
       <label className="relative block">
         <span className="sr-only">Нэр, утас эсвэл тасалбарын код</span>
         <Search className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-white/40" />
@@ -91,7 +91,7 @@ export function DoorSearch({
         <p className="py-6 text-center text-sm text-white/45">«{query.trim()}» олдсонгүй.</p>
       )}
 
-      <ul className="grid gap-2">
+      <ul className="grid grid-cols-1 gap-2">
         {visible.map((hit) => (
           <li key={hit.attendeeId} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3.5">
             <div className="min-w-0 flex-1">

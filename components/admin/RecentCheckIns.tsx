@@ -28,7 +28,7 @@ export function RecentCheckIns({
   }
 
   return (
-    <ul className="grid gap-1.5">
+    <ul className="grid grid-cols-1 gap-1.5">
       {rows.map((row) => (
         <li
           key={row.attendeeId}
