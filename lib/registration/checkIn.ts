@@ -141,9 +141,11 @@ export async function undoCheckIn(
   ]);
 
   const row = found.rows[0] as ScanRow | undefined;
-  if (cleared.rows.length === 0 || !row) return null;
+  if (!row) return null;
 
-  roster.invalidate();
+  // Already not checked in — another phone or the monitor got there first,
+  // or this screen's list was stale. The person is where staff wanted them.
+  if (cleared.rows.length > 0) roster.invalidate();
   return { attendee: toAttendee(row, ""), counts: toCounts(counts.rows) };
 }
 

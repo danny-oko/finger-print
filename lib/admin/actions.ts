@@ -56,6 +56,7 @@ async function send<T>(
   try {
     res = await fetch(url, {
       method,
+      cache: "no-store",
       headers: body ? { "Content-Type": "application/json" } : undefined,
       body: body ? JSON.stringify(body) : undefined,
     });
