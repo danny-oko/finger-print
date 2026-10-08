@@ -34,11 +34,11 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 
 export type SubmitPhase = "idle" | "queue" | "saving";
 
-const PRIMARY_CLASS =
+export const PRIMARY_CLASS =
   "flex h-13 items-center justify-center gap-2 rounded-full bg-brand text-base font-semibold text-ink transition-colors hover:bg-brand-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-70";
-const SECONDARY_CLASS =
+export const SECONDARY_CLASS =
   "flex h-12 items-center justify-center gap-2 rounded-full border border-black/15 text-[15px] font-semibold text-ink transition-colors hover:bg-mist focus-visible:outline-2 focus-visible:outline-ink disabled:opacity-50";
-const TERTIARY_CLASS =
+export const TERTIARY_CLASS =
   "flex h-11 items-center justify-center gap-1.5 rounded-full text-[15px] font-semibold text-ink/70 hover:bg-mist focus-visible:outline-2 focus-visible:outline-ink disabled:opacity-50";
 
 function referenceFor(values: RegistrationFormOutput): string {
@@ -49,6 +49,65 @@ function referenceFor(values: RegistrationFormOutput): string {
     churchName: values.churchName,
     payerPhone: isGroup ? (values.payerPhone ?? "") : (first.phone ?? ""),
   });
+}
+
+export function ReviewList({
+  values,
+  breakdown,
+}: {
+  values: RegistrationFormOutput;
+  breakdown: PricingBreakdown | null;
+}) {
+  const isGroup = values.mode === "group";
+
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto border-y border-black/10 bg-mist px-6 py-5">
+      <dl className="grid gap-2">
+        <Row label="Цуглаан" value={values.churchName} />
+        {isGroup && (
+          <Row label="Бүртгэж буй" value={`${values.payerName}, ${values.payerPhone}`} />
+        )}
+      </dl>
+
+      <ol className="mt-4 grid gap-2">
+        {values.attendees.map((a, i) => (
+          <li
+            key={`${a.fullName}-${i}`}
+            className="flex items-start justify-between gap-3 rounded-xl bg-white px-4 py-3"
+          >
+            <span className="min-w-0">
+              <span className="block truncate font-semibold text-ink">{a.fullName}</span>
+              <span className="block text-sm text-ink/60">
+                {formatGrade(toGradeColumns(a.grade))}
+                {a.phone ? `, ${a.phone}` : ""}
+              </span>
+            </span>
+            {breakdown && (
+              <span className="shrink-0 text-sm text-ink/60 tabular-nums">
+                {formatMnt(breakdown.pricePerAttendeeMnt)}
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+export function ReviewTotal({ breakdown }: { breakdown: PricingBreakdown | null }) {
+  return (
+    <dl className="grid gap-1.5">
+      {breakdown && breakdown.taxMnt > 0 && (
+        <Row label={`Татвар (${breakdown.taxRatePercent}%)`} value={formatMnt(breakdown.taxMnt)} />
+      )}
+      <div className="flex items-baseline justify-between">
+        <dt className="font-semibold text-ink">Нийт төлөх</dt>
+        <dd className="text-2xl font-bold text-ink tabular-nums">
+          {breakdown ? formatMnt(breakdown.totalMnt) : "—"}
+        </dd>
+      </div>
+    </dl>
+  );
 }
 
 type StepProps = {
@@ -69,7 +128,6 @@ function SummaryStep({
   onTransfer,
   onEdit,
 }: StepProps & { onPayOnline: () => void; onTransfer: () => void; onEdit: () => void }) {
-  const isGroup = values.mode === "group";
   const busy = phase !== "idle";
 
   return (
@@ -81,49 +139,10 @@ function SummaryStep({
         </DialogDescription>
       </DialogHeader>
 
-      <div className="min-h-0 flex-1 overflow-y-auto border-y border-black/10 bg-mist px-6 py-5">
-        <dl className="grid gap-2">
-          <Row label="Цуглаан" value={values.churchName} />
-          {isGroup && (
-            <Row label="Бүртгэж буй" value={`${values.payerName}, ${values.payerPhone}`} />
-          )}
-        </dl>
-
-        <ol className="mt-4 grid gap-2">
-          {values.attendees.map((a, i) => (
-            <li
-              key={`${a.fullName}-${i}`}
-              className="flex items-start justify-between gap-3 rounded-xl bg-white px-4 py-3"
-            >
-              <span className="min-w-0">
-                <span className="block truncate font-semibold text-ink">{a.fullName}</span>
-                <span className="block text-sm text-ink/60">
-                  {formatGrade(toGradeColumns(a.grade))}
-                  {a.phone ? `, ${a.phone}` : ""}
-                </span>
-              </span>
-              {breakdown && (
-                <span className="shrink-0 text-sm text-ink/60 tabular-nums">
-                  {formatMnt(breakdown.pricePerAttendeeMnt)}
-                </span>
-              )}
-            </li>
-          ))}
-        </ol>
-      </div>
+      <ReviewList values={values} breakdown={breakdown} />
 
       <div className="px-6 pt-4 pb-6">
-        <dl className="grid gap-1.5">
-          {breakdown && breakdown.taxMnt > 0 && (
-            <Row label={`Татвар (${breakdown.taxRatePercent}%)`} value={formatMnt(breakdown.taxMnt)} />
-          )}
-          <div className="flex items-baseline justify-between">
-            <dt className="font-semibold text-ink">Нийт төлөх</dt>
-            <dd className="text-2xl font-bold text-ink tabular-nums">
-              {breakdown ? formatMnt(breakdown.totalMnt) : "—"}
-            </dd>
-          </div>
-        </dl>
+        <ReviewTotal breakdown={breakdown} />
 
         {phase === "queue" ? (
           <div className="mt-4">

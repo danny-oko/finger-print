@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Gift, LogOut, RefreshCw, ScanLine, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Download, Gift, LogOut, RefreshCw, ScanLine, TriangleAlert, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -451,6 +451,12 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
     <main className="min-h-dvh bg-neutral-50">
       <header className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-4 py-3">
+          <Button asChild variant="ghost" size="icon" aria-label="Админ" title="Админ">
+            <a href="/admin">
+              <ArrowLeft className="size-4" />
+            </a>
+          </Button>
+
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-base font-black text-neutral-900 sm:text-lg">
               Бүртгэлийн хяналт
@@ -465,6 +471,12 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
                 : "Уншиж байна..."}
             </p>
           </div>
+
+          <Button asChild variant="outline" size="icon" aria-label="Шинэ бүртгэл" title="Шинэ бүртгэл">
+            <a href="/admin/register">
+              <UserPlus className="size-4" />
+            </a>
+          </Button>
 
           <Button
             asChild

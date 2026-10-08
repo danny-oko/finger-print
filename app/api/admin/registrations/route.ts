@@ -1,9 +1,18 @@
 import { waitUntil } from "@vercel/functions";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { isAdminAuthenticated } from "@/lib/admin/auth";
-import type { MonitorResponse, MonitorRow } from "@/lib/admin/types";
+import {
+  STAFF_PAYMENTS,
+  type MonitorResponse,
+  type MonitorRow,
+  type StaffRegistrationResponse,
+} from "@/lib/admin/types";
 import { d1Query } from "@/lib/db/d1";
+import { httpErrorFor, logServerError } from "@/lib/errors";
+import { createPaidRegistration, createRegistration } from "@/lib/registration/create";
+import { createRegistrationSchema } from "@/lib/registration/schema";
 import { reconcileAllPending } from "@/lib/registration/settle";
 
 export const runtime = "nodejs";
@@ -111,5 +120,64 @@ export async function GET() {
   } catch (error) {
     console.error("Failed to load registrations for the admin monitor", error);
     return NextResponse.json({ error: "database_error" }, { status: 500 });
+  }
+}
+
+const STATUS: Record<string, number> = {
+  phone_taken: 409,
+  sold_out: 409,
+  transfer_pending: 409,
+  payment_error: 502,
+};
+
+// The same registration the public form makes, minus the queue and the
+// open/closed switch. "paid" is for money staff took in person.
+export async function POST(request: Request) {
+  if (!(await isAdminAuthenticated())) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json().catch(() => null);
+  const payment = z.object({ payment: z.enum(STAFF_PAYMENTS) }).safeParse(body);
+  const parsed = createRegistrationSchema.safeParse(body);
+  if (!payment.success || !parsed.success) {
+    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+  }
+
+  const origin = new URL(request.url).origin;
+  const site = (process.env.NEXT_PUBLIC_SITE_URL ?? origin).replace(/\/+$/, "");
+
+  try {
+    const result =
+      payment.data.payment === "paid"
+        ? await createPaidRegistration(parsed.data)
+        : await createRegistration(
+            { ...parsed.data, paymentMethod: payment.data.payment },
+            { origin, staff: true },
+          );
+
+    if (!result.ok) {
+      return NextResponse.json({ ...result, ok: undefined }, { status: STATUS[result.error] ?? 400 });
+    }
+
+    const registrationUrl = `${site}/event/registration/${result.registrationId}`;
+    // A transfer's "payment page" is the registration page itself.
+    const paymentUrl =
+      "paymentUrl" in result && typeof result.paymentUrl === "string" && result.paymentUrl !== registrationUrl
+        ? result.paymentUrl
+        : null;
+    const response: StaffRegistrationResponse = {
+      registrationId: result.registrationId,
+      registrationUrl,
+      paymentUrl,
+    };
+    return NextResponse.json(response);
+  } catch (error) {
+    const { code, status } = httpErrorFor(error);
+    logServerError("admin.registration.create", error, {
+      attendees: parsed.data.attendees.length,
+      payment: payment.data.payment,
+    });
+    return NextResponse.json({ error: code }, { status });
   }
 }

@@ -55,3 +55,14 @@ export type MonitorResponse = {
   generatedAt: string;
   truncated: boolean;
 };
+
+// How the admin panel's new registration gets paid: "paid" is money staff
+// already took in person; the other two are the public form's own options.
+export const STAFF_PAYMENTS = ["paid", "checkout", "transfer"] as const;
+export type StaffPayment = (typeof STAFF_PAYMENTS)[number];
+
+export type StaffRegistrationResponse = {
+  registrationId: string;
+  registrationUrl: string;
+  paymentUrl: string | null;
+};

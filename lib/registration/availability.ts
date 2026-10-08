@@ -52,6 +52,13 @@ export async function getAvailability(): Promise<Availability> {
   };
 }
 
+// Regardless of the open/closed switch, which staff registrations ignore.
+export async function seatsLeft(): Promise<number | null> {
+  const { capacity } = await getRegistrationSettings();
+  if (capacity === null) return null;
+  return Math.max(0, capacity - (await seatsTaken()));
+}
+
 export function invalidateSeats() {
   seatsTaken.invalidate();
 }

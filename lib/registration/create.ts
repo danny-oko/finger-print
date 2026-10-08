@@ -4,13 +4,14 @@ import { createCheckout, createInvoice, type BylCheckoutItem } from "@/lib/byl";
 import { d1Batch, d1QueryOne, d1Run, placeholders, type D1Statement } from "@/lib/db/d1";
 import { logServerError } from "@/lib/errors";
 import {
-  getAvailability,
   holdExpiry,
   invalidateSeats,
   LIVE_SEATS_SQL,
+  seatsLeft,
 } from "@/lib/registration/availability";
 import { formatGrade, toGradeColumns } from "@/lib/registration/grade";
 import { invoiceDescription, paymentReference } from "@/lib/registration/invoice";
+import { issueTickets } from "@/lib/registration/issueTickets";
 import { findAwaitingRegistration, findTakenPhones } from "@/lib/registration/phones";
 import { computePricing, type PricingBreakdown } from "@/lib/registration/pricing";
 import type {
@@ -156,10 +157,8 @@ async function explainRejection(phones: string[], seatsWanted: number): Promise<
   if (awaiting) return { error: "transfer_pending", registrationId: awaiting };
 
   invalidateSeats();
-  const availability = await getAvailability();
-  if (availability.seatsLeft !== null && availability.seatsLeft < seatsWanted) {
-    return { error: "sold_out", seatsLeft: availability.seatsLeft };
-  }
+  const left = await seatsLeft();
+  if (left !== null && left < seatsWanted) return { error: "sold_out", seatsLeft: left };
 
   return null;
 }
@@ -320,14 +319,16 @@ async function resume(
   return paymentFor(existing.id, input, pricing, origin);
 }
 
+// `staff` is the admin panel registering someone: closing or pausing the
+// public form doesn't stop the desk, but capacity and duplicate phones still do.
 export async function createRegistration(
   input: CreateRegistrationInput,
-  { origin }: { origin: string },
+  { origin, staff = false }: { origin: string; staff?: boolean },
 ): Promise<CreateResult> {
   const settings = await getRegistrationSettings();
 
-  if (settings.state === "closed") return { ok: false, error: "registration_closed" };
-  if (settings.state === "paused") return { ok: false, error: "registration_paused" };
+  if (!staff && settings.state === "closed") return { ok: false, error: "registration_closed" };
+  if (!staff && settings.state === "paused") return { ok: false, error: "registration_paused" };
 
   const pricing = computePricing(settings.pricing, input.attendees.length);
   const phones = [...new Set(input.attendees.map((a) => a.phone).filter((p): p is string => !!p))];
@@ -379,6 +380,69 @@ export async function createRegistration(
   invalidateSeats();
   if (transfer) return registrationPage(registrationId, origin);
   return paymentFor(registrationId, input, pricing, origin);
+}
+
+export type PaidResult =
+  | { ok: true; registrationId: string }
+  | ({ ok: false } & Rejection);
+
+// Staff took the money in person, so the registration is born paid at the
+// full price and its tickets are issued straight away.
+export async function createPaidRegistration(input: CreateRegistrationInput): Promise<PaidResult> {
+  const settings = await getRegistrationSettings();
+  const pricing = computePricing(settings.pricing, input.attendees.length);
+  const phones = [...new Set(input.attendees.map((a) => a.phone).filter((p): p is string => !!p))];
+  const registrationId = uuid();
+  const now = new Date().toISOString();
+  const key = input.idempotencyKey ?? null;
+
+  const [inserted] = await d1Batch(
+    [
+      guardedRegistrationInsert(
+        {
+          id: registrationId,
+          registrantType: input.registrantType,
+          payerName: input.payerName,
+          payerPhone: input.payerPhone,
+          pricing,
+          status: "paid",
+          source: "public",
+          idempotencyKey: key,
+          expiresAt: null,
+          awaitingVerificationAt: null,
+          now,
+        },
+        { phones, capacity: settings.capacity },
+      ),
+      ...input.attendees.map((attendee) =>
+        attendeeInsert(
+          registrationId,
+          { ...attendee, phone: attendee.phone ?? null, churchName: input.churchName },
+          now,
+        ),
+      ),
+      churchInsert(registrationId, input.churchName, now),
+    ],
+    { idempotent: true },
+  );
+
+  if (inserted.changes === 0) {
+    const existing = key ? await findByIdempotencyKey(key) : null;
+    if (existing) {
+      // A retry after the row landed but before its tickets did.
+      if (existing.status === "paid") await issueTickets(existing.id);
+      return { ok: true, registrationId: existing.id };
+    }
+
+    const rejection = await explainRejection(phones, input.attendees.length);
+    if (rejection) return { ok: false, ...rejection };
+
+    throw new Error("Paid registration insert matched no rule but wrote nothing");
+  }
+
+  invalidateSeats();
+  await issueTickets(registrationId);
+  return { ok: true, registrationId };
 }
 
 export type InvitedResult =

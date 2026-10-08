@@ -8,7 +8,9 @@ import type {
   DoorSearchHit,
 } from "@/lib/admin/checkIn";
 import type { ManualStatus } from "@/lib/admin/manage";
+import type { StaffPayment, StaffRegistrationResponse } from "@/lib/admin/types";
 import type { DrawResponse, LotteryState } from "@/lib/lottery/types";
+import type { CreateRegistrationInput } from "@/lib/registration/schema";
 import type { AdminSettingsResponse } from "@/app/api/admin/settings/route";
 import type { SettingsPatch } from "@/lib/registration/settings";
 
@@ -23,6 +25,12 @@ export const MANAGE_MESSAGE: Record<string, string> = {
   invite_status_locked:
     "Урилгаар бүртгүүлсэн хүний төлбөрийн төлөвийг өөрчлөх боломжгүй. Хэрэггүй бол бүртгэлийг устгана уу.",
   phone_taken: "Энэ дугаар өөр хүнд бүртгэлтэй байна.",
+  sold_out:
+    "Суудал хүрэлцэхгүй байна. Хүний тоог цөөлөх эсвэл бүртгэлийн тохиргооноос суудлын тоог нэмнэ үү.",
+  transfer_pending:
+    "Энэ дугаартай хүний дансны шилжүүлэг баталгаажуулалт хүлээж байна. Хяналтын хуудаснаас шалгана уу.",
+  payment_error:
+    "Бүртгэл хадгалагдсан ч төлбөрийн холбоос үүссэнгүй. Хяналтын хуудаснаас шалгана уу.",
   lottery_pool_empty:
     "Сугалаанд оролцох хүн үлдсэнгүй. Хаалган дээр ирсэн бүртгэл хийгдсэн хүн л оролцоно — өсвөрийн ахлагч, Магтаалын баг оролцохгүй.",
   winner_not_found: "Энэ азтан олдсонгүй. Хуудсаа шинэчилнэ үү.",
@@ -36,7 +44,7 @@ export const MANAGE_MESSAGE: Record<string, string> = {
 
 export type AdminResult<T = unknown> =
   | { ok: true; data: T }
-  | { ok: false; message: string; offline?: boolean };
+  | { ok: false; message: string; code?: string; phones?: string[]; offline?: boolean };
 
 async function send<T>(
   url: string,
@@ -56,16 +64,24 @@ async function send<T>(
   }
 
   const data = (await res.json().catch(() => null)) as
-    | (T & { error?: string })
+    | (T & { error?: string; phones?: string[] })
     | null;
 
   if (!res.ok) {
     const code = data?.error ?? "database_error";
-    return { ok: false, message: MANAGE_MESSAGE[code] ?? MANAGE_MESSAGE.database_error };
+    return {
+      ok: false,
+      code,
+      phones: data?.phones,
+      message: MANAGE_MESSAGE[code] ?? MANAGE_MESSAGE.database_error,
+    };
   }
 
   return { ok: true, data: data as T };
 }
+
+export const createRegistration = (input: CreateRegistrationInput, payment: StaffPayment) =>
+  send<StaffRegistrationResponse>("/api/admin/registrations", "POST", { ...input, payment });
 
 export const createAttendee = (registrationId: string, input: AdminAttendeeInput) =>
   send<{ attendeeId: string }>("/api/admin/attendees", "POST", {
