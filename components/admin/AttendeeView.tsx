@@ -62,6 +62,7 @@ export function AttendeeView({
   onEdit,
   onDelete,
   onSetStatus,
+  onSetCheckedIn,
 }: {
   rows: MonitorRow[];
   sortKey: AttendeeSortKey;
@@ -70,6 +71,7 @@ export function AttendeeView({
   onEdit: (row: MonitorRow) => void;
   onDelete: (row: MonitorRow) => void;
   onSetStatus: (row: MonitorRow, status: ManualStatus) => void;
+  onSetCheckedIn: (row: MonitorRow, checkedIn: boolean) => void;
 }) {
   function handleHeaderClick(key: AttendeeSortKey) {
     if (key === sortKey) {
@@ -111,6 +113,7 @@ export function AttendeeView({
                   onEdit={() => onEdit(row)}
                   onRemove={() => onDelete(row)}
                   onSetStatus={(status) => onSetStatus(row, status)}
+                  onSetCheckedIn={(checkedIn) => onSetCheckedIn(row, checkedIn)}
                 />
               </div>
             </div>
@@ -237,6 +240,7 @@ export function AttendeeView({
                     onEdit={() => onEdit(row)}
                     onRemove={() => onDelete(row)}
                     onSetStatus={(status) => onSetStatus(row, status)}
+                    onSetCheckedIn={(checkedIn) => onSetCheckedIn(row, checkedIn)}
                   />
                 </td>
               </tr>

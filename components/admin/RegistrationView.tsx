@@ -49,6 +49,7 @@ type Actions = {
   onEditAttendee: (row: MonitorRow) => void;
   onDeleteAttendee: (row: MonitorRow) => void;
   onSetStatus: (row: MonitorRow, status: ManualStatus) => void;
+  onSetCheckedIn: (row: MonitorRow, checkedIn: boolean) => void;
 };
 
 function RegistrationCard({
@@ -187,6 +188,7 @@ function RegistrationCard({
                     onEdit={() => actions.onEditAttendee(row)}
                     onRemove={() => actions.onDeleteAttendee(row)}
                     onSetStatus={(status) => actions.onSetStatus(row, status)}
+                    onSetCheckedIn={(checkedIn) => actions.onSetCheckedIn(row, checkedIn)}
                   />
                 </div>
               </li>

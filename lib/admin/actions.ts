@@ -128,8 +128,7 @@ export const saveRegistrationSettings = (patch: SettingsPatch) =>
 
 export const loadLottery = () => send<LotteryState>("/api/admin/lottery", "GET");
 
-export const drawLottery = (prize: string) =>
-  send<DrawResponse>("/api/admin/lottery", "POST", { prize });
+export const drawLottery = () => send<DrawResponse>("/api/admin/lottery", "POST", {});
 
 export const removeLotteryWinner = (winnerId: string) =>
   send<LotteryState>(`/api/admin/lottery?id=${encodeURIComponent(winnerId)}`, "DELETE");

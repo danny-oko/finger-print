@@ -1,11 +1,13 @@
 "use client";
 
 import { LogOut, RefreshCw, Table2, X } from "lucide-react";
+import { MotionConfig, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { Confetti } from "@/components/admin/lottery/Confetti";
 import {
   LotteryReels,
   useReels,
@@ -16,11 +18,7 @@ import {
   MANAGE_MESSAGE,
   removeLotteryWinner,
 } from "@/lib/admin/actions";
-import {
-  PRIZE_MAX_LENGTH,
-  type LotteryState,
-  type LotteryWinner,
-} from "@/lib/lottery/types";
+import type { LotteryState, LotteryWinner } from "@/lib/lottery/types";
 import { cn } from "@/lib/utils";
 
 const UB_TIME = new Intl.DateTimeFormat("en-GB", {
@@ -49,7 +47,6 @@ export function LotteryStage({
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [phase, setPhase] = React.useState<Phase>("idle");
   const [winner, setWinner] = React.useState<LotteryWinner | null>(null);
-  const [prize, setPrize] = React.useState("");
   const [removing, setRemoving] = React.useState<LotteryWinner | null>(null);
   const [working, setWorking] = React.useState(false);
 
@@ -90,7 +87,7 @@ export function LotteryStage({
     setWinner(null);
     reels.spin();
 
-    const result = await drawLottery(prize.trim());
+    const result = await drawLottery();
 
     if (!result.ok) {
       reels.stop();
@@ -105,10 +102,9 @@ export function LotteryStage({
     setWinner(result.data.winner);
     setState(result.data.state);
     setPhase("revealed");
-  }, [prize, reels, refresh]);
+  }, [reels, refresh]);
 
-  // A presenter at a laptop draws with the space bar; typing in the prize
-  // field is left alone.
+  // A presenter at a laptop draws with the space bar.
   React.useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key !== " " && event.key !== "Enter") return;
@@ -155,193 +151,194 @@ export function LotteryStage({
   const winners = state?.winners ?? [];
 
   return (
-    <main className="event-ui min-h-dvh bg-neutral-950 text-white">
-      {/* The stage fills the screen on its own, so the list growing below it
-          never shifts the reels mid-reveal. */}
-      <div className="flex min-h-dvh flex-col">
-        <header className="shrink-0 border-b border-white/10 px-4 py-3">
-          <div className="mx-auto flex w-full max-w-5xl items-center gap-1">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-lg leading-none font-black">Сугалаа</h1>
-              <p className="mt-1 text-xs text-white/50">
-                {state
-                  ? `Сугалаанд ${pool} хүн · ирсэн ${state.checkedIn} · ${winners.length} азтан`
-                  : "Уншиж байна…"}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => void refresh()}
-              disabled={phase === "drawing"}
-              aria-label="Шинэчлэх"
-              className="grid size-11 place-items-center rounded-full text-white/70 hover:bg-white/10 disabled:opacity-40"
-            >
-              <RefreshCw className="size-5" />
-            </button>
-            <a
-              href="/admin/registration-monitor"
-              aria-label="Бүртгэлийн хяналт"
-              className="grid size-11 place-items-center rounded-full text-white/70 hover:bg-white/10"
-            >
-              <Table2 className="size-5" />
-            </a>
-            {!unprotected && (
-              <button
-                type="button"
-                onClick={handleSignOut}
-                aria-label="Гарах"
-                className="grid size-11 place-items-center rounded-full text-white/70 hover:bg-white/10"
-              >
-                <LogOut className="size-5" />
-              </button>
-            )}
-          </div>
-        </header>
-
-        {loadError && (
-          <p className="mx-auto mt-4 w-full max-w-5xl px-4 text-sm text-red-300">
-            {loadError}
-          </p>
-        )}
-
-        <section className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-8 px-4 py-10 text-center">
-          <p className="text-xs font-semibold tracking-[0.18em] text-[#F98C01]">
-            2026.10.10 · FINGER PRINT · СУГАЛАА
-          </p>
-
-          <LotteryReels
-            positions={reels.positions}
-            label={winner ? winner.ticketCode : "Тасалбарын код"}
-            className="text-[clamp(1.75rem,8vw,5.5rem)]"
-          />
-
-          <div
-            className="flex min-h-[9.5rem] flex-col items-center justify-start"
-            aria-live="polite"
-          >
-            {winner ? (
-              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-                {winner.prize && (
-                  <p className="mb-2 inline-block rounded-full border border-[#F98C01]/40 bg-[#F98C01]/15 px-3 py-1 text-sm font-semibold text-[#F9A43A]">
-                    {winner.prize}
-                  </p>
-                )}
-                <p className="font-display text-[clamp(1.75rem,5vw,3.5rem)] leading-tight font-bold">
-                  {winner.fullName}
-                </p>
-                <p className="mt-1 text-[clamp(1rem,2vw,1.375rem)] text-white/60">
-                  {winner.churchName}
+    <MotionConfig reducedMotion="user">
+      <main className="event-ui min-h-dvh bg-neutral-950 text-white">
+        <Confetti fireKey={phase === "revealed" ? (winner?.id ?? null) : null} />
+        {/* The stage fills the screen on its own, so the list growing below it
+            never shifts the reels mid-reveal. */}
+        <div className="flex min-h-dvh flex-col">
+          <header className="shrink-0 border-b border-white/10 px-4 py-3">
+            <div className="mx-auto flex w-full max-w-5xl items-center gap-1">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg leading-none font-black">Сугалаа</h1>
+                <p className="mt-1 text-xs text-white/50">
+                  {state
+                    ? `Сугалаанд ${pool} хүн · ирсэн ${state.checkedIn} · ${winners.length} азтан`
+                    : "Уншиж байна…"}
                 </p>
               </div>
-            ) : (
-              state && (
-                <p className="pt-4 text-base text-white/40">
-                  {phase === "drawing"
-                    ? "Сугалж байна…"
-                    : pool === 0
-                    ? "Сугалаанд оролцох хүн үлдсэнгүй"
-                    : "Сугалахад бэлэн"}
-                </p>
-              )
-            )}
-          </div>
-
-          <div className="grid w-full max-w-sm gap-3">
-            <label className="grid gap-1.5 text-left">
-              <span className="text-xs font-medium text-white/50">
-                Шагнал (заавал биш)
-              </span>
-              <input
-                value={prize}
-                onChange={(e) => setPrize(e.target.value)}
-                maxLength={PRIZE_MAX_LENGTH}
-                placeholder="Жишээ нь: Чихэвч"
+              <button
+                type="button"
+                onClick={() => void refresh()}
                 disabled={phase === "drawing"}
-                className="h-12 rounded-xl border border-white/15 bg-white/[0.06] px-4 text-base text-white outline-none placeholder:text-white/30 focus:border-white/40"
-              />
-            </label>
-            <button
-              type="button"
-              onClick={() => void draw()}
-              disabled={!canDraw}
-              className="h-14 rounded-full bg-[#F98C01] text-lg font-bold text-neutral-950 transition-colors hover:bg-[#e57f00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:bg-white/10 disabled:text-white/40"
-            >
-              {phase === "drawing"
-                ? "Сугалж байна…"
-                : winner
-                ? "Дахин сугалах"
-                : "Сугалах"}
-            </button>
-            <p className="text-xs leading-relaxed text-white/40">
-              Хаалган дээр бүртгүүлж орсон хүмүүсээс сугална. Өсвөрийн ахлагч,
-              Магтаалын баг оролцохгүй. Нэг хүн хоёр удаа хожихгүй.
-            </p>
-          </div>
-        </section>
-      </div>
-
-      {winners.length > 0 && (
-        <section className="mx-auto w-full max-w-5xl px-4 pb-10">
-          <h2 className="mb-2 text-sm font-semibold text-white/60">
-            Азтангууд
-          </h2>
-          <ol className="grid gap-1.5">
-            {winners.map((w, i) => (
-              <li
-                key={w.id}
-                className={cn(
-                  "flex items-center gap-3 rounded-xl bg-white/[0.05] px-4 py-3",
-                  w.id === winner?.id && "bg-[#F98C01]/15"
-                )}
+                aria-label="Шинэчлэх"
+                className="grid size-11 place-items-center rounded-full text-white/70 hover:bg-white/10 disabled:opacity-40"
               >
-                <span className="w-6 shrink-0 text-sm text-white/40 tabular-nums">
-                  {winners.length - i}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold">
-                    {w.fullName}
-                  </span>
-                  <span className="block truncate text-xs text-white/50">
-                    {w.churchName} · {w.ticketCode}
-                  </span>
-                </span>
-                {w.prize && (
-                  <span className="hidden shrink-0 text-sm text-[#F9A43A] sm:block">
-                    {w.prize}
-                  </span>
-                )}
-                <span className="shrink-0 text-xs text-white/40 tabular-nums">
-                  {formatTime(w.drawnAt)}
-                </span>
+                <RefreshCw className="size-5" />
+              </button>
+              <a
+                href="/admin/registration-monitor"
+                aria-label="Бүртгэлийн хяналт"
+                className="grid size-11 place-items-center rounded-full text-white/70 hover:bg-white/10"
+              >
+                <Table2 className="size-5" />
+              </a>
+              {!unprotected && (
                 <button
                   type="button"
-                  onClick={() => setRemoving(w)}
-                  disabled={phase === "drawing"}
-                  aria-label={`${w.fullName}-ийг жагсаалтаас хасах`}
-                  className="grid size-9 shrink-0 place-items-center rounded-full text-white/40 hover:bg-white/10 hover:text-white disabled:opacity-40"
+                  onClick={handleSignOut}
+                  aria-label="Гарах"
+                  className="grid size-11 place-items-center rounded-full text-white/70 hover:bg-white/10"
                 >
-                  <X className="size-4" />
+                  <LogOut className="size-5" />
                 </button>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+              )}
+            </div>
+          </header>
 
-      <ConfirmDialog
-        open={removing !== null}
-        onOpenChange={(open) => !open && setRemoving(null)}
-        working={working}
-        title={removing ? `${removing.fullName}-ийг азтнуудаас хасах уу?` : ""}
-        confirmLabel="Тийм, хас"
-        body={
-          <>
-            <p>Танхимд байхгүй эсвэл андуурч сугалсан бол хасна.</p>
-            <p>Хасагдсан хүн дахин сугалаанд орно.</p>
-          </>
-        }
-        onConfirm={() => void confirmRemove()}
-      />
-    </main>
+          {loadError && (
+            <p className="mx-auto mt-4 w-full max-w-5xl px-4 text-sm text-red-300">
+              {loadError}
+            </p>
+          )}
+
+          <section className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-8 px-4 py-10 text-center">
+            <p className="text-xs font-semibold tracking-[0.18em] text-[#F98C01]">
+              2026.10.10 · FINGER PRINT · СУГАЛАА
+            </p>
+
+            <motion.div
+              key={winner?.id ?? "idle"}
+              initial={winner ? { scale: 1 } : false}
+              animate={winner ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <LotteryReels
+                positions={reels.positions}
+                label={winner ? winner.ticketCode : "Тасалбарын код"}
+                className={cn(
+                  "text-[clamp(1.75rem,8vw,5.5rem)] transition-[filter] duration-700",
+                  winner && "drop-shadow-[0_0_28px_rgba(249,140,1,0.55)]",
+                )}
+              />
+            </motion.div>
+
+            <div
+              className="flex min-h-[9.5rem] flex-col items-center justify-start"
+              aria-live="polite"
+            >
+              {winner ? (
+                <motion.div
+                  key={winner.id}
+                  initial={{ opacity: 0, y: 24, scale: 0.85 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 16, delay: 0.15 }}
+                >
+                  <p className="mb-2 text-sm font-bold tracking-[0.3em] text-[#F98C01]">АЗТАН</p>
+                  <p className="font-display text-[clamp(1.75rem,5vw,3.5rem)] leading-tight font-bold">
+                    {winner.fullName}
+                  </p>
+                  <p className="mt-1 text-[clamp(1rem,2vw,1.375rem)] text-white/60">
+                    {winner.churchName}
+                  </p>
+                </motion.div>
+              ) : (
+                state && (
+                  <p className="pt-4 text-base text-white/40">
+                    {phase === "drawing"
+                      ? "Сугалж байна…"
+                      : pool === 0
+                      ? "Сугалаанд оролцох хүн үлдсэнгүй"
+                      : "Сугалахад бэлэн"}
+                  </p>
+                )
+              )}
+            </div>
+
+            <div className="grid w-full max-w-sm gap-3">
+              <button
+                type="button"
+                onClick={() => void draw()}
+                disabled={!canDraw}
+                className="h-14 rounded-full bg-[#F98C01] text-lg font-bold text-neutral-950 transition-colors hover:bg-[#e57f00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:bg-white/10 disabled:text-white/40"
+              >
+                {phase === "drawing"
+                  ? "Сугалж байна…"
+                  : winner
+                  ? "Дахин сугалах"
+                  : "Сугалах"}
+              </button>
+              <p className="text-xs leading-relaxed text-white/40">
+                Хаалган дээр бүртгүүлж орсон хүмүүсээс сугална. Өсвөрийн ахлагч,
+                Магтаалын баг оролцохгүй. Нэг хүн хоёр удаа хожихгүй.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        {winners.length > 0 && (
+          <section className="mx-auto w-full max-w-5xl px-4 pb-10">
+            <h2 className="mb-2 text-sm font-semibold text-white/60">
+              Азтангууд
+            </h2>
+            <ol className="grid gap-1.5">
+              {winners.map((w, i) => (
+                <li
+                  key={w.id}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl bg-white/[0.05] px-4 py-3",
+                    w.id === winner?.id && "bg-[#F98C01]/15"
+                  )}
+                >
+                  <span className="w-6 shrink-0 text-sm text-white/40 tabular-nums">
+                    {winners.length - i}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">
+                      {w.fullName}
+                    </span>
+                    <span className="block truncate text-xs text-white/50">
+                      {w.churchName} · {w.ticketCode}
+                    </span>
+                  </span>
+                  {w.prize && (
+                    <span className="hidden shrink-0 text-sm text-[#F9A43A] sm:block">
+                      {w.prize}
+                    </span>
+                  )}
+                  <span className="shrink-0 text-xs text-white/40 tabular-nums">
+                    {formatTime(w.drawnAt)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setRemoving(w)}
+                    disabled={phase === "drawing"}
+                    aria-label={`${w.fullName}-ийг жагсаалтаас хасах`}
+                    className="grid size-9 shrink-0 place-items-center rounded-full text-white/40 hover:bg-white/10 hover:text-white disabled:opacity-40"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
+        <ConfirmDialog
+          open={removing !== null}
+          onOpenChange={(open) => !open && setRemoving(null)}
+          working={working}
+          title={removing ? `${removing.fullName}-ийг азтнуудаас хасах уу?` : ""}
+          confirmLabel="Тийм, хас"
+          body={
+            <>
+              <p>Танхимд байхгүй эсвэл андуурч сугалсан бол хасна.</p>
+              <p>Хасагдсан хүн дахин сугалаанд орно.</p>
+            </>
+          }
+          onConfirm={() => void confirmRemove()}
+        />
+      </main>
+    </MotionConfig>
   );
 }

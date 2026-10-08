@@ -18,7 +18,9 @@ import { RegistrationView } from "@/components/admin/RegistrationView";
 import { Button } from "@/components/ui/button";
 import {
   cancelRegistration,
+  checkInAttendee,
   setPaymentStatus,
+  undoCheckIn,
   createAttendee,
   removeAttendee,
   removeRegistration,
@@ -381,6 +383,13 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
         attendeeCount: row.attendeeCount,
       });
     },
+    onSetCheckedIn: (row: MonitorRow, checkedIn: boolean) => {
+      if (Boolean(row.checkedInAt) === checkedIn) return;
+      runAction(
+        checkedIn ? checkInAttendee(row.attendeeId) : undoCheckIn(row.attendeeId),
+        checkedIn ? `${row.fullName} ирсэн боллоо` : `${row.fullName} ирээгүй боллоо`,
+      );
+    },
     onEditAttendee: (row: MonitorRow) =>
       setEditing({ attendeeId: row.attendeeId, values: toFormValues(row) }),
 
@@ -580,6 +589,7 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
             onEdit={registrationActions.onEditAttendee}
             onDelete={registrationActions.onDeleteAttendee}
             onSetStatus={registrationActions.onSetStatus}
+            onSetCheckedIn={registrationActions.onSetCheckedIn}
           />
         ) : view === "churches" ? (
           <ChurchView

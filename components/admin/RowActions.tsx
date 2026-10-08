@@ -1,6 +1,6 @@
 "use client";
 
-import { CreditCard, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { CreditCard, DoorOpen, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,11 +26,13 @@ export function AttendeeActions({
   onEdit,
   onRemove,
   onSetStatus,
+  onSetCheckedIn,
 }: {
   row: MonitorRow;
   onEdit: () => void;
   onRemove: () => void;
   onSetStatus: (status: ManualStatus) => void;
+  onSetCheckedIn: (checkedIn: boolean) => void;
 }) {
   const removal = attendeeRemoval(row);
 
@@ -70,6 +72,25 @@ export function AttendeeActions({
                     {STATE_LABEL[status]}
                   </DropdownMenuRadioItem>
                 ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        )}
+
+        {/* The door only lets in paid tickets, and so does the server. */}
+        {row.status === "paid" && row.ticketCode && (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <DoorOpen className="size-4 text-muted-foreground" />
+              Ирц
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={row.checkedInAt ? "in" : "out"}
+                onValueChange={(value) => onSetCheckedIn(value === "in")}
+              >
+                <DropdownMenuRadioItem value="in">Ирсэн</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="out">Ирээгүй</DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
