@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, LogOut, RefreshCw, ScanLine, TriangleAlert } from "lucide-react";
+import { Download, Gift, LogOut, RefreshCw, ScanLine, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -466,6 +466,12 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
           >
             <a href="/admin/check-in">
               <ScanLine className="size-4" />
+            </a>
+          </Button>
+
+          <Button asChild variant="outline" size="icon" aria-label="Сугалаа" title="Сугалаа">
+            <a href="/admin/lottery">
+              <Gift className="size-4" />
             </a>
           </Button>
 
