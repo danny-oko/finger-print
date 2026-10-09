@@ -51,7 +51,6 @@ export function Confetti({ fireKey }: { fireKey: string | null }) {
 
   React.useEffect(() => {
     if (!fireKey) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = canvas.current;
     const ctx = el?.getContext("2d");
     if (!el || !ctx) return;

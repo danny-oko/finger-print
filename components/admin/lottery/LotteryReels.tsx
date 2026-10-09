@@ -21,10 +21,6 @@ type Reel =
   | { mode: "land"; from: number; distance: number; ms: number; startAt: number }
   | { mode: "still" };
 
-function prefersReducedMotion() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
 /**
  * Spins eight reels and lands them, left to right, on a ticket code. `spin`
  * starts them; `land` stops them on the code and resolves once the last one
@@ -89,7 +85,6 @@ export function useReels() {
 
   const spin = React.useCallback(() => {
     spunAt.current = performance.now();
-    if (prefersReducedMotion()) return;
     live.current = live.current.map((position) => position + Math.random() * GLYPHS);
     reels.current = Array.from({ length: REELS }, () => ({ mode: "spin" }) as Reel);
     run();
@@ -100,7 +95,7 @@ export function useReels() {
       new Promise<void>((resolve) => {
         const targets = reelTargets(ticketCode).slice(-REELS);
 
-        if (prefersReducedMotion() || frame.current === null) {
+        if (frame.current === null) {
           live.current = targets;
           reels.current = Array.from({ length: REELS }, () => ({ mode: "still" }) as Reel);
           setPositions([...targets]);

@@ -151,7 +151,10 @@ export function LotteryStage({
   const winners = state?.winners ?? [];
 
   return (
-    <MotionConfig reducedMotion="user">
+    // A projected show the presenter starts on purpose. Windows reports
+    // "reduce motion" whenever its animation effects are off, which would
+    // otherwise skip the spin and confetti entirely.
+    <MotionConfig reducedMotion="never">
       <main className="event-ui min-h-dvh bg-neutral-950 text-white">
         <Confetti fireKey={phase === "revealed" ? (winner?.id ?? null) : null} />
         {/* The stage fills the screen on its own, so the list growing below it
