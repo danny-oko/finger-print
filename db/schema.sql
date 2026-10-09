@@ -74,9 +74,10 @@ CREATE TABLE IF NOT EXISTS attendees (
   -- previously collected numbers survive. See migration 0004.
   parent_phone TEXT,
   church_name TEXT NOT NULL,
-  -- Null for a youth leader, who has no school year. See migration 0005.
+  -- Null for a youth leader or the praise team, who have no school year.
+  -- See migrations 0005 and 0009.
   grade INTEGER,
-  role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'youth_leader')),
+  role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'youth_leader', 'praise_team')),
   ticket_code TEXT,
   checked_in_at TEXT,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))

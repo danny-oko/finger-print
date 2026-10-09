@@ -3,7 +3,7 @@ import { randomInt, randomUUID } from "node:crypto";
 import { d1Batch, type D1Statement } from "@/lib/db/d1";
 import { canWinLottery } from "@/lib/lottery/eligibility";
 import type { LotteryState, LotteryWinner } from "@/lib/lottery/types";
-import { YOUTH_LEADER } from "@/lib/registration/grade";
+import { PRAISE_TEAM, YOUTH_LEADER } from "@/lib/registration/grade";
 
 // Only people a door scanner checked in can win, and nobody wins twice. The
 // pick happens here with a CSPRNG over the eligible ticket codes; the screen
@@ -30,9 +30,9 @@ const CHECKED_IN = `FROM attendees a
    AND r.status = 'paid'`;
 
 // The church rule needs the fuzzy name match, so it's applied in code to
-// these rows; the role rule is plain enough to sit in the SQL as well.
+// these rows; the role rules are plain enough to sit in the SQL as well.
 const ELIGIBLE = `${CHECKED_IN}
-   AND a.role != '${YOUTH_LEADER}'
+   AND a.role NOT IN ('${YOUTH_LEADER}', '${PRAISE_TEAM}')
    AND NOT EXISTS (SELECT 1 FROM lottery_winners w WHERE w.attendee_id = a.id)`;
 
 type PresentRow = { id: string; role: string; church_name: string; won: number };

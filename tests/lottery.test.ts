@@ -8,6 +8,10 @@ describe("lottery eligibility", () => {
     expect(canWinLottery({ role: "student", churchName: "Номин сүм" })).toBe(true);
   });
 
+  it("keeps the praise team role out", () => {
+    expect(canWinLottery({ role: "praise_team", churchName: "Номин сүм" })).toBe(false);
+  });
+
   it("keeps the praise team out however it was typed", () => {
     for (const name of ["Магтаалын баг", "магтаалын баг ", "МАГТААЛЫН БАГ", "Magtaalyn bag", "Магталын баг"]) {
       expect(isExcludedChurch(name)).toBe(true);

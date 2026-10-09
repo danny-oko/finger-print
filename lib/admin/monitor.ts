@@ -3,8 +3,8 @@ import { isCloseChurchName, normalizeChurchName } from "@/lib/registration/churc
 import {
   formatGrade,
   gradeSortValue,
-  isYouthLeader,
-  YOUTH_LEADER,
+  nonStudentRole,
+  type NonStudentRole,
 } from "@/lib/registration/grade";
 
 // Pure helpers shared by every view in the registration monitor. Everything
@@ -99,7 +99,7 @@ export type Filters = {
   state: MonitorState | "all";
   path: RegistrantType | "all";
   church: string | "all";
-  grade: number | typeof YOUTH_LEADER | "all";
+  grade: number | NonStudentRole | "all";
   checkedIn: "all" | "yes" | "no";
 };
 
@@ -142,9 +142,9 @@ export function applyFilters(rows: MonitorRow[], filters: Filters): MonitorRow[]
   return rows.filter((row) => {
     if (filters.state !== "all" && rowState(row) !== filters.state) return false;
     if (filters.path !== "all" && row.registrantType !== filters.path) return false;
-    if (filters.grade === YOUTH_LEADER) {
-      if (!isYouthLeader(row)) return false;
-    } else if (filters.grade !== "all" && row.grade !== filters.grade) {
+    if (typeof filters.grade === "string" && filters.grade !== "all") {
+      if (nonStudentRole(row) !== filters.grade) return false;
+    } else if (typeof filters.grade === "number" && row.grade !== filters.grade) {
       return false;
     }
     if (filters.church !== "all" && normalizeChurchName(row.churchName) !== filters.church) {

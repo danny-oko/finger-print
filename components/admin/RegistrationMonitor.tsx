@@ -53,7 +53,7 @@ import {
 } from "@/lib/admin/monitor";
 import type { MonitorResponse, MonitorRow } from "@/lib/admin/types";
 import { normalizeChurchName } from "@/lib/registration/churchName";
-import { YOUTH_LEADER, type GradeChoice } from "@/lib/registration/grade";
+import { toGradeChoice } from "@/lib/registration/grade";
 
 const AUTO_REFRESH_MS = 60_000;
 
@@ -61,13 +61,6 @@ type SortState<K extends string> = { key: K; direction: SortDirection };
 
 function toOptions<K extends string>(labels: Record<K, string>): SortOption<K>[] {
   return (Object.keys(labels) as K[]).map((value) => ({ value, label: labels[value] }));
-}
-
-/** Back from the two stored columns to the single value the form offers. */
-function toGradeChoice(row: MonitorRow): GradeChoice {
-  return (row.role === YOUTH_LEADER || row.grade === null
-    ? YOUTH_LEADER
-    : String(row.grade)) as GradeChoice;
 }
 
 function toFormValues(row: MonitorRow): AdminAttendeeValues {

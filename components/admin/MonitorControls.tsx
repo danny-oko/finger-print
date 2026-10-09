@@ -31,7 +31,7 @@ import { cn } from "@/lib/utils";
 import {
   GRADE_CHOICES,
   gradeChoiceLabel,
-  YOUTH_LEADER,
+  isNonStudentRole,
 } from "@/lib/registration/grade";
 
 export type ViewMode = "attendees" | "churches" | "registrations";
@@ -139,7 +139,7 @@ export function MonitorControls<K extends string>({
         onValueChange={(v) =>
           set(
             "grade",
-            v === "all" || v === YOUTH_LEADER ? (v as Filters["grade"]) : Number(v),
+            v === "all" || isNonStudentRole(v) ? v : Number(v),
           )
         }
       >
