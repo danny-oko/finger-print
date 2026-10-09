@@ -37,10 +37,19 @@ export function RegistrationControls({ refreshKey }: { refreshKey: string | null
   const [capacity, setCapacity] = React.useState("");
   const [rate, setRate] = React.useState("");
 
-  const sync = React.useCallback((next: AdminSettingsResponse) => {
+  // What the inputs last showed from the server. A background refresh only
+  // replaces an input the admin hasn't started editing.
+  const synced = React.useRef({ capacity: "", rate: "" });
+
+  const sync = React.useCallback((next: AdminSettingsResponse, force = false) => {
+    const capacityValue = next.settings.capacity ? String(next.settings.capacity) : "";
+    const rateValue = String(next.settings.queue.admitPerMinute);
+    const prev = synced.current;
+    synced.current = { capacity: capacityValue, rate: rateValue };
+
     setData(next);
-    setCapacity(next.settings.capacity ? String(next.settings.capacity) : "");
-    setRate(String(next.settings.queue.admitPerMinute));
+    setCapacity((current) => (force || current === prev.capacity ? capacityValue : current));
+    setRate((current) => (force || current === prev.rate ? rateValue : current));
   }, []);
 
   React.useEffect(() => {
@@ -61,7 +70,7 @@ export function RegistrationControls({ refreshKey }: { refreshKey: string | null
       toast.error(result.message);
       return;
     }
-    sync(result.data);
+    sync(result.data, true);
     toast.success(done);
   }
 

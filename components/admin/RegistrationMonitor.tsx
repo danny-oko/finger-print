@@ -26,6 +26,7 @@ import {
   removeRegistration,
   saveAttendee,
 } from "@/lib/admin/actions";
+import { useLiveRefresh } from "@/hooks/use-live-refresh";
 import type { AdminAttendeeInput, AdminAttendeeValues } from "@/lib/admin/attendeeSchema";
 import type { ManualStatus } from "@/lib/admin/manage";
 import {
@@ -55,7 +56,6 @@ import type { MonitorResponse, MonitorRow } from "@/lib/admin/types";
 import { normalizeChurchName } from "@/lib/registration/churchName";
 import { toGradeChoice } from "@/lib/registration/grade";
 
-const AUTO_REFRESH_MS = 60_000;
 
 type SortState<K extends string> = { key: K; direction: SortDirection };
 
@@ -138,6 +138,8 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
   const [pending, setPending] = React.useState<Pending | null>(null);
   const [working, setWorking] = React.useState(false);
 
+  const rowsJsonRef = React.useRef("");
+
   const load = React.useCallback(
     async () => {
       try {
@@ -159,7 +161,12 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
         setSessionExpired(false);
 
         const data = (await res.json()) as MonitorResponse;
-        setRows(data.rows);
+        // Unchanged polls keep the same array so the table doesn't re-render.
+        const next = JSON.stringify(data.rows);
+        if (next !== rowsJsonRef.current) {
+          rowsJsonRef.current = next;
+          setRows(data.rows);
+        }
         setGeneratedAt(data.generatedAt);
         setTruncated(data.truncated);
         setError(null);
@@ -185,10 +192,8 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
     void load();
   }, [load]);
 
-  React.useEffect(() => {
-    const id = setInterval(refresh, AUTO_REFRESH_MS);
-    return () => clearInterval(id);
-  }, [refresh]);
+  // Background polls skip the spinner; they shouldn't look like a button press.
+  useLiveRefresh(load);
 
   const filteredRows = React.useMemo(() => applyFilters(rows, filters), [rows, filters]);
 

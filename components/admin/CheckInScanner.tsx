@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { DoorSearch } from "@/components/admin/DoorSearch";
 import { RecentCheckIns } from "@/components/admin/RecentCheckIns";
 import { ScanOutcomeCard, toneOf, type DoorResult } from "@/components/admin/ScanOutcomeCard";
+import { useLiveRefresh } from "@/hooks/use-live-refresh";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useOfflineScans, type PendingScan } from "@/hooks/use-offline-scans";
 import { useQrScanner } from "@/hooks/use-qr-scanner";
@@ -43,7 +44,6 @@ import { cn } from "@/lib/utils";
 // and generating a screenful of "already checked in".
 const SAME_CODE_COOLDOWN_MS = 6000;
 const SUCCESS_CLEAR_MS = 2500;
-const REFRESH_MS = 30_000;
 const RECENT_LIMIT = 25;
 
 type Tab = "scan" | "search" | "recent";
@@ -175,24 +175,9 @@ export function CheckInScanner({ unprotected = false }: { unprotected?: boolean 
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- async load, nothing set synchronously
     void refresh();
-    const timer = setInterval(() => {
-      if (document.visibilityState === "visible") void refresh();
-    }, REFRESH_MS);
-
-    // Coming back to this screen (another tab, the monitor, the browser's
-    // back button) means someone may have changed the list meanwhile.
-    function onReturn() {
-      if (document.visibilityState === "visible") void refresh();
-    }
-    document.addEventListener("visibilitychange", onReturn);
-    window.addEventListener("pageshow", onReturn);
-
-    return () => {
-      clearInterval(timer);
-      document.removeEventListener("visibilitychange", onReturn);
-      window.removeEventListener("pageshow", onReturn);
-    };
   }, [refresh]);
+
+  useLiveRefresh(refresh);
 
   // Green clears itself back to the viewfinder; anything that needs a
   // decision stays until someone taps "next".

@@ -12,6 +12,7 @@ import {
   LotteryReels,
   useReels,
 } from "@/components/admin/lottery/LotteryReels";
+import { useLiveRefresh } from "@/hooks/use-live-refresh";
 import {
   drawLottery,
   loadLottery,
@@ -71,10 +72,9 @@ export function LotteryStage({
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- refresh() sets state only after its fetch resolves
     void refresh();
-    const onFocus = () => phaseRef.current !== "drawing" && void refresh();
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
   }, [refresh]);
+
+  useLiveRefresh(refresh, { enabled: phase !== "drawing" });
 
   const pool = state?.pool ?? 0;
   const canDraw = state !== null && pool > 0 && phase !== "drawing";
