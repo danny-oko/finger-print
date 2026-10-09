@@ -43,16 +43,37 @@ function PathChip({ row }: { row: MonitorRow }) {
   );
 }
 
-const COLUMNS: { key: AttendeeSortKey; className?: string }[] = [
+// Self-registrants are their own payer, so "who registered" and "payer" share
+// a column, and the ticket code sits under the status that produced it.
+const COLUMNS: { key: AttendeeSortKey; label?: string; className?: string }[] = [
   { key: "fullName" },
   { key: "churchName" },
-  { key: "grade", className: "w-20" },
-  { key: "path", className: "w-32" },
-  { key: "payerName" },
-  { key: "state", className: "w-36" },
-  { key: "ticketCode", className: "w-32" },
-  { key: "registeredAt", className: "w-28" },
+  { key: "grade" },
+  { key: "path", label: "Бүртгэсэн" },
+  { key: "state" },
+  { key: "registeredAt", label: "Огноо" },
 ];
+
+function RegisteredBy({ row }: { row: MonitorRow }) {
+  if (row.registrantType !== "church_leader") {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-neutral-400">
+        <UserRound className="size-3" />
+        {PATH_LABEL.individual}
+      </span>
+    );
+  }
+
+  return (
+    <>
+      <p className="inline-flex items-center gap-1 text-neutral-700">
+        <Users className="size-3 shrink-0 text-violet-600" />
+        {row.payerName}
+      </p>
+      {row.payerPhone && <p className="text-xs text-neutral-400">{row.payerPhone}</p>}
+    </>
+  );
+}
 
 export function AttendeeView({
   rows,
@@ -134,10 +155,12 @@ export function AttendeeView({
             </div>
 
             <div className="mt-2 border-t border-neutral-100 pt-2 text-xs text-neutral-500">
-              <p className="truncate">
-                Төлөгч: <span className="text-neutral-700">{row.payerName}</span>
-              </p>
-              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+              {row.registrantType === "church_leader" && (
+                <p className="mb-1 truncate">
+                  Ахлагч: <span className="text-neutral-700">{row.payerName}</span>
+                </p>
+              )}
+              <div className="flex flex-wrap gap-x-3 gap-y-1">
                 {row.phone && (
                   <a href={`tel:${row.phone}`} className="inline-flex items-center gap-1 text-[#F98C01]">
                     <Phone className="size-3" />
@@ -162,7 +185,7 @@ export function AttendeeView({
 
       {/* md+: sortable table */}
       <div className="hidden overflow-x-auto rounded-xl border border-neutral-200 bg-white md:block">
-        <table className="w-full min-w-[54rem] text-sm">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/80">
               {COLUMNS.map((column) => {
@@ -184,7 +207,7 @@ export function AttendeeView({
                         active ? "text-neutral-900" : "text-neutral-500 hover:text-neutral-800",
                       )}
                     >
-                      {ATTENDEE_SORT_LABEL[column.key]}
+                      {column.label ?? ATTENDEE_SORT_LABEL[column.key]}
                       {active &&
                         (sortDirection === "asc" ? (
                           <ArrowUp className="size-3" />
@@ -212,24 +235,23 @@ export function AttendeeView({
                   </p>
                 </td>
                 <td className="px-3 py-2 text-neutral-700">{row.churchName}</td>
-                <td className="px-3 py-2 text-neutral-700">{formatGradeShort(row)}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-neutral-700">{formatGradeShort(row)}</td>
                 <td className="px-3 py-2">
-                  <PathChip row={row} />
-                </td>
-                <td className="px-3 py-2">
-                  <p className="text-neutral-700">{row.payerName}</p>
-                  <p className="text-xs text-neutral-400">{row.payerPhone}</p>
+                  <RegisteredBy row={row} />
                 </td>
                 <td className="px-3 py-2">
                   <StateBadge state={rowState(row)} />
-                  {row.checkedInAt && (
-                    <span className="mt-1 block text-[11px] font-medium text-emerald-700">
-                      Ирсэн
-                    </span>
+                  {(row.ticketCode || row.checkedInAt) && (
+                    <p className="mt-0.5 text-[11px] whitespace-nowrap">
+                      {row.ticketCode && (
+                        <span className="font-mono text-neutral-500">{row.ticketCode}</span>
+                      )}
+                      {row.ticketCode && row.checkedInAt && " · "}
+                      {row.checkedInAt && (
+                        <span className="font-medium text-emerald-700">Ирсэн</span>
+                      )}
+                    </p>
                   )}
-                </td>
-                <td className="px-3 py-2 font-mono text-xs text-neutral-600">
-                  {row.ticketCode ?? "—"}
                 </td>
                 <td className="px-3 py-2 text-xs whitespace-nowrap text-neutral-500">
                   {formatDate(row.registrationCreatedAt)}

@@ -275,7 +275,8 @@ export function sortAttendees(
       case "state":
         return STATE_ORDER[rowState(row)];
       case "path":
-        return PATH_LABEL[row.registrantType];
+        // Groups each leader's people together within the leader block.
+        return `${PATH_LABEL[row.registrantType]} ${row.payerName}`;
       case "payerName":
         return row.payerName;
       case "ticketCode":
