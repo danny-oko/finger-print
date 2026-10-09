@@ -238,7 +238,7 @@ export function MonitorControls<K extends string>({
           <Input
             value={filters.search}
             onChange={(event) => set("search", event.target.value)}
-            placeholder="Нэр, утас, сүм, тасалбар..."
+            placeholder="Нэр, утас, огноо (10/09), сүм..."
             className="h-10 pl-9"
             inputMode="search"
           />

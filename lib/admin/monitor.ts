@@ -129,6 +129,25 @@ function haystack(row: MonitorRow): string {
     .toLowerCase();
 }
 
+// "10/09", "10.9", "2026-10-09" — month first, the way the table shows it.
+function parseDateQuery(query: string) {
+  const match = query.match(/^(?:(\d{4})[./-])?(\d{1,2})[./-](\d{1,2})$/);
+  if (!match) return null;
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  return { year: match[1] ? Number(match[1]) : null, month, day };
+}
+
+function registeredOn(row: MonitorRow, date: NonNullable<ReturnType<typeof parseDateQuery>>) {
+  const at = new Date(row.registrationCreatedAt);
+  return (
+    at.getMonth() + 1 === date.month &&
+    at.getDate() === date.day &&
+    (date.year === null || at.getFullYear() === date.year)
+  );
+}
+
 /**
  * `church` is matched on the *normalized* name so searching for one church
  * catches every spelling of it, across both registration paths. Free-text
@@ -138,6 +157,7 @@ function haystack(row: MonitorRow): string {
 export function applyFilters(rows: MonitorRow[], filters: Filters): MonitorRow[] {
   const search = filters.search.trim().toLowerCase();
   const normalizedSearch = normalizeChurchName(filters.search);
+  const searchDate = parseDateQuery(search);
 
   return rows.filter((row) => {
     if (filters.state !== "all" && rowState(row) !== filters.state) return false;
@@ -158,7 +178,8 @@ export function applyFilters(rows: MonitorRow[], filters: Filters): MonitorRow[]
       const matchesChurch =
         normalizedSearch.length > 0 &&
         normalizeChurchName(row.churchName).includes(normalizedSearch);
-      if (!matchesText && !matchesChurch) return false;
+      const matchesDate = searchDate !== null && registeredOn(row, searchDate);
+      if (!matchesText && !matchesChurch && !matchesDate) return false;
     }
 
     return true;
