@@ -16,12 +16,14 @@ import { issueTickets } from "@/lib/registration/issueTickets";
 
 export const runtime = "nodejs";
 
-async function recordAnd(audit: D1Statement, change: D1Statement): Promise<void> {
+// Returns how many rows the change touched.
+async function recordAnd(audit: D1Statement, change: D1Statement): Promise<number> {
   try {
-    await d1Batch([audit, change]);
+    const [, changed] = await d1Batch([audit, change]);
+    return changed.changes;
   } catch (error) {
     logServerError("byl.webhook", error, { step: "audit_with_change" });
-    await d1Run(change.sql, change.params);
+    return (await d1Run(change.sql, change.params)).changes;
   }
 }
 
@@ -40,9 +42,12 @@ export async function POST(request: Request) {
   const registrationId = event?.data?.object?.client_reference_id ?? null;
   const now = new Date().toISOString();
 
+  // registration_id is a foreign key, so an id that matches no registration
+  // is stored as NULL — the raw payload still names it — rather than failing
+  // the insert and losing the only record that Byl took the money.
   const audit: D1Statement = {
     sql: `INSERT INTO payment_events (id, registration_id, event_type, status, signature_valid, received_signature, raw_payload, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          VALUES (?, (SELECT id FROM registrations WHERE id = ?), ?, ?, ?, ?, ?, ?)`,
     params: [
       uuid(),
       registrationId,
@@ -118,8 +123,9 @@ export async function POST(request: Request) {
       ? String(event.data.object.id)
       : null;
 
+  let changed: number;
   try {
-    await recordAnd(audit, {
+    changed = await recordAnd(audit, {
       sql: `UPDATE registrations
                SET status = 'paid',
                    byl_checkout_id = COALESCE(?, byl_checkout_id),
@@ -132,6 +138,16 @@ export async function POST(request: Request) {
   } catch (error) {
     logServerError("byl.webhook", error, { step: "mark_paid", registrationId });
     return NextResponse.json({ error: "update_failed" }, { status: 500 });
+  }
+
+  if (changed === 0) {
+    // Paid for a registration that no longer exists. Retrying won't help, so
+    // acknowledge — but this needs a human to find the payer.
+    logServerError("byl.webhook", new Error("Payment for a missing registration"), {
+      step: "mark_paid",
+      registrationId,
+    });
+    return NextResponse.json({ ok: true, unmatched: true });
   }
 
   invalidateSeats();

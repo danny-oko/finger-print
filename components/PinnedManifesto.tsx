@@ -59,7 +59,6 @@ function TrackLine({ chunks }: { chunks: Chunk[] }) {
 
 export default function PinnedManifesto({
   className,
-  label,
   height = "70vh",
   chunks: chunksProp,
 }: {

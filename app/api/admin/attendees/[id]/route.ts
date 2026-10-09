@@ -31,7 +31,10 @@ export async function PATCH(
     const result = await updateAttendee(id, parsed.data);
 
     if (!result.ok) {
-      return NextResponse.json({ error: result.reason }, { status: 404 });
+      return NextResponse.json(
+        { error: result.reason },
+        { status: result.reason === "phone_taken" ? 409 : 404 },
+      );
     }
 
     return NextResponse.json({ ok: true });

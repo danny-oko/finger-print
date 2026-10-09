@@ -228,7 +228,7 @@ export function RegistrationForm() {
       {availability && <AvailabilityNotice availability={availability} />}
 
       <form
-        onSubmit={form.handleSubmit(openReview, onInvalid)}
+        onSubmit={(event) => form.handleSubmit(openReview, onInvalid)(event)}
         noValidate
         className="grid gap-4 [&_[data-slot=form-message]]:text-[13px]"
       >

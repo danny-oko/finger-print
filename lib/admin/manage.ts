@@ -1,15 +1,18 @@
 import { v4 as uuid } from "uuid";
 
-import { d1Query, d1QueryOne } from "@/lib/db/d1";
+import { d1Batch, d1Query, d1QueryOne } from "@/lib/db/d1";
 import { toGradeColumns } from "@/lib/registration/grade";
 import type { AdminAttendeeInput } from "@/lib/admin/attendeeSchema";
 import { issueTickets } from "@/lib/registration/issueTickets";
+import { findTakenPhones } from "@/lib/registration/phones";
+import { reconcilePendingRegistration } from "@/lib/registration/settle";
 import { generateTicketCode } from "@/lib/registration/ticketCode";
 
 // The rules about what may be changed or deleted live here, not in the UI,
 // so a stale tab can't talk the server into something.
 
 export type ManageFailure =
+  | "phone_taken"
   | "registration_not_found"
   | "attendee_not_found"
   | "last_attendee"
@@ -106,6 +109,11 @@ export async function updateAttendee(
   );
 
   if (!attendee) return { ok: false, reason: "attendee_not_found" };
+
+  // The same rule as adding someone: one number, one attendee.
+  if (input.phone && (await findTakenPhones([input.phone], attendeeId)).length > 0) {
+    return { ok: false, reason: "phone_taken" };
+  }
 
   const { grade, role } = toGradeColumns(input.grade);
 
@@ -233,8 +241,13 @@ export async function setRegistrationStatus(
 export async function deleteRegistration(
   registrationId: string,
 ): Promise<{ ok: true } | { ok: false; reason: ManageFailure }> {
-  const registration = await d1QueryOne<{ status: string; source: string }>(
-    "SELECT status, source FROM registrations WHERE id = ?",
+  const registration = await d1QueryOne<{
+    status: string;
+    source: string;
+    byl_checkout_id: string | null;
+    awaiting_verification_at: string | null;
+  }>(
+    "SELECT status, source, byl_checkout_id, awaiting_verification_at FROM registrations WHERE id = ?",
     [registrationId],
   );
 
@@ -244,13 +257,25 @@ export async function deleteRegistration(
     return { ok: false, reason: "registration_paid" };
   }
 
-  // Children first — payment_events and attendees both point back here, and
-  // D1 enforces foreign keys.
-  await d1Query("DELETE FROM payment_events WHERE registration_id = ?", [registrationId]);
-  await d1Query("DELETE FROM attendees WHERE registration_id = ?", [registrationId]);
-  await d1Query("DELETE FROM registrations WHERE id = ?", [registrationId]);
+  // A pending checkout may have been paid without the webhook ever landing.
+  // Ask Byl first, so deleting can't erase someone's payment.
+  if (
+    await reconcilePendingRegistration(registrationId, { id: registrationId, ...registration })
+  ) {
+    return { ok: false, reason: "registration_paid" };
+  }
 
-  return { ok: true };
+  // One transaction, children first (D1 enforces foreign keys), and each
+  // statement re-checks the rule so a payment landing in between is kept.
+  const deletable = `SELECT id FROM registrations
+                      WHERE id = ? AND (status != 'paid' OR source = 'invite')`;
+  const [, , removed] = await d1Batch([
+    { sql: `DELETE FROM payment_events WHERE registration_id IN (${deletable})`, params: [registrationId] },
+    { sql: `DELETE FROM attendees WHERE registration_id IN (${deletable})`, params: [registrationId] },
+    { sql: `DELETE FROM registrations WHERE id IN (${deletable})`, params: [registrationId] },
+  ]);
+
+  return removed.changes > 0 ? { ok: true } : { ok: false, reason: "registration_paid" };
 }
 
 export type StaleRegistration = {
@@ -280,10 +305,11 @@ export async function findStaleUnpaid(olderThanHours: number): Promise<StaleRegi
     `SELECT id, payer_name, attendee_count, status, created_at
        FROM registrations
       WHERE (status IN ('failed', 'expired', 'cancelled')
-             OR (status = 'pending' AND awaiting_verification_at IS NULL))
+             OR (status = 'pending' AND awaiting_verification_at IS NULL
+                 AND (expires_at IS NULL OR expires_at < ?)))
         AND created_at < ?
       ORDER BY created_at ASC`,
-    [cutoff],
+    [new Date().toISOString(), cutoff],
   );
 
   return rows.map((row) => ({
@@ -299,8 +325,12 @@ export async function deleteRegistrations(ids: string[]): Promise<number> {
   let deleted = 0;
 
   for (const id of ids) {
-    const result = await deleteRegistration(id);
-    if (result.ok) deleted++;
+    // One that can't be checked with Byl right now is skipped, not fatal.
+    const result = await deleteRegistration(id).catch((error) => {
+      console.error("Skipped deleting registration", id, error);
+      return null;
+    });
+    if (result?.ok) deleted++;
   }
 
   return deleted;

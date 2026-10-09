@@ -7,7 +7,10 @@ import { d1Query } from "@/lib/db/d1";
  * Payer phones don't count either — a leader who paid for ten teens hasn't
  * registered themselves.
  */
-export async function findTakenPhones(phones: string[]): Promise<string[]> {
+export async function findTakenPhones(
+  phones: string[],
+  exceptAttendeeId?: string,
+): Promise<string[]> {
   const unique = [...new Set(phones.filter(Boolean))];
   if (unique.length === 0) return [];
 
@@ -16,8 +19,8 @@ export async function findTakenPhones(phones: string[]): Promise<string[]> {
     `SELECT DISTINCT a.phone
        FROM attendees a
        JOIN registrations r ON r.id = a.registration_id
-      WHERE a.phone IN (${placeholders}) AND r.status = 'paid'`,
-    unique,
+      WHERE a.phone IN (${placeholders}) AND r.status = 'paid' AND a.id IS NOT ?`,
+    [...unique, exceptAttendeeId ?? null],
   );
 
   return rows.map((r) => r.phone);

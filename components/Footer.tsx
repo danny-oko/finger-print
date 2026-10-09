@@ -27,7 +27,6 @@ export default function Footer({
   bigWord = "Finger Print",
   motto = "One movement. One generation. One church family.",
   rightsText = "All rights reserved • FirstChurch",
-  navItems,
   email = "huruuniihee2016@gmail.com",
   phone = "+976 8007-0177",
   socials,
@@ -39,7 +38,7 @@ export default function Footer({
     { key: "about" as const, href: "#about", label: t("nav.about") },
     { key: "attend" as const, href: "#attend", label: t("nav.attend") },
     { key: "journey" as const, href: "#journey", label: t("nav.journey") },
-    { key: "stories" as const, href: "#stories", Label: t("nav.stories") },
+    { key: "stories" as const, href: "#stories", label: t("nav.stories") },
   ];
   // const resolvedNavItems = navItems ?? [
   //   { label: t("nav.about"), href: "#about" },
