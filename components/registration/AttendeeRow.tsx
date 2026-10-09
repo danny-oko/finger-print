@@ -32,11 +32,13 @@ export function AttendeeRow({
   self,
   onRemove,
   autoFocus = false,
+  nameLabel,
 }: {
   index: number;
   self: boolean;
   onRemove?: () => void;
   autoFocus?: boolean;
+  nameLabel?: string;
 }) {
   const { control } = useFormContext<RegistrationFormValues>();
   const prefix = `attendees.${index}` as const;
@@ -76,7 +78,7 @@ export function AttendeeRow({
         name={`${prefix}.fullName`}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className={LABEL_CLASS}>{self ? "Таны нэр" : "Нэр"}</FormLabel>
+            <FormLabel className={LABEL_CLASS}>{nameLabel ?? (self ? "Таны нэр" : "Нэр")}</FormLabel>
             <FormControl>
               <Input
                 {...field}
