@@ -137,8 +137,7 @@ export function useRegistrationForm({
   function changeMode(next: RegistrationMode) {
     if (next === mode) return;
     form.setValue("mode", next, { shouldDirty: true });
-    // The rules differ by mode (a lone registrant's phone is required, an
-    // attendee's in a group isn't), so old messages would point at the wrong rule.
+    // The rules differ by mode, so old messages would point at the wrong rule.
     form.clearErrors();
 
     // Going back to "just me" keeps the first person and sets the others
@@ -262,7 +261,9 @@ export function RegistrationFields({
                 name="payerPhone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={LABEL_CLASS}>Таны утас</FormLabel>
+                    <FormLabel className={LABEL_CLASS}>
+                      Таны утас <span className="font-normal text-ink/50">(заавал биш)</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}

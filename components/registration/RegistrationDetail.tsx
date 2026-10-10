@@ -198,8 +198,7 @@ function Receipt({ detail }: { detail: Detail }) {
           <dd className="text-right font-medium">
             {detail.payerName}
             <span className="block text-neutral-400">
-              {detail.payerPhoneMasked}
-              {detail.payerEmailMasked ? ` · ${detail.payerEmailMasked}` : ""}
+              {[detail.payerPhoneMasked, detail.payerEmailMasked].filter(Boolean).join(" · ")}
             </span>
           </dd>
         </div>

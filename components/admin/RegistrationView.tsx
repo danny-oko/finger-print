@@ -141,13 +141,15 @@ function RegistrationCard({
           )}
 
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
-            <a
-              href={`tel:${group.payerPhone}`}
-              className="inline-flex items-center gap-1 text-[#F98C01]"
-            >
-              <Phone className="size-3" />
-              {group.payerPhone}
-            </a>
+            {group.payerPhone && (
+              <a
+                href={`tel:${group.payerPhone}`}
+                className="inline-flex items-center gap-1 text-[#F98C01]"
+              >
+                <Phone className="size-3" />
+                {group.payerPhone}
+              </a>
+            )}
             {group.payerEmail && (
               <a
                 href={`mailto:${group.payerEmail}`}

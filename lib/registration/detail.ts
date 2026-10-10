@@ -25,7 +25,7 @@ export type RegistrationDetail = {
   id: string;
   registrantType: "individual" | "church_leader";
   payerName: string;
-  payerPhoneMasked: string;
+  payerPhoneMasked: string | null;
   payerEmailMasked: string | null;
   attendeeCount: number;
   pricePerAttendeeMnt: number;
@@ -106,7 +106,7 @@ export async function getRegistrationDetail(id: string): Promise<RegistrationDet
     id: registration.id,
     registrantType: registration.registrant_type,
     payerName: registration.payer_name,
-    payerPhoneMasked: maskPhone(registration.payer_phone),
+    payerPhoneMasked: registration.payer_phone ? maskPhone(registration.payer_phone) : null,
     payerEmailMasked: maskEmail(registration.payer_email),
     attendeeCount: registration.attendee_count,
     pricePerAttendeeMnt: registration.price_per_attendee_mnt,

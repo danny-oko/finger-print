@@ -13,15 +13,17 @@ export const phoneSchema = z
   .trim()
   .regex(/^[5-9]\d{7}$/, "8 оронтой утасны дугаар оруулна уу");
 
+const optionalPhoneSchema = z
+  .union([phoneSchema, z.literal("")])
+  .optional()
+  .transform((v) => (v ? v : undefined));
+
 // One person attending. Deliberately small: church is asked once for the
 // whole registration (everyone in one submission comes from one church), so
 // adding a second teen costs three fields, not seven.
 export const attendeeSchema = z.object({
   fullName: z.string().trim().min(1, "Нэрээ оруулна уу").min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
-  phone: z
-    .union([phoneSchema, z.literal("")])
-    .optional()
-    .transform((v) => (v ? v : undefined)),
+  phone: optionalPhoneSchema,
   // Rendered as a select, so any failure here means "nothing chosen".
   // A school year and "youth leader" answer the same question on the form
   // and are split into their two columns on the way to the database.
@@ -74,7 +76,7 @@ export const createRegistrationSchema = z
     registrantType: z.enum(["individual", "church_leader"]),
     churchName: z.string().trim().min(2, "Хамаарах сүмээ сонгоно уу").max(160),
     payerName: z.string().trim().min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
-    payerPhone: phoneSchema,
+    payerPhone: z.union([phoneSchema, z.literal("")]).default(""),
     attendees: z
       .array(attendeeSchema)
       .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
@@ -83,23 +85,11 @@ export const createRegistrationSchema = z
   .superRefine((data, ctx) => {
     checkDuplicatePhones(data.attendees, ctx);
 
-    if (data.registrantType !== "individual") return;
-
-    if (data.attendees.length !== 1) {
+    if (data.registrantType === "individual" && data.attendees.length !== 1) {
       ctx.addIssue({
         code: "custom",
         path: ["attendees"],
         message: "Хувиараа бүртгүүлэхэд зөвхөн 1 хүн бүртгэнэ",
-      });
-    }
-
-    // A lone registrant is their own payer, so their phone is what the
-    // status lookup and any follow-up call will use — it can't be blank.
-    if (!data.attendees[0]?.phone) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["attendees", 0, "phone"],
-        message: "Утасны дугаараа оруулна уу",
       });
     }
   });
@@ -109,13 +99,6 @@ export type CreateRegistrationInput = z.infer<typeof createRegistrationSchema>;
 
 export const REGISTRATION_MODES = ["self", "group"] as const;
 export type RegistrationMode = (typeof REGISTRATION_MODES)[number];
-
-const requiredPhone = (emptyMessage: string) =>
-  z
-    .string()
-    .trim()
-    .min(1, emptyMessage)
-    .regex(/^[5-9]\d{7}$/, "8 оронтой утасны дугаар оруулна уу");
 
 const churchField = z.string().trim().min(2, "Хамаарах цуглаанаа сонгоно уу").max(160);
 
@@ -128,9 +111,7 @@ const selfFormSchema = z.object({
   churchName: churchField,
   payerName: z.string().optional(),
   payerPhone: z.string().optional(),
-  attendees: z
-    .array(attendeeSchema.extend({ phone: requiredPhone("Утасны дугаараа оруулна уу") }))
-    .length(1),
+  attendees: z.array(attendeeSchema).length(1),
 });
 
 const groupFormSchema = z.object({
@@ -142,7 +123,7 @@ const groupFormSchema = z.object({
     .min(1, "Нэрээ оруулна уу")
     .min(2, "Нэрээ бүтнээр нь оруулна уу")
     .max(120),
-  payerPhone: requiredPhone("Утасны дугаараа оруулна уу"),
+  payerPhone: optionalPhoneSchema,
   attendees: z
     .array(attendeeSchema)
     .min(1, "Хамгийн багадаа 1 хүн бүртгүүлнэ")
@@ -190,12 +171,10 @@ export function normalizePhone(raw: string): string {
 }
 
 // The invite link registers exactly one person and never touches payment.
-// The phone is required: it's how they find their ticket again on
-// /event/status, and the only way to tell two invitees with the same name apart.
 export const invitedRegistrationFormSchema = z.object({
   churchName: churchField,
   fullName: z.string().trim().min(1, "Нэрээ оруулна уу").min(2, "Нэрээ бүтнээр нь оруулна уу").max(120),
-  phone: requiredPhone("Утасны дугаараа оруулна уу"),
+  phone: optionalPhoneSchema,
   grade: z.enum(GRADE_CHOICES, { error: "Ангиа сонгоно уу" }),
 });
 

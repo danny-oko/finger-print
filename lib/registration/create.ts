@@ -467,7 +467,7 @@ export async function createInvitedRegistration(
               id: registrationId,
               registrantType: "individual",
               payerName: input.fullName,
-              payerPhone: input.phone,
+              payerPhone: input.phone ?? "",
               pricing,
               status: "paid",
               source: "invite",
@@ -476,11 +476,11 @@ export async function createInvitedRegistration(
               awaitingVerificationAt: null,
               now,
             },
-            { phones: [input.phone], capacity: settings.capacity },
+            { phones: input.phone ? [input.phone] : [], capacity: settings.capacity },
           ),
           attendeeInsert(
             registrationId,
-            { ...input, ticketCode: generateTicketCode() },
+            { ...input, phone: input.phone ?? null, ticketCode: generateTicketCode() },
             now,
           ),
           {
@@ -496,7 +496,7 @@ export async function createInvitedRegistration(
         const existing = key ? await findByIdempotencyKey(key) : null;
         if (existing) return { ok: true, registrationId: existing.id };
 
-        const rejection = await explainRejection([input.phone], 1);
+        const rejection = await explainRejection(input.phone ? [input.phone] : [], 1);
         if (rejection) return { ok: false, ...rejection };
 
         throw new Error("Invited registration insert matched no rule but wrote nothing");

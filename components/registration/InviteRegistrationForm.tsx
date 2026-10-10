@@ -162,7 +162,7 @@ export function InviteRegistrationForm({ token }: { token: string }) {
       const code = await errorCodeFrom(res);
 
       if (code === "phone_taken") {
-        rejectedRef.current.add(values.phone);
+        if (values.phone) rejectedRef.current.add(values.phone);
         form.setError("phone", { type: "taken", message: PHONE_TAKEN_MESSAGE });
         phoneRef.current?.focus();
       }
@@ -282,7 +282,9 @@ export function InviteRegistrationForm({ token }: { token: string }) {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={LABEL_CLASS}>Утас</FormLabel>
+                    <FormLabel className={LABEL_CLASS}>
+                      Утас <span className="font-normal text-ink/50">(заавал биш)</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}

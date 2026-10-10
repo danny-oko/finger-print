@@ -146,7 +146,7 @@ export function AttendeeRow({
             <FormItem>
               <FormLabel className={LABEL_CLASS}>
                 Утас
-                {!self && <span className="font-normal text-ink/50">(заавал биш)</span>}
+                <span className="font-normal text-ink/50">(заавал биш)</span>
               </FormLabel>
               <FormControl>
                 <Input

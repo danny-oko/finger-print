@@ -65,7 +65,7 @@ export function ReviewList({
       <dl className="grid gap-2">
         <Row label="Цуглаан" value={values.churchName} />
         {isGroup && (
-          <Row label="Бүртгэж буй" value={`${values.payerName}, ${values.payerPhone}`} />
+          <Row label="Бүртгэж буй" value={[values.payerName, values.payerPhone].filter(Boolean).join(", ")} />
         )}
       </dl>
 
