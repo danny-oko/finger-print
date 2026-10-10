@@ -111,7 +111,7 @@ export function LotteryStage({
       const target = event.target as HTMLElement | null;
       if (
         target?.closest(
-          "input, textarea, button, [role='dialog'], [role='alertdialog']"
+          "input, textarea, button, [role='dialog'], [role='alertdialog']",
         )
       )
         return;
@@ -156,7 +156,7 @@ export function LotteryStage({
     // otherwise skip the spin and confetti entirely.
     <MotionConfig reducedMotion="never">
       <main className="event-ui min-h-dvh bg-neutral-950 text-white">
-        <Confetti fireKey={phase === "revealed" ? (winner?.id ?? null) : null} />
+        <Confetti fireKey={phase === "revealed" ? winner?.id ?? null : null} />
         {/* The stage fills the screen on its own, so the list growing below it
             never shifts the reels mid-reveal. */}
         <div className="flex min-h-dvh flex-col">
@@ -207,7 +207,7 @@ export function LotteryStage({
 
           <section className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-8 px-4 py-10 text-center">
             <p className="text-xs font-semibold tracking-[0.18em] text-[#F98C01]">
-              2026.10.10 · FINGER PRINT · СУГАЛАА
+              2026.10.10 · Хурууны Хээ · СУГАЛАА
             </p>
 
             <motion.div
@@ -235,9 +235,16 @@ export function LotteryStage({
                   key={winner.id}
                   initial={{ opacity: 0, y: 24, scale: 0.85 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 16, delay: 0.15 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 16,
+                    delay: 0.15,
+                  }}
                 >
-                  <p className="mb-2 text-sm font-bold tracking-[0.3em] text-[#F98C01]">АЗТАН</p>
+                  <p className="mb-2 text-sm font-bold tracking-[0.3em] text-[#F98C01]">
+                    Азтан
+                  </p>
                   <p className="font-display text-[clamp(1.75rem,5vw,3.5rem)] leading-tight font-bold">
                     {winner.fullName}
                   </p>
@@ -252,7 +259,7 @@ export function LotteryStage({
                       ? "Сугалж байна…"
                       : pool === 0
                       ? "Сугалаанд оролцох хүн үлдсэнгүй"
-                      : "Сугалахад бэлэн"}
+                      : "Сугалахад бэлэн!"}
                   </p>
                 )
               )}
@@ -271,10 +278,10 @@ export function LotteryStage({
                   ? "Дахин сугалах"
                   : "Сугалах"}
               </button>
-              <p className="text-xs leading-relaxed text-white/40">
+              {/* <p className="text-xs leading-relaxed text-white/40">
                 Хаалган дээр бүртгүүлж орсон хүмүүсээс сугална. Өсвөрийн ахлагч,
                 Магтаалын баг оролцохгүй. Нэг хүн хоёр удаа хожихгүй.
-              </p>
+              </p> */}
             </div>
           </section>
         </div>
@@ -290,7 +297,7 @@ export function LotteryStage({
                   key={w.id}
                   className={cn(
                     "flex items-center gap-3 rounded-xl bg-white/[0.05] px-4 py-3",
-                    w.id === winner?.id && "bg-[#F98C01]/15"
+                    w.id === winner?.id && "bg-[#F98C01]/15",
                   )}
                 >
                   <span className="w-6 shrink-0 text-sm text-white/40 tabular-nums">
@@ -331,7 +338,9 @@ export function LotteryStage({
           open={removing !== null}
           onOpenChange={(open) => !open && setRemoving(null)}
           working={working}
-          title={removing ? `${removing.fullName}-ийг азтнуудаас хасах уу?` : ""}
+          title={
+            removing ? `${removing.fullName}-ийг азтнуудаас хасах уу?` : ""
+          }
           confirmLabel="Тийм, хас"
           body={
             <>
