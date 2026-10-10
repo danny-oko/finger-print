@@ -1,12 +1,18 @@
 "use client";
 
-import { LogOut, RefreshCw, Table2, X } from "lucide-react";
+import { LogOut, RefreshCw, Table2, Trophy, X } from "lucide-react";
 import { MotionConfig, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Confetti } from "@/components/admin/lottery/Confetti";
 import {
   LotteryReels,
@@ -35,6 +41,92 @@ function formatTime(iso: string) {
 }
 
 type Phase = "idle" | "drawing" | "revealed";
+
+const RECENT_WINNERS = 5;
+
+function RecentWinners({ winners }: { winners: LotteryWinner[] }) {
+  const label = `${winners.length} азтан`;
+  if (winners.length === 0) return <>{label}</>;
+
+  const recent = winners.slice(0, RECENT_WINNERS);
+  const more = winners.length - recent.length;
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            // Clicking must not take focus, or the space bar stops drawing.
+            onMouseDown={(event) => event.preventDefault()}
+            className="inline-flex cursor-default items-center gap-1 rounded-full bg-[#F98C01]/15 px-2 py-0.5 align-middle font-semibold text-[#F9A43A] transition-colors hover:bg-[#F98C01]/25 data-[state=delayed-open]:bg-[#F98C01]/25"
+          >
+            <Trophy className="size-3" />
+            {label}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="bottom"
+          align="start"
+          sideOffset={8}
+          className="w-80 rounded-2xl bg-neutral-900 p-2 text-left text-white shadow-2xl shadow-black/60 ring-1 ring-white/10 [&>span:last-child]:hidden"
+        >
+          <div className="flex items-baseline justify-between px-2 pt-1 pb-2">
+            <p className="text-[11px] font-semibold tracking-[0.18em] text-white/50 uppercase">
+              Сүүлийн азтангууд
+            </p>
+            <p className="text-[11px] text-white/40 tabular-nums">
+              Нийт {winners.length}
+            </p>
+          </div>
+          <ol className="grid gap-0.5">
+            {recent.map((w, i) => (
+              <li
+                key={w.id}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-2 py-2",
+                  i === 0 && "bg-[#F98C01]/10",
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-bold tabular-nums",
+                    i === 0
+                      ? "bg-[#F98C01] text-neutral-950"
+                      : "bg-white/10 text-white/60",
+                  )}
+                >
+                  {winners.length - i}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">
+                    {w.fullName}
+                  </span>
+                  <span className="block truncate text-xs text-white/50">
+                    {w.churchName}
+                  </span>
+                </span>
+                <span className="shrink-0 text-right">
+                  <span className="block font-mono text-xs text-white/80">
+                    {w.ticketCode}
+                  </span>
+                  <span className="block text-[11px] text-white/40 tabular-nums">
+                    {formatTime(w.drawnAt)}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ol>
+          {more > 0 && (
+            <p className="px-2 pt-2 pb-1 text-xs text-white/40">
+              +{more} азтан доор жагсаалтад
+            </p>
+          )}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 export function LotteryStage({
   unprotected = false,
@@ -165,9 +257,14 @@ export function LotteryStage({
               <div className="min-w-0 flex-1">
                 <h1 className="text-lg leading-none font-black">Сугалаа</h1>
                 <p className="mt-1 text-xs text-white/50">
-                  {state
-                    ? `Сугалаанд ${pool} хүн · ирсэн ${state.checkedIn} · ${winners.length} азтан`
-                    : "Уншиж байна…"}
+                  {state ? (
+                    <>
+                      Сугалаанд {pool} хүн · ирсэн {state.checkedIn} ·{" "}
+                      <RecentWinners winners={winners} />
+                    </>
+                  ) : (
+                    "Уншиж байна…"
+                  )}
                 </p>
               </div>
               <button
