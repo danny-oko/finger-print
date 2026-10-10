@@ -189,6 +189,26 @@ export type ManualStatus = (typeof MANUAL_STATUSES)[number];
  * registration is unpaid — but clears tickets_issued_at so anyone added in
  * the meantime gets a code when it's marked paid again.
  */
+// Only the ids staff were looking at, and only while they're still waiting
+// on a transfer: one that arrived after the list loaded isn't swept up.
+export async function markTransfersPaid(registrationIds: string[]): Promise<{ paid: number }> {
+  if (registrationIds.length === 0) return { paid: 0 };
+
+  const now = new Date().toISOString();
+  const marked = await d1Query<{ id: string }>(
+    `UPDATE registrations
+        SET status = 'paid', paid_at = COALESCE(paid_at, ?),
+            awaiting_verification_at = NULL, updated_at = ?
+      WHERE id IN (${registrationIds.map(() => "?").join(", ")})
+        AND status = 'pending' AND awaiting_verification_at IS NOT NULL
+      RETURNING id`,
+    [now, now, ...registrationIds],
+  );
+
+  for (const { id } of marked) await issueTickets(id);
+  return { paid: marked.length };
+}
+
 export async function setRegistrationStatus(
   registrationId: string,
   status: ManualStatus,

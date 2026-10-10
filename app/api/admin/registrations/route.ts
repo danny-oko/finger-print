@@ -9,6 +9,7 @@ import {
   type MonitorRow,
   type StaffRegistrationResponse,
 } from "@/lib/admin/types";
+import { markTransfersPaid } from "@/lib/admin/manage";
 import { d1Query } from "@/lib/db/d1";
 import { httpErrorFor, logServerError } from "@/lib/errors";
 import { createPaidRegistration, createRegistration } from "@/lib/registration/create";
@@ -178,6 +179,32 @@ export async function POST(request: Request) {
     logServerError("admin.registration.create", error, {
       attendees: parsed.data.attendees.length,
       payment: payment.data.payment,
+    });
+    return NextResponse.json({ error: code }, { status });
+  }
+}
+
+const markTransfersSchema = z.object({
+  action: z.literal("mark_transfers_paid"),
+  registrationIds: z.array(z.uuid()).min(1).max(500),
+});
+
+export async function PATCH(request: Request) {
+  if (!(await isAdminAuthenticated())) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const parsed = markTransfersSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+  }
+
+  try {
+    return NextResponse.json(await markTransfersPaid(parsed.data.registrationIds));
+  } catch (error) {
+    const { code, status } = httpErrorFor(error);
+    logServerError("admin.registration.mark_transfers_paid", error, {
+      count: parsed.data.registrationIds.length,
     });
     return NextResponse.json({ error: code }, { status });
   }

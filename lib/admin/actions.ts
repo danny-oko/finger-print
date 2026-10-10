@@ -102,6 +102,12 @@ export const cancelRegistration = (registrationId: string) =>
 export const setPaymentStatus = (registrationId: string, status: ManualStatus) =>
   send(`/api/admin/registrations/${registrationId}`, "PATCH", { action: "set_status", status });
 
+export const markTransfersPaid = (registrationIds: string[]) =>
+  send<{ paid: number }>("/api/admin/registrations", "PATCH", {
+    action: "mark_transfers_paid",
+    registrationIds,
+  });
+
 export const removeRegistration = (registrationId: string) =>
   send(`/api/admin/registrations/${registrationId}`, "DELETE");
 

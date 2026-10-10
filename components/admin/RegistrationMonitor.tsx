@@ -22,6 +22,7 @@ import {
   setPaymentStatus,
   undoCheckIn,
   createAttendee,
+  markTransfersPaid,
   removeAttendee,
   removeRegistration,
   saveAttendee,
@@ -38,6 +39,7 @@ import {
   attendeeRemoval,
   computeStats,
   findSimilarGroupPairs,
+  rowState,
   groupByChurch,
   groupByRegistration,
   sortAttendees,
@@ -196,6 +198,15 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
 
   const filteredRows = React.useMemo(() => applyFilters(rows, filters), [rows, filters]);
 
+  const awaitingIds = React.useMemo(
+    () => [
+      ...new Set(
+        filteredRows.filter((r) => rowState(r) === "awaiting").map((r) => r.registrationId),
+      ),
+    ],
+    [filteredRows],
+  );
+
   // Church options come from the unfiltered set so picking one never empties
   // the dropdown you picked it from.
   const churchOptions = React.useMemo(() => {
@@ -323,6 +334,20 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
       `${values.fullName}-ийн мэдээлэл хадгалагдлаа`,
       () => setEditing(null),
     );
+  }
+
+  function handleMarkTransfersPaid() {
+    const ids = awaitingIds;
+    setWorking(true);
+    void markTransfersPaid(ids).then((result) => {
+      setWorking(false);
+      if (!result.ok) {
+        toast.error(result.message);
+        return;
+      }
+      toast.success(`${result.data.paid} бүртгэл «Төлсөн» боллоо`);
+      refresh();
+    });
   }
 
   function handleConfirm() {
@@ -569,6 +594,17 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
           churches={churchOptions.map((c) => ({ key: c.key, label: c.label, count: c.count }))}
           resultLabel={resultLabel}
         />
+
+        {filters.state === "awaiting" && awaitingIds.length > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3">
+            <p className="text-sm text-sky-900">
+              {awaitingIds.length} шилжүүлэг баталгаажуулалт хүлээж байна.
+            </p>
+            <Button type="button" onClick={handleMarkTransfersPaid} disabled={working}>
+              {working ? "Түр хүлээнэ үү..." : "Бүгдийг «Төлсөн» болгох"}
+            </Button>
+          </div>
+        )}
 
         {loading ? (
           <div className="grid gap-2">
