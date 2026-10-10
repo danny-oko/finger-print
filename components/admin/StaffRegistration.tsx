@@ -35,9 +35,9 @@ const PAYMENT_LABEL: Record<StaffPayment, string> = {
 };
 
 const DONE_HINT: Record<StaffPayment, string> = {
-  paid: "Тасалбар гарлаа. Холбоосыг нь илгээнэ үү.",
+  paid: "Тасалбар гарч, ирсэн гэж бүртгэгдлээ. Холбоосыг нь илгээнэ үү.",
   checkout: "Энэ холбоосоор онлайнаар төлнө.",
-  transfer: "Мөнгө орсны дараа хяналтаас «Төлсөн» болгоно уу.",
+  transfer: "Тасалбар гарч, ирсэн гэж бүртгэгдлээ. Холбоосыг нь илгээнэ үү.",
 };
 
 const STATE_NOTE: Record<string, string> = {
@@ -105,7 +105,7 @@ export function StaffRegistration({ unprotected = false }: { unprotected?: boole
   async function submit(values: RegistrationFormOutput) {
     setSaving(true);
     const result = await createRegistration(
-      toCreateRegistrationInput(values, payment === "paid" ? undefined : payment, uuid()),
+      toCreateRegistrationInput(values, payment === "checkout" ? payment : undefined, uuid()),
       payment,
     );
     setSaving(false);

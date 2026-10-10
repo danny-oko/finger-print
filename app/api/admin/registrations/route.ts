@@ -131,7 +131,8 @@ const STATUS: Record<string, number> = {
 };
 
 // The same registration the public form makes, minus the queue and the
-// open/closed switch. "paid" is for money staff took in person.
+// open/closed switch. "paid" and "transfer" are money staff saw arrive at
+// the desk, so both are paid on the spot.
 export async function POST(request: Request) {
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -149,12 +150,12 @@ export async function POST(request: Request) {
 
   try {
     const result =
-      payment.data.payment === "paid"
-        ? await createPaidRegistration(parsed.data)
-        : await createRegistration(
-            { ...parsed.data, paymentMethod: payment.data.payment },
+      payment.data.payment === "checkout"
+        ? await createRegistration(
+            { ...parsed.data, paymentMethod: "checkout" },
             { origin, staff: true },
-          );
+          )
+        : await createPaidRegistration(parsed.data);
 
     if (!result.ok) {
       return NextResponse.json({ ...result, ok: undefined }, { status: STATUS[result.error] ?? 400 });
