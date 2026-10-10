@@ -88,7 +88,6 @@ type Pending =
       hasTicket: boolean;
     }
   | ({ kind: "cancel" } & RegistrationTarget)
-  | ({ kind: "status"; status: ManualStatus; wasPaid: boolean } & RegistrationTarget)
   | ({ kind: "registration" } & RegistrationTarget);
 
 function toRegistrationTarget(group: RegistrationGroup): RegistrationTarget {
@@ -338,15 +337,6 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
       return;
     }
 
-    if (pending.kind === "status") {
-      runAction(
-        setPaymentStatus(pending.registrationId, pending.status),
-        `Төлөв «${STATE_LABEL[pending.status]}» боллоо`,
-        () => setPending(null),
-      );
-      return;
-    }
-
     if (pending.kind === "cancel") {
       runAction(cancelRegistration(pending.registrationId), "Бүртгэл цуцлагдлаа", () =>
         setPending(null),
@@ -372,14 +362,10 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
       setPending({ kind: "registration", ...toRegistrationTarget(group) }),
     onSetStatus: (row: MonitorRow, status: ManualStatus) => {
       if (row.status === status) return;
-      setPending({
-        kind: "status",
-        status,
-        wasPaid: row.status === "paid",
-        registrationId: row.registrationId,
-        payerName: row.payerName,
-        attendeeCount: row.attendeeCount,
-      });
+      runAction(
+        setPaymentStatus(row.registrationId, status),
+        `Төлөв «${STATE_LABEL[status]}» боллоо`,
+      );
     },
     onSetCheckedIn: (row: MonitorRow, checkedIn: boolean) => {
       if (Boolean(row.checkedInAt) === checkedIn) return;
@@ -665,18 +651,14 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
         title={
           pending?.kind === "attendee"
             ? `${pending.name}-ийг хасах уу?`
-            : pending?.kind === "status"
-              ? `Төлөвийг «${STATE_LABEL[pending.status]}» болгох уу?`
-              : pending?.kind === "cancel"
+            : pending?.kind === "cancel"
               ? "Энэ бүртгэлийг цуцлах уу?"
               : "Энэ бүртгэлийг устгах уу?"
         }
         confirmLabel={
           pending?.kind === "attendee"
             ? "Тийм, хас"
-            : pending?.kind === "status"
-              ? "Тийм, өөрчил"
-              : pending?.kind === "cancel"
+            : pending?.kind === "cancel"
               ? "Тийм, цуцал"
               : "Тийм, устга"
         }
@@ -689,21 +671,6 @@ export function RegistrationMonitor({ unprotected = false }: { unprotected?: boo
               </p>
               {pending.hasTicket && <p>Түүний тасалбар хүчингүй болно.</p>}
               <p>Төлбөрийн дүн өөрчлөгдөхгүй.</p>
-            </>
-          ) : pending?.kind === "status" ? (
-            <>
-              <p>
-                {pending.payerName}-ийн {pending.attendeeCount} хүний бүртгэл бүхэлдээ
-                өөрчлөгдөнө.
-              </p>
-              {pending.status === "paid" ? (
-                <p>Тасалбар олгогдож, хаалган дээр нэвтрэх боломжтой болно.</p>
-              ) : pending.wasPaid ? (
-                <p>
-                  Төлбөр төлөгдөөгүй гэж тооцогдох тул тасалбараар нэвтрэх боломжгүй
-                  болно.
-                </p>
-              ) : null}
             </>
           ) : pending?.kind === "cancel" ? (
             <>
