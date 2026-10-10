@@ -115,15 +115,17 @@ type AttendeeRow = {
   churchName: string;
   grade: CreateRegistrationInput["attendees"][number]["grade"];
   ticketCode?: string | null;
+  checkedInAt?: string | null;
 };
 
 function attendeeInsert(registrationId: string, attendee: AttendeeRow, now: string): D1Statement {
   const { grade, role } = toGradeColumns(attendee.grade);
   return {
     sql: `INSERT INTO attendees (
-            id, registration_id, full_name, phone, church_name, grade, role, ticket_code, created_at
+            id, registration_id, full_name, phone, church_name, grade, role, ticket_code,
+            checked_in_at, created_at
           )
-          SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?
+          SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
            WHERE EXISTS (SELECT 1 FROM registrations WHERE id = ?)
           ON CONFLICT(id) DO NOTHING`,
     params: [
@@ -135,6 +137,7 @@ function attendeeInsert(registrationId: string, attendee: AttendeeRow, now: stri
       grade,
       role,
       attendee.ticketCode ?? null,
+      attendee.checkedInAt ?? null,
       now,
       registrationId,
     ],
@@ -386,8 +389,9 @@ export type PaidResult =
   | { ok: true; registrationId: string }
   | ({ ok: false } & Rejection);
 
-// Staff took the money in person, so the registration is born paid at the
-// full price and its tickets are issued straight away.
+// Staff took the money in person at the desk, so the registration is born
+// paid at the full price, its tickets are issued straight away, and everyone
+// on it counts as arrived.
 export async function createPaidRegistration(input: CreateRegistrationInput): Promise<PaidResult> {
   const settings = await getRegistrationSettings();
   const pricing = computePricing(settings.pricing, input.attendees.length);
@@ -417,7 +421,12 @@ export async function createPaidRegistration(input: CreateRegistrationInput): Pr
       ...input.attendees.map((attendee) =>
         attendeeInsert(
           registrationId,
-          { ...attendee, phone: attendee.phone ?? null, churchName: input.churchName },
+          {
+            ...attendee,
+            phone: attendee.phone ?? null,
+            churchName: input.churchName,
+            checkedInAt: now,
+          },
           now,
         ),
       ),
